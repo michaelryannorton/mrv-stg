@@ -1,0 +1,35 @@
+# hosting.com's shared plan doesn't allow MultiPHP Manager (per-domain PHP version) — this pins the
+# handler directly instead. This is CloudLinux's "alt-php" Selector (not EasyApache's "ea-php" naming,
+# also installed on the account but not what actually serves requests) — using ea-phpNN here causes a
+# flat 403 rather than selecting a working PHP version. Must stay in this file specifically: Apache only
+# reads .htaccess from the served directory tree, and the document root is this public/ folder, not the
+# app root above it.
+<IfModule mime_module>
+    AddHandler application/x-httpd-alt-php84 .php .php8 .phtml
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
