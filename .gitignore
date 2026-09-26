@@ -1,27 +1,27 @@
-*.log
 .DS_Store
 .env
 .env.backup
 .env.production
 .phpactor.json
 .phpunit.result.cache
-/.codex
-/.cursor/
+/.fleet
 /.idea
 /.nova
 /.phpunit.cache
 /.vscode
 /.zed
-/auth.json
+/bootstrap/ssr
 /node_modules
-/public/build
-/public/fonts-manifest.dev.json
+# /public/build is committed deliberately: no CI/CD pipeline exists yet, and the deploy path is a
+# direct git push to the server (see the mrv.org Laravel staging setup) — this is the simplest way to
+# get compiled assets there. Revisit once a build step exists elsewhere.
 /public/hot
 /public/storage
 /storage/*.key
 /storage/pail
 /vendor
-_ide_helper.php
+auth.json
 Homestead.json
 Homestead.yaml
-Thumbs.db
+npm-debug.log
+yarn-error.log
