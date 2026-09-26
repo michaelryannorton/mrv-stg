@@ -6,16 +6,15 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// Public registration is intentionally not wired up. Phase 1 of the Community section is a single
+// administrator account (see community/Community Events Calendar - Phase 1 Plan.md) — accounts are
+// created directly, not self-registered. RegisteredUserController/register.tsx are left in the
+// starter-kit scaffold unused rather than deleted, in case a future phase (editors/curators) wants
+// an invite-based variant of this flow.
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
