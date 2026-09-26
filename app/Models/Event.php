@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasUuid;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,26 @@ class Event extends Model
             'published_at' => 'datetime',
             'last_verified_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Eloquent stores whatever wall-clock numbers a Carbon object holds — it does not convert to
+     * UTC first. Handing it a Carbon already in another timezone (e.g. Carbon::now('America/Los_Angeles'))
+     * would silently store the wrong instant, since retrieval re-parses the stored string assuming
+     * UTC. These mutators force a real UTC conversion at the boundary, so every caller (tinker, a
+     * future ingestion job, the clipper, an admin form) is safe by default. A caller passing a plain
+     * string with no timezone info should attach the correct source timezone explicitly first —
+     * e.g. Carbon::parse($raw, $sourceTimezone) — since the mutator can't infer intent from a bare
+     * string.
+     */
+    protected function setStartAtAttribute(mixed $value): void
+    {
+        $this->attributes['start_at'] = $value ? Carbon::parse($value)->utc() : null;
+    }
+
+    protected function setEndAtAttribute(mixed $value): void
+    {
+        $this->attributes['end_at'] = $value ? Carbon::parse($value)->utc() : null;
     }
 
     public function eventSeries(): BelongsTo
