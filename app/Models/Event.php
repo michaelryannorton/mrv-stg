@@ -16,14 +16,25 @@ class Event extends Model
 {
     use HasFactory, HasUuid, SoftDeletes;
 
+    /**
+     * The exact set of columns IngestIcsSources::processSource() overwrites on every re-sync of an
+     * already-linked event. Only these can ever be silently reverted by ingestion, so only these
+     * are worth protecting via overridden_fields — everything else (is_free, price, categories,
+     * tags, audiences, venue, etc.) is never touched by ingestion and is always safe to hand-edit.
+     */
+    public const INGESTED_FIELDS = [
+        'title', 'description', 'start_at', 'end_at', 'all_day', 'timezone',
+        'location_name_override', 'canonical_url', 'organizer_id',
+    ];
+
     protected $fillable = [
         'uuid', 'event_series_id', 'title', 'slug', 'short_description', 'description',
         'start_at', 'end_at', 'timezone', 'all_day', 'venue_id', 'organizer_id',
         'location_name_override', 'address_override', 'latitude', 'longitude',
         'canonical_url', 'ticket_url', 'price_min', 'price_max', 'currency', 'is_free',
         'age_restriction', 'accessibility_notes', 'primary_image_path',
-        'status', 'editorial_status', 'verification_status', 'created_by_user_id',
-        'published_at', 'last_verified_at',
+        'status', 'editorial_status', 'verification_status', 'overridden_fields',
+        'created_by_user_id', 'published_at', 'last_verified_at',
     ];
 
     protected function casts(): array
@@ -37,9 +48,24 @@ class Event extends Model
             'longitude' => 'decimal:6',
             'price_min' => 'decimal:2',
             'price_max' => 'decimal:2',
+            'overridden_fields' => 'array',
             'published_at' => 'datetime',
             'last_verified_at' => 'datetime',
         ];
+    }
+
+    public function isFieldOverridden(string $field): bool
+    {
+        return in_array($field, $this->overridden_fields ?? [], true);
+    }
+
+    /**
+     * Merges $fields into overridden_fields (deduped), for the editor to call whenever it saves a
+     * hand-edited value to one of the INGESTED_FIELDS columns.
+     */
+    public function protectFields(array $fields): void
+    {
+        $this->overridden_fields = array_values(array_unique([...($this->overridden_fields ?? []), ...$fields]));
     }
 
     /**

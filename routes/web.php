@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
 use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('events', [EventModerationController::class, 'index'])->name('events.index');
         Route::post('events/bulk', [EventModerationController::class, 'bulk'])->name('events.bulk');
+        Route::get('events/{event}/edit', [EventEditController::class, 'edit'])->name('events.edit');
+        Route::put('events/{event}', [EventEditController::class, 'update'])->name('events.update');
     });
 });
 

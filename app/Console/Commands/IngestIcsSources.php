@@ -83,7 +83,7 @@ class IngestIcsSources extends Command
                 ->first();
 
             if ($link) {
-                $link->event->update([
+                $freshValues = [
                     'title' => $item['title'],
                     'description' => $item['description'],
                     'start_at' => $item['start_at'],
@@ -93,7 +93,15 @@ class IngestIcsSources extends Command
                     'location_name_override' => $item['location'],
                     'canonical_url' => $item['url'],
                     'organizer_id' => $source->organization_id,
-                ]);
+                ];
+
+                // Fields Michael has hand-edited via the event editor are locked against being
+                // silently overwritten by the next scheduled re-sync — see Event::INGESTED_FIELDS
+                // and community/Community Events Calendar - Phase 1 Plan.md's build-status section.
+                $event = $link->event;
+                $writableValues = array_diff_key($freshValues, array_flip($event->overridden_fields ?? []));
+
+                $event->update($writableValues);
                 $link->update(['last_seen_at' => now(), 'source_record_id' => $record->id]);
                 $updated++;
 

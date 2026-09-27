@@ -1,0 +1,1 @@
+import{j as n}from"./app-ngGB-s6N.js";import{a as o}from"./createLucideIcon-BYka6uBs.js";function a({message:r,className:t="",...e}){return r?n.jsx("p",{...e,className:o("text-sm text-red-600 dark:text-red-400",t),children:r}):null}export{a as I};

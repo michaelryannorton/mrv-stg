@@ -187,21 +187,13 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
 
     function act(action: BulkAction, ids: number[]) {
         if (ids.length === 0) return;
-        router.post(
-            route('admin.events.bulk'),
-            { action, ids },
-            { preserveScroll: true, onSuccess: () => setSelected(new Set()) },
-        );
+        router.post(route('admin.events.bulk'), { action, ids }, { preserveScroll: true, onSuccess: () => setSelected(new Set()) });
     }
 
     function SortHeader({ label, sortKeyValue }: { label: string; sortKeyValue: SortKey }) {
         const Icon = sortKey !== sortKeyValue ? ArrowUpDown : sortDir === 'asc' ? ArrowUp : ArrowDown;
         return (
-            <button
-                type="button"
-                onClick={() => toggleSort(sortKeyValue)}
-                className="flex items-center gap-1 font-medium hover:text-foreground"
-            >
+            <button type="button" onClick={() => toggleSort(sortKeyValue)} className="hover:text-foreground flex items-center gap-1 font-medium">
                 {label}
                 <Icon className={`size-3.5 ${sortKey === sortKeyValue ? '' : 'opacity-40'}`} />
             </button>
@@ -241,7 +233,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder={'Search… try coffee OR mixer, -cancelled, "open coffee" (typos ok)'}
-                        className="border-input bg-background placeholder:text-muted-foreground h-10 min-w-[320px] flex-1 rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        className="border-input bg-background placeholder:text-muted-foreground focus:ring-ring h-10 min-w-[320px] flex-1 rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
                     />
 
                     <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -275,9 +267,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
 
                 {selected.size > 0 && (
                     <div className="border-sidebar-border bg-accent/50 flex items-center gap-3 rounded-md border px-4 py-2">
-                        <span className="text-sm font-medium">
-                            {selected.size} selected
-                        </span>
+                        <span className="text-sm font-medium">{selected.size} selected</span>
                         {status !== 'published' && (
                             <Button size="sm" onClick={() => act('approve', Array.from(selected))}>
                                 Approve
@@ -369,6 +359,9 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                                         </td>
                                         <td className="px-3 py-2 align-top">
                                             <div className="flex gap-1.5">
+                                                <Button size="sm" variant="outline" asChild>
+                                                    <Link href={route('admin.events.edit', event.id)}>Edit</Link>
+                                                </Button>
                                                 {status !== 'published' && (
                                                     <Button size="sm" onClick={() => act('approve', [event.id])}>
                                                         Approve
