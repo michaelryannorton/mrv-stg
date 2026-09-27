@@ -6,11 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class EventModerationController extends Controller
 {
+    /**
+     * No pagination here on purpose: the table view supports client-side search/sort/filter and
+     * select-all-and-bulk-act, which all need the full filtered set in hand rather than one page
+     * of it. The limit is a defensive cap, not an expected ceiling at Phase 1 volumes.
+     */
     public function index(Request $request): Response
     {
         $status = $request->query('status', 'pending');
@@ -21,8 +27,8 @@ class EventModerationController extends Controller
             ->when($status === 'published', fn ($q) => $q->where('editorial_status', 'published'))
             ->when($status === 'rejected', fn ($q) => $q->where('editorial_status', 'rejected'))
             ->orderBy('start_at')
-            ->paginate(25)
-            ->withQueryString();
+            ->limit(1000)
+            ->get();
 
         return Inertia::render('admin/events/index', [
             'events' => $events,
@@ -35,28 +41,55 @@ class EventModerationController extends Controller
         ]);
     }
 
-    public function approve(Event $event): RedirectResponse
+    /**
+     * One endpoint for both a single-row action button and a multi-select bulk bar — a row button
+     * just calls this with a one-element ids array, so there's one code path to keep correct.
+     */
+    public function bulk(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'action' => 'required|in:approve,reject,revert',
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:events,id',
+        ]);
+
+        $events = Event::whereIn('id', $data['ids'])->get();
+
+        foreach ($events as $event) {
+            match ($data['action']) {
+                'approve' => $this->approveEvent($event),
+                'reject' => $this->rejectEvent($event),
+                'revert' => $this->revertEvent($event),
+            };
+        }
+
+        $verb = match ($data['action']) {
+            'approve' => 'approved and published',
+            'reject' => 'rejected',
+            'revert' => 'moved back to pending review',
+        };
+
+        $count = $events->count();
+
+        return back()->with('success', "{$count} ".Str::plural('event', $count)." {$verb}.");
+    }
+
+    private function approveEvent(Event $event): void
     {
         $event->update([
             'editorial_status' => 'published',
             'status' => $event->status === 'candidate' ? 'scheduled' : $event->status,
             'published_at' => $event->published_at ?? now(),
         ]);
-
-        return back()->with('success', "\"{$event->title}\" approved and published.");
     }
 
-    public function reject(Event $event): RedirectResponse
+    private function rejectEvent(Event $event): void
     {
         $event->update(['editorial_status' => 'rejected']);
-
-        return back()->with('success', "\"{$event->title}\" rejected.");
     }
 
-    public function revert(Event $event): RedirectResponse
+    private function revertEvent(Event $event): void
     {
         $event->update(['editorial_status' => 'pending_review']);
-
-        return back()->with('success', "\"{$event->title}\" moved back to pending review.");
     }
 }

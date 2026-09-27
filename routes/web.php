@@ -18,9 +18,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('events', [EventModerationController::class, 'index'])->name('events.index');
-        Route::post('events/{event}/approve', [EventModerationController::class, 'approve'])->name('events.approve');
-        Route::post('events/{event}/reject', [EventModerationController::class, 'reject'])->name('events.reject');
-        Route::post('events/{event}/revert', [EventModerationController::class, 'revert'])->name('events.revert');
+        Route::post('events/bulk', [EventModerationController::class, 'bulk'])->name('events.bulk');
     });
 });
 

@@ -62,17 +62,25 @@ interface EventsIndexProps {
 }
 
 const WHEN_OPTIONS = [
+    { value: 'any', label: 'Any time' },
     { value: 'today', label: 'Today' },
     { value: 'tonight', label: 'Tonight' },
     { value: 'this_weekend', label: 'This weekend' },
     { value: 'next_7_days', label: 'Next 7 days' },
 ];
 
+// Radix Select items can't have an empty-string value (that's reserved to mean "no selection"),
+// so "reset this filter" needs its own real sentinel value per dropdown rather than being able to
+// reuse "" — otherwise there'd be no item in the list a user could click to get back to the
+// unfiltered state once they'd picked something else.
+const CLEAR_SENTINELS: Partial<Record<keyof Filters, string>> = { when: 'any', category: 'all', audience: 'everyone' };
+
 export default function EventsIndex({ events, filters, categories, audiences }: EventsIndexProps) {
     function updateFilter(key: keyof Filters, value: string | boolean | undefined) {
+        const isClearSentinel = typeof value === 'string' && value === CLEAR_SENTINELS[key];
         router.get(
             route('events.index'),
-            { ...filters, [key]: value || undefined },
+            { ...filters, [key]: isClearSentinel ? undefined : value || undefined },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     }
@@ -93,7 +101,7 @@ export default function EventsIndex({ events, filters, categories, audiences }: 
                     <div className="mb-8 flex flex-wrap items-end gap-4 rounded-md border border-[#e3e3e0] p-4 dark:border-[#3E3E3A]">
                         <div className="grid gap-1.5">
                             <Label>When</Label>
-                            <Select value={filters.when ?? ''} onValueChange={(v) => updateFilter('when', v)}>
+                            <Select value={filters.when ?? 'any'} onValueChange={(v) => updateFilter('when', v)}>
                                 <SelectTrigger className="w-[160px]">
                                     <SelectValue placeholder="Any time" />
                                 </SelectTrigger>
@@ -109,11 +117,12 @@ export default function EventsIndex({ events, filters, categories, audiences }: 
 
                         <div className="grid gap-1.5">
                             <Label>Topic</Label>
-                            <Select value={filters.category ?? ''} onValueChange={(v) => updateFilter('category', v)}>
+                            <Select value={filters.category ?? 'all'} onValueChange={(v) => updateFilter('category', v)}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="All topics" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="all">All topics</SelectItem>
                                     {categories.map((c) => (
                                         <SelectItem key={c.id} value={c.slug}>
                                             {c.name}
@@ -125,11 +134,12 @@ export default function EventsIndex({ events, filters, categories, audiences }: 
 
                         <div className="grid gap-1.5">
                             <Label>Audience</Label>
-                            <Select value={filters.audience ?? ''} onValueChange={(v) => updateFilter('audience', v)}>
+                            <Select value={filters.audience ?? 'everyone'} onValueChange={(v) => updateFilter('audience', v)}>
                                 <SelectTrigger className="w-[160px]">
                                     <SelectValue placeholder="Everyone" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="everyone">Everyone</SelectItem>
                                     {audiences.map((a) => (
                                         <SelectItem key={a.id} value={a.slug}>
                                             {a.name}
