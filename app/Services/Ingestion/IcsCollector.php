@@ -68,10 +68,14 @@ class IcsCollector
         // (source_id, external_id) uniqueness constraint.
         $externalId = $recurrenceId ? "{$uid}-{$recurrenceId}" : $uid;
 
-        // A genuine floating/unspecified-timezone time is rare in real venue feeds; when it happens,
-        // assume the region's own timezone rather than whatever PHP's default happens to be.
+        // This is a hyper-regional calendar — nobody wants times displayed in UTC, ever. A
+        // floating/unspecified-timezone time reads as UTC by PHP/sabre default, and some source
+        // feeds (Startup Mojave's included) encode their local time with a literal Z suffix
+        // instead of their real IANA zone — both cases mean "this source didn't tell us a real
+        // timezone," so both fall back to the region's own timezone for display. The stored
+        // instant (start_at) is unaffected either way; only the display timezone changes.
         $timezoneName = $startDateTime->getTimezone()->getName();
-        $timezone = ($timezoneName === 'UTC' && ! $this->explicitlyUtc($vevent)) ? 'America/Los_Angeles' : $timezoneName;
+        $timezone = $timezoneName === 'UTC' ? 'America/Los_Angeles' : $timezoneName;
 
         return [
             'external_id' => $externalId,
@@ -84,15 +88,5 @@ class IcsCollector
             'url' => isset($vevent->URL) ? (string) $vevent->URL : null,
             'timezone' => $timezone,
         ];
-    }
-
-    /**
-     * DTSTART with a literal Z suffix (e.g. 20260101T190000Z) is genuinely, explicitly UTC — as
-     * opposed to a value with no timezone information at all, which PHP/sabre also reports as UTC
-     * but by default rather than by the source's actual intent.
-     */
-    private function explicitlyUtc(\Sabre\VObject\Component\VEvent $vevent): bool
-    {
-        return str_ends_with((string) $vevent->DTSTART, 'Z');
     }
 }
