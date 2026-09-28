@@ -14,7 +14,7 @@ class Venue extends Model
     use HasFactory, HasUuid, SoftDeletes;
 
     protected $fillable = [
-        'uuid', 'organization_id', 'name', 'slug', 'description', 'address_line_1',
+        'uuid', 'legacy_entity_id', 'organization_id', 'name', 'slug', 'description', 'address_line_1',
         'address_line_2', 'city', 'state', 'postal_code', 'country_code', 'latitude',
         'longitude', 'timezone', 'website_url', 'phone', 'venue_type', 'verification_status',
     ];
