@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\ClipController;
 use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
+use App\Http\Controllers\Admin\SubmissionModerationController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\PublicSubmissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,6 +14,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('events', [EventController::class, 'index'])->name('events.index');
+
+Route::get('submit-event', [PublicSubmissionController::class, 'create'])->name('submit.create');
+Route::post('submit-event', [PublicSubmissionController::class, 'store'])->name('submit.store');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
@@ -29,6 +34,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('clip', [ClipController::class, 'store'])->name('clip.store');
         Route::get('drafts', [ClipController::class, 'drafts'])->name('drafts.index');
         Route::post('drafts/{event}/publish', [ClipController::class, 'publishDraft'])->name('drafts.publish');
+
+        Route::get('submissions', [SubmissionModerationController::class, 'index'])->name('submissions.index');
+        Route::post('submissions/bulk', [SubmissionModerationController::class, 'bulk'])->name('submissions.bulk');
     });
 });
 

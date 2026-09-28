@@ -5,17 +5,42 @@ namespace App\Services;
 use Carbon\Carbon;
 use DOMDocument;
 use DOMXPath;
+use Illuminate\Support\Facades\Http;
 
 /**
- * Pulls whatever a page will hand over about a single event, for the clipper (section 6) and,
- * later, the public submission form (section 5) — both are specified to share this same
- * structured-data/DOM-heuristic extractor. No LLM step, per the Phase 1 plan's explicit scope
- * cut: JSON-LD/Schema.org Event first, OpenGraph second, bare <title> last. Anything not found
- * is simply absent from the returned array — the caller's Quick Add form comes back blank for
- * whatever this couldn't fill in, rather than guessing.
+ * Pulls whatever a page will hand over about a single event, for the clipper (section 6) and the
+ * public submission form (section 5) — both are specified to share this same structured-data/
+ * DOM-heuristic extractor. No LLM step, per the Phase 1 plan's explicit scope cut: JSON-LD/
+ * Schema.org Event first, OpenGraph second, bare <title> last. Anything not found is simply
+ * absent from the returned array — the caller's Quick Add form comes back blank for whatever this
+ * couldn't fill in, rather than guessing.
  */
 class EventExtractor
 {
+    /**
+     * Fetches $sourceUrl itself and runs extract() against it — the one entry point both
+     * ClipController and PublicSubmissionController call, so the fetch (timeout, user agent,
+     * content-type check, network-failure handling) only lives in one place. Returns an empty
+     * array on any failure — a network error, a non-HTML response, anything — since the caller's
+     * form is specified to just come back blank in that case, same as manual entry.
+     */
+    public static function extractFromUrl(string $sourceUrl): array
+    {
+        try {
+            $response = Http::withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; MRVCommunityClipper/1.0)'])
+                ->timeout(10)
+                ->get($sourceUrl);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        if (! $response->successful() || ! str_contains($response->header('Content-Type', ''), 'html')) {
+            return [];
+        }
+
+        return self::extract($response->body(), $sourceUrl);
+    }
+
     public static function extract(string $html, string $sourceUrl): array
     {
         libxml_use_internal_errors(true);

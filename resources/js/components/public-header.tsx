@@ -16,6 +16,10 @@ export default function PublicHeader() {
                         Community Events
                     </Link>
 
+                    <Link href={route('submit.create')} className="text-[#1b1b18] hover:underline dark:text-[#EDEDEC]">
+                        Submit an Event
+                    </Link>
+
                     {auth.user ? (
                         <Link
                             href={route('dashboard')}

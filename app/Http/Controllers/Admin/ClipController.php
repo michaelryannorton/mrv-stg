@@ -13,7 +13,6 @@ use App\Services\EventExtractor;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,11 +27,7 @@ class ClipController extends Controller
     public function create(Request $request): Response
     {
         $sourceUrl = $request->query('url');
-        $prefilled = [];
-
-        if ($sourceUrl) {
-            $prefilled = $this->extractFrom($sourceUrl);
-        }
+        $prefilled = $sourceUrl ? EventExtractor::extractFromUrl($sourceUrl) : [];
 
         return Inertia::render('admin/clip/create', [
             'prefilled' => $prefilled,
@@ -124,23 +119,6 @@ class ClipController extends Controller
         ]);
 
         return back()->with('success', "\"{$event->title}\" published.");
-    }
-
-    private function extractFrom(string $sourceUrl): array
-    {
-        try {
-            $response = Http::withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; MRVCommunityClipper/1.0)'])
-                ->timeout(10)
-                ->get($sourceUrl);
-        } catch (\Throwable) {
-            return [];
-        }
-
-        if (! $response->successful() || ! str_contains($response->header('Content-Type', ''), 'html')) {
-            return [];
-        }
-
-        return EventExtractor::extract($response->body(), $sourceUrl);
     }
 
     private function lookupLists(): array
