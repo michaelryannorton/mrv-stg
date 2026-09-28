@@ -22,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('events/bulk', [EventModerationController::class, 'bulk'])->name('events.bulk');
         Route::get('events/{event}/edit', [EventEditController::class, 'edit'])->name('events.edit');
         Route::put('events/{event}', [EventEditController::class, 'update'])->name('events.update');
+        Route::post('events/{event}/sync-field', [EventEditController::class, 'syncField'])->name('events.sync-field');
     });
 });
 

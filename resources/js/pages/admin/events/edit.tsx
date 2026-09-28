@@ -7,8 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { Lock } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 interface Option {
@@ -47,6 +47,7 @@ interface EditableEvent {
     age_restriction: string | null;
     accessibility_notes: string | null;
     overridden_fields: string[] | null;
+    stale_fields: string[] | null;
     categories: Option[];
     tags: Option[];
     audiences: Option[];
@@ -55,6 +56,7 @@ interface EditableEvent {
 
 interface EditEventProps {
     event: EditableEvent;
+    sourceValues: Record<string, unknown>;
     venues: VenueOption[];
     organizations: Option[];
     categories: Option[];
@@ -85,8 +87,37 @@ function toDatetimeLocalValue(isoUtc: string | null, timezone: string): string {
     return `${get('year')}-${get('month')}-${get('day')}T${hour}:${get('minute')}`;
 }
 
-function ProtectedBadge({ field, overriddenFields }: { field: string; overriddenFields: string[] | null }) {
-    if (!overriddenFields?.includes(field)) return null;
+// Read-only display formatting for a source's current value in the stale-field comparison —
+// separate from toDatetimeLocalValue, which formats for an editable input specifically.
+function formatSourceValue(field: string, value: unknown, timezone: string, organizations: Option[]): string {
+    if (value === null || value === undefined || value === '') return '(empty)';
+
+    if (field === 'start_at' || field === 'end_at') {
+        return new Intl.DateTimeFormat('en-US', { timeZone: timezone, dateStyle: 'medium', timeStyle: 'short' }).format(new Date(String(value)));
+    }
+
+    if (field === 'all_day') {
+        return value ? 'Yes' : 'No';
+    }
+
+    if (field === 'organizer_id') {
+        return organizations.find((org) => org.id === Number(value))?.name ?? `#${value}`;
+    }
+
+    return String(value);
+}
+
+function FieldBadge({ field, event }: { field: string; event: EditableEvent }) {
+    if (!event.overridden_fields?.includes(field)) return null;
+
+    if (event.stale_fields?.includes(field)) {
+        return (
+            <Badge variant="outline" className="gap-1 border-amber-600/40 text-xs text-amber-700 dark:text-amber-400">
+                <AlertTriangle className="size-3" />
+                source has changed
+            </Badge>
+        );
+    }
 
     return (
         <Badge variant="secondary" className="gap-1 text-xs">
@@ -96,7 +127,34 @@ function ProtectedBadge({ field, overriddenFields }: { field: string; overridden
     );
 }
 
-export default function EditEvent({ event, venues, organizations, categories, tags, audiences }: EditEventProps) {
+function StaleFieldNotice({
+    field,
+    event,
+    sourceValues,
+    organizations,
+    onSync,
+}: {
+    field: string;
+    event: EditableEvent;
+    sourceValues: Record<string, unknown>;
+    organizations: Option[];
+    onSync: (field: string) => void;
+}) {
+    if (!event.stale_fields?.includes(field)) return null;
+
+    return (
+        <div className="flex items-center justify-between gap-3 rounded-md border border-amber-600/30 bg-amber-600/10 px-3 py-2 text-sm">
+            <span>
+                Source now says: <span className="font-medium">{formatSourceValue(field, sourceValues[field], event.timezone, organizations)}</span>
+            </span>
+            <Button type="button" size="sm" variant="outline" onClick={() => onSync(field)}>
+                Use this value
+            </Button>
+        </div>
+    );
+}
+
+export default function EditEvent({ event, sourceValues, venues, organizations, categories, tags, audiences }: EditEventProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Review queue', href: '/admin/events' },
         { title: event.title, href: `/admin/events/${event.id}/edit` },
@@ -136,6 +194,13 @@ export default function EditEvent({ event, venues, organizations, categories, ta
         setData(key, data[key].includes(id) ? data[key].filter((existing) => existing !== id) : [...data[key], id]);
     }
 
+    // A full page reload (rather than relying on Inertia's in-place prop swap) guarantees this
+    // form's local useForm state — which was only ever initialized once, from the props as they
+    // were on first render — picks up the field the sync just changed, not just the event prop.
+    function syncField(field: string) {
+        router.post(route('admin.events.sync-field', event.id), { field }, { preserveScroll: true, onSuccess: () => window.location.reload() });
+    }
+
     const sourceLink = event.event_sources[0];
 
     return (
@@ -161,7 +226,8 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                                 </a>
                             </>
                         )}
-                        . Fields marked <Lock className="inline size-3" /> won&apos;t be overwritten by the next scheduled re-sync.
+                        . Fields marked <Lock className="inline size-3" /> won&apos;t be overwritten by the next scheduled re-sync;{' '}
+                        <AlertTriangle className="inline size-3" /> means the source has since changed and it's worth a look.
                     </p>
                 )}
 
@@ -171,10 +237,11 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                             <Label htmlFor="title">Title</Label>
-                            <ProtectedBadge field="title" overriddenFields={event.overridden_fields} />
+                            <FieldBadge field="title" event={event} />
                         </div>
                         <Input id="title" value={data.title} onChange={(e) => setData('title', e.target.value)} />
                         {errors.title && <p className="text-destructive text-sm">{errors.title}</p>}
+                        <StaleFieldNotice field="title" event={event} sourceValues={sourceValues} organizations={organizations} onSync={syncField} />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
@@ -185,9 +252,16 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                             <Label htmlFor="description">Description</Label>
-                            <ProtectedBadge field="description" overriddenFields={event.overridden_fields} />
+                            <FieldBadge field="description" event={event} />
                         </div>
                         <Textarea id="description" rows={5} value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <StaleFieldNotice
+                            field="description"
+                            event={event}
+                            sourceValues={sourceValues}
+                            organizations={organizations}
+                            onSync={syncField}
+                        />
                     </div>
                 </section>
 
@@ -198,19 +272,33 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                         <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-2">
                                 <Label htmlFor="start_at">Starts</Label>
-                                <ProtectedBadge field="start_at" overriddenFields={event.overridden_fields} />
+                                <FieldBadge field="start_at" event={event} />
                             </div>
                             <Input id="start_at" type="datetime-local" value={data.start_at} onChange={(e) => setData('start_at', e.target.value)} />
                             {errors.start_at && <p className="text-destructive text-sm">{errors.start_at}</p>}
+                            <StaleFieldNotice
+                                field="start_at"
+                                event={event}
+                                sourceValues={sourceValues}
+                                organizations={organizations}
+                                onSync={syncField}
+                            />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-2">
                                 <Label htmlFor="end_at">Ends</Label>
-                                <ProtectedBadge field="end_at" overriddenFields={event.overridden_fields} />
+                                <FieldBadge field="end_at" event={event} />
                             </div>
                             <Input id="end_at" type="datetime-local" value={data.end_at} onChange={(e) => setData('end_at', e.target.value)} />
                             {errors.end_at && <p className="text-destructive text-sm">{errors.end_at}</p>}
+                            <StaleFieldNotice
+                                field="end_at"
+                                event={event}
+                                sourceValues={sourceValues}
+                                organizations={organizations}
+                                onSync={syncField}
+                            />
                         </div>
                     </div>
 
@@ -218,9 +306,16 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                         <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-2">
                                 <Label htmlFor="timezone">Timezone</Label>
-                                <ProtectedBadge field="timezone" overriddenFields={event.overridden_fields} />
+                                <FieldBadge field="timezone" event={event} />
                             </div>
                             <Input id="timezone" value={data.timezone} onChange={(e) => setData('timezone', e.target.value)} />
+                            <StaleFieldNotice
+                                field="timezone"
+                                event={event}
+                                sourceValues={sourceValues}
+                                organizations={organizations}
+                                onSync={syncField}
+                            />
                         </div>
 
                         <div className="flex items-center gap-2 pt-6">
@@ -253,13 +348,20 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                             <Label htmlFor="location_name_override">Location name</Label>
-                            <ProtectedBadge field="location_name_override" overriddenFields={event.overridden_fields} />
+                            <FieldBadge field="location_name_override" event={event} />
                         </div>
                         <Input
                             id="location_name_override"
                             value={data.location_name_override}
                             onChange={(e) => setData('location_name_override', e.target.value)}
                             placeholder="Used when no venue is linked"
+                        />
+                        <StaleFieldNotice
+                            field="location_name_override"
+                            event={event}
+                            sourceValues={sourceValues}
+                            organizations={organizations}
+                            onSync={syncField}
                         />
                     </div>
 
@@ -280,10 +382,17 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                             <Label htmlFor="canonical_url">Original listing URL</Label>
-                            <ProtectedBadge field="canonical_url" overriddenFields={event.overridden_fields} />
+                            <FieldBadge field="canonical_url" event={event} />
                         </div>
                         <Input id="canonical_url" value={data.canonical_url} onChange={(e) => setData('canonical_url', e.target.value)} />
                         {errors.canonical_url && <p className="text-destructive text-sm">{errors.canonical_url}</p>}
+                        <StaleFieldNotice
+                            field="canonical_url"
+                            event={event}
+                            sourceValues={sourceValues}
+                            organizations={organizations}
+                            onSync={syncField}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
@@ -295,7 +404,7 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                             <Label htmlFor="organizer">Organizer</Label>
-                            <ProtectedBadge field="organizer_id" overriddenFields={event.overridden_fields} />
+                            <FieldBadge field="organizer_id" event={event} />
                         </div>
                         <Select
                             value={data.organizer_id ? String(data.organizer_id) : 'none'}
@@ -313,6 +422,13 @@ export default function EditEvent({ event, venues, organizations, categories, ta
                                 ))}
                             </SelectContent>
                         </Select>
+                        <StaleFieldNotice
+                            field="organizer_id"
+                            event={event}
+                            sourceValues={sourceValues}
+                            organizations={organizations}
+                            onSync={syncField}
+                        />
                     </div>
                 </section>
 

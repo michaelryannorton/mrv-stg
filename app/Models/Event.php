@@ -27,13 +27,30 @@ class Event extends Model
         'location_name_override', 'canonical_url', 'organizer_id',
     ];
 
+    /**
+     * Maps each INGESTED_FIELDS column to the key IcsCollector::normalize() gives it in a
+     * SourceRecord's raw_payload — the only place a field's live "what does the source currently
+     * say" value can be read from, for the editor's stale-field comparison. organizer_id has no
+     * entry: ingestion sources it from Source::$organization_id, not from the feed payload itself.
+     */
+    public const SOURCE_PAYLOAD_KEYS = [
+        'title' => 'title',
+        'description' => 'description',
+        'start_at' => 'start_at',
+        'end_at' => 'end_at',
+        'all_day' => 'all_day',
+        'timezone' => 'timezone',
+        'location_name_override' => 'location',
+        'canonical_url' => 'url',
+    ];
+
     protected $fillable = [
         'uuid', 'event_series_id', 'title', 'slug', 'short_description', 'description',
         'start_at', 'end_at', 'timezone', 'all_day', 'venue_id', 'organizer_id',
         'location_name_override', 'address_override', 'latitude', 'longitude',
         'canonical_url', 'ticket_url', 'price_min', 'price_max', 'currency', 'is_free',
         'age_restriction', 'accessibility_notes', 'primary_image_path',
-        'status', 'editorial_status', 'verification_status', 'overridden_fields',
+        'status', 'editorial_status', 'verification_status', 'overridden_fields', 'stale_fields',
         'created_by_user_id', 'published_at', 'last_verified_at',
     ];
 
@@ -49,6 +66,7 @@ class Event extends Model
             'price_min' => 'decimal:2',
             'price_max' => 'decimal:2',
             'overridden_fields' => 'array',
+            'stale_fields' => 'array',
             'published_at' => 'datetime',
             'last_verified_at' => 'datetime',
         ];
@@ -59,6 +77,11 @@ class Event extends Model
         return in_array($field, $this->overridden_fields ?? [], true);
     }
 
+    public function hasStaleFields(): bool
+    {
+        return ($this->stale_fields ?? []) !== [];
+    }
+
     /**
      * Merges $fields into overridden_fields (deduped), for the editor to call whenever it saves a
      * hand-edited value to one of the INGESTED_FIELDS columns.
@@ -66,6 +89,40 @@ class Event extends Model
     public function protectFields(array $fields): void
     {
         $this->overridden_fields = array_values(array_unique([...($this->overridden_fields ?? []), ...$fields]));
+    }
+
+    /**
+     * Removes a single field from both overridden_fields and stale_fields — for the editor's
+     * "sync to source" action, which adopts the source's current value and lifts the lock.
+     */
+    public function unlockField(string $field): void
+    {
+        $this->overridden_fields = array_values(array_diff($this->overridden_fields ?? [], [$field]));
+        $this->stale_fields = array_values(array_diff($this->stale_fields ?? [], [$field]));
+    }
+
+    /**
+     * Compares a currently-stored attribute value (as Eloquent's own casts return it — possibly a
+     * Carbon instance or a real bool) against a freshly-obtained value for that same field, which
+     * may still be a raw string/scalar. Shared by IngestIcsSources (comparing against a fetched ICS
+     * item) and EventEditController (comparing against a submitted form value), so "did this field
+     * actually change" is judged identically everywhere it matters.
+     */
+    public static function valuesDiffer(mixed $current, mixed $incoming): bool
+    {
+        if ($current instanceof \DateTimeInterface) {
+            $incoming = $incoming === null ? null : Carbon::parse($incoming);
+
+            return $incoming === null
+                ? $current !== null
+                : ! $current->equalTo($incoming);
+        }
+
+        if (is_bool($current)) {
+            return $current !== (bool) $incoming;
+        }
+
+        return $current !== ($incoming === '' ? null : $incoming);
     }
 
     /**

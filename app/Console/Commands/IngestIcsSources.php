@@ -99,7 +99,21 @@ class IngestIcsSources extends Command
                 // silently overwritten by the next scheduled re-sync — see Event::INGESTED_FIELDS
                 // and community/Community Events Calendar - Phase 1 Plan.md's build-status section.
                 $event = $link->event;
-                $writableValues = array_diff_key($freshValues, array_flip($event->overridden_fields ?? []));
+                $lockedFields = $event->overridden_fields ?? [];
+                $writableValues = array_diff_key($freshValues, array_flip($lockedFields));
+
+                // Among the locked fields, note which ones the source has actually moved on since
+                // being locked — a curator needs to know their edit is now diverging from upstream,
+                // even though it's correctly not being overwritten. Recomputed fresh every sync
+                // rather than accumulated, so a field stops being flagged if the source settles back
+                // to what's already stored.
+                $driftedFields = array_values(array_filter(
+                    $lockedFields,
+                    fn (string $field) => array_key_exists($field, $freshValues)
+                        && Event::valuesDiffer($event->getAttribute($field), $freshValues[$field]),
+                ));
+
+                $writableValues['stale_fields'] = $driftedFields ?: null;
 
                 $event->update($writableValues);
                 $link->update(['last_seen_at' => now(), 'source_record_id' => $record->id]);

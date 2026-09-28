@@ -19,10 +19,11 @@ class EventEditController extends Controller
 {
     public function edit(Event $event): Response
     {
-        $event->load(['venue', 'organizer', 'categories', 'tags', 'audiences', 'eventSources.source']);
+        $event->load(['venue', 'organizer', 'categories', 'tags', 'audiences', 'eventSources.source', 'eventSources.sourceRecord']);
 
         return Inertia::render('admin/events/edit', [
             'event' => $event,
+            'sourceValues' => $this->currentSourceValues($event),
             'venues' => Venue::orderBy('name')->get(['id', 'name', 'city']),
             'organizations' => Organization::orderBy('name')->get(['id', 'name']),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
@@ -78,12 +79,18 @@ class EventEditController extends Controller
         // tags, audiences, venue, ...) are never touched by ingestion, so nothing to protect there.
         $changedIngestedFields = array_values(array_filter(
             Event::INGESTED_FIELDS,
-            fn (string $field) => $this->valueChanged($event->getAttribute($field), $data[$field] ?? null),
+            fn (string $field) => Event::valuesDiffer($event->getAttribute($field), $data[$field] ?? null),
         ));
 
         if ($changedIngestedFields !== []) {
             $event->protectFields($changedIngestedFields);
         }
+
+        // A full-form save is Michael reviewing the event, whether or not anything he touched was
+        // actually stale — any previously-flagged source/edit conflict is resolved by this save.
+        // (protectFields() above already marked overridden_fields dirty; save() below persists it
+        // regardless of what's in $data.)
+        $data['stale_fields'] = null;
 
         $event->update($data);
         $event->categories()->sync($categoryIds);
@@ -94,23 +101,60 @@ class EventEditController extends Controller
     }
 
     /**
-     * Compares a currently-stored attribute (possibly a Carbon instance, via Event's casts) against
-     * the freshly submitted, still-raw form value for that same field.
+     * Adopts the source's current value for a single locked field — used from the editor's "sync to
+     * source" action once a curator has looked at a flagged field and decided to accept the source's
+     * newer value rather than keep their own edit. Lifts the lock on that one field only; every other
+     * locked field (and its staleness, if any) is untouched.
      */
-    private function valueChanged(mixed $current, mixed $incoming): bool
+    public function syncField(Request $request, Event $event): RedirectResponse
     {
-        if ($current instanceof \DateTimeInterface) {
-            $incoming = $incoming === null ? null : Carbon::parse($incoming);
+        $data = $request->validate([
+            'field' => 'required|string|in:'.implode(',', Event::INGESTED_FIELDS),
+        ]);
+        $field = $data['field'];
 
-            return $incoming === null
-                ? $current !== null
-                : ! $current->equalTo($incoming);
+        $event->load(['eventSources.sourceRecord', 'eventSources.source']);
+        $sourceValues = $this->currentSourceValues($event);
+
+        if (! array_key_exists($field, $sourceValues)) {
+            return back()->with('success', 'No current source value to sync — nothing changed.');
         }
 
-        if (is_bool($current)) {
-            return $current !== (bool) $incoming;
+        $event->setAttribute($field, $sourceValues[$field]);
+        $event->unlockField($field);
+        $event->save();
+
+        return redirect()->route('admin.events.edit', $event)->with('success', "\"{$field}\" synced to the source's current value.");
+    }
+
+    /**
+     * The freshest value the source has reported for each INGESTED_FIELDS column, read from the
+     * most recent SourceRecord attached to this event's primary link (IngestIcsSources repoints
+     * event_sources.source_record_id at the latest record on every sync, so this is always current
+     * as of the last ingestion run, not a live fetch). organizer_id is sourced from the linked
+     * Source itself, not the feed payload, since ingestion never reads it from raw_payload either.
+     */
+    private function currentSourceValues(Event $event): array
+    {
+        $link = $event->eventSources->first();
+        $payload = $link?->sourceRecord?->raw_payload;
+
+        if ($payload === null) {
+            return [];
         }
 
-        return $current !== ($incoming === '' ? null : $incoming);
+        $values = [];
+
+        foreach (Event::SOURCE_PAYLOAD_KEYS as $field => $payloadKey) {
+            if (array_key_exists($payloadKey, $payload)) {
+                $values[$field] = $payload[$payloadKey];
+            }
+        }
+
+        if ($link?->source?->organization_id !== null) {
+            $values['organizer_id'] = $link->source->organization_id;
+        }
+
+        return $values;
     }
 }

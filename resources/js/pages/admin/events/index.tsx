@@ -6,7 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { matchesQuery } from '@/lib/queue-search';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 interface Taxonomy {
@@ -53,6 +53,7 @@ interface ModerationEvent {
     categories: Taxonomy[];
     tags: Taxonomy[];
     event_sources: EventSourceLink[];
+    stale_fields: string[] | null;
 }
 
 interface Counts {
@@ -331,7 +332,15 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                                             <Checkbox checked={selected.has(event.id)} onCheckedChange={() => toggleRow(event.id)} />
                                         </td>
                                         <td className="px-3 py-2 align-top">
-                                            <div className="font-medium">{event.title}</div>
+                                            <div className="flex items-center gap-1.5 font-medium">
+                                                {event.title}
+                                                {event.stale_fields && event.stale_fields.length > 0 && (
+                                                    <AlertTriangle
+                                                        className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400"
+                                                        aria-label="Source has changed since a manual edit was locked"
+                                                    />
+                                                )}
+                                            </div>
                                             {event.canonical_url && (
                                                 <a
                                                     href={event.canonical_url}
