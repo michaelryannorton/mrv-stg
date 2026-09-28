@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, CalendarCheck, Files, Folder, LayoutGrid, Link2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -17,6 +17,16 @@ const mainNavItems: NavItem[] = [
         title: 'Review queue',
         url: '/admin/events',
         icon: CalendarCheck,
+    },
+    {
+        title: 'Clip an event',
+        url: '/admin/clip',
+        icon: Link2,
+    },
+    {
+        title: 'My drafts',
+        url: '/admin/drafts',
+        icon: Files,
     },
 ];
 

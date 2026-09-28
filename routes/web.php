@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ClipController;
 use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
 use App\Http\Controllers\EventController;
@@ -23,6 +24,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('events/{event}/edit', [EventEditController::class, 'edit'])->name('events.edit');
         Route::put('events/{event}', [EventEditController::class, 'update'])->name('events.update');
         Route::post('events/{event}/sync-field', [EventEditController::class, 'syncField'])->name('events.sync-field');
+
+        Route::get('clip', [ClipController::class, 'create'])->name('clip.create');
+        Route::post('clip', [ClipController::class, 'store'])->name('clip.store');
+        Route::get('drafts', [ClipController::class, 'drafts'])->name('drafts.index');
+        Route::post('drafts/{event}/publish', [ClipController::class, 'publishDraft'])->name('drafts.publish');
     });
 });
 
