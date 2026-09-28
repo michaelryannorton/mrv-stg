@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { formatWhen } from '@/lib/event-formatting';
 import { matchesQuery } from '@/lib/queue-search';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -403,22 +404,4 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
             </div>
         </AppLayout>
     );
-}
-
-function formatWhen(event: ModerationEvent): string {
-    const date = new Date(event.start_at);
-    const timeZone = event.timezone || 'America/Los_Angeles';
-
-    if (event.all_day) {
-        return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone });
-    }
-
-    return date.toLocaleString(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        timeZone,
-    });
 }

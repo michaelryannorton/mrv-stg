@@ -199,4 +199,24 @@ class Event extends Model
         return $query->where('editorial_status', 'published')
             ->whereNotIn('status', ['draft', 'candidate']);
     }
+
+    /**
+     * Events overlapping [$start, $end) — used by the day/week/month calendar views, which need
+     * every event touching the visible range, not just ones that start inside it (a multi-day event
+     * that started yesterday but runs into today's grid cell must still show up on today).
+     *
+     * $start/$end must be converted to true UTC instants before binding, the same requirement as
+     * setStartAtAttribute() above — a query binding is stringified as whatever wall-clock numbers
+     * the Carbon object holds, so a caller's Pacific-anchored range (e.g. CalendarRangeCalculator's
+     * output) would otherwise get compared against start_at's UTC values as if it were already UTC.
+     */
+    public function scopeBetween(Builder $query, \DateTimeInterface $start, \DateTimeInterface $end): Builder
+    {
+        $start = Carbon::instance($start)->utc();
+        $end = Carbon::instance($end)->utc();
+
+        return $query->where('start_at', '<', $end)
+            ->where(fn (Builder $q) => $q->where('end_at', '>=', $start)
+                ->orWhere(fn (Builder $q2) => $q2->whereNull('end_at')->where('start_at', '>=', $start)));
+    }
 }
