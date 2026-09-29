@@ -4,26 +4,26 @@ namespace App\Console\Commands;
 
 use App\Models\Source;
 use App\Services\Ingestion\EventIngestor;
-use App\Services\Ingestion\IcsCollector;
+use App\Services\Ingestion\TribeEventsCollector;
 use Illuminate\Console\Command;
 use Throwable;
 
-class IngestIcsSources extends Command
+class IngestTribeEventsSources extends Command
 {
-    protected $signature = 'ingest:ics {source? : Only run this source ID; otherwise every active ICS source}';
+    protected $signature = 'ingest:tribe-events {source? : Only run this source ID; otherwise every active Tribe Events source}';
 
-    protected $description = 'Fetch active ICS calendar sources and create/update candidate events';
+    protected $description = 'Fetch active WordPress "The Events Calendar" (Tribe Events) sources and create/update candidate events';
 
-    public function handle(IcsCollector $collector, EventIngestor $ingestor): int
+    public function handle(TribeEventsCollector $collector, EventIngestor $ingestor): int
     {
         $sources = Source::query()
-            ->where('collector_type', 'ics')
+            ->where('collector_type', 'tribe_events')
             ->where('active', true)
             ->when($this->argument('source'), fn ($q, $id) => $q->where('id', $id))
             ->get();
 
         if ($sources->isEmpty()) {
-            $this->info('No active ICS sources to process.');
+            $this->info('No active Tribe Events sources to process.');
 
             return self::SUCCESS;
         }
@@ -35,7 +35,7 @@ class IngestIcsSources extends Command
         return self::SUCCESS;
     }
 
-    private function processSource(Source $source, IcsCollector $collector, EventIngestor $ingestor): void
+    private function processSource(Source $source, TribeEventsCollector $collector, EventIngestor $ingestor): void
     {
         $this->info("Fetching {$source->name}...");
         $source->last_checked_at = now();
