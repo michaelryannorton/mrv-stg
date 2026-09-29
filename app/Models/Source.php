@@ -15,7 +15,7 @@ class Source extends Model
 
     protected $fillable = [
         'uuid', 'legacy_source_id', 'organization_id', 'venue_id', 'name', 'source_type',
-        'source_class', 'base_url', 'feed_url', 'geographic_scope', 'access_scope',
+        'source_class', 'technology_clues', 'base_url', 'feed_url', 'geographic_scope', 'access_scope',
         'discovery_value', 'canonical_reliability', 'ingestion_friendliness',
         'collector_type', 'collector_config', 'poll_interval_minutes',
         'active', 'trust_level', 'last_checked_at', 'last_success_at', 'reliability_score',

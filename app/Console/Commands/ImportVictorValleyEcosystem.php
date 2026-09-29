@@ -184,6 +184,7 @@ class ImportVictorValleyEcosystem extends Command
                 'venue_id' => $publisherEntry && $publisherEntry['type'] === 'venue' ? $publisherEntry['id'] : null,
                 'source_type' => $sourceType,
                 'source_class' => $row['Normalized Source Class'] ?: null,
+                'technology_clues' => $row['Technology / Clues'] ?: null,
                 'base_url' => $this->cleanUrl($row['Canonical URL'] ?? null),
                 'geographic_scope' => $row['Geography Raw'] ?: null,
                 'collector_type' => 'manual',
