@@ -2,7 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\EventSeries;
+use App\Models\EventSeriesProducer;
 use App\Models\Organization;
+use App\Models\Relationship;
 use App\Models\Source;
 use App\Models\Venue;
 use Illuminate\Console\Command;
@@ -11,13 +14,16 @@ use Illuminate\Support\Str;
 class ImportVictorValleyEcosystem extends Command
 {
     protected $signature = 'import:victor-valley-ecosystem
-        {--path= : Directory containing normalized_entities.csv and normalized_sources.csv}
+        {--path= : Directory containing the normalized_*.csv / production_*.csv exports}
         {--dry-run : Parse and report counts without writing to the database}';
 
-    protected $description = 'Import the intern research handoff (organizations, venues, sources) into the directory tables';
+    protected $description = 'Import the intern research handoff (organizations, venues, sources, series, producers, relationship graph) into the directory tables';
 
     /** Legacy entity ID => ['type' => 'organization'|'venue', 'id' => db id, 'name' => entity name] */
     private array $entityMap = [];
+
+    /** Canonical series legacy ID => db id */
+    private array $seriesMap = [];
 
     public function handle(): int
     {
@@ -26,15 +32,23 @@ class ImportVictorValleyEcosystem extends Command
 
         $entitiesFile = $path.'/normalized_entities.csv';
         $sourcesFile = $path.'/normalized_sources.csv';
+        $seriesFile = $path.'/production_series.csv';
+        $producersFile = $path.'/series_producers.csv';
+        $relationshipsFile = $path.'/production_relationships.csv';
 
-        if (! is_file($entitiesFile) || ! is_file($sourcesFile)) {
-            $this->error("Expected normalized_entities.csv and normalized_sources.csv in {$path}");
+        foreach ([$entitiesFile, $sourcesFile, $seriesFile, $producersFile, $relationshipsFile] as $required) {
+            if (! is_file($required)) {
+                $this->error("Expected file missing: {$required}");
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
         }
 
         $entities = $this->readCsv($entitiesFile);
         $sources = $this->readCsv($sourcesFile);
+        $seriesRows = $this->readCsv($seriesFile);
+        $producerRows = $this->readCsv($producersFile);
+        $relationshipRows = $this->readCsv($relationshipsFile);
 
         // Legacy ID (canonical OR merge_alias) => canonical row, so an alias-published
         // source still resolves to the one real entity record.
@@ -199,6 +213,169 @@ class ImportVictorValleyEcosystem extends Command
         if ($unresolvedPublishers > 0) {
             $this->warn("Sources with an unresolved publisher entity: {$unresolvedPublishers}.");
         }
+
+        $canonicalSeriesByLegacyId = [];
+        foreach ($seriesRows as $row) {
+            $canonicalSeriesByLegacyId[$row['Legacy Series ID']] = $row['Canonical Series ID'];
+        }
+
+        [$seriesCreated, $seriesUpdated] = [0, 0];
+
+        foreach ($seriesRows as $row) {
+            if ($row['Disposition'] !== 'canonical') {
+                continue;
+            }
+
+            $producerLegacyId = $row['Primary Producer Entity ID'] ?: null;
+            $producerEntry = null;
+            if ($producerLegacyId) {
+                $canonicalId = $canonicalByLegacyId[$producerLegacyId] ?? null;
+                $producerEntry = $canonicalId ? ($this->entityMap[$canonicalId] ?? null) : null;
+            }
+
+            $noteParts = array_filter([
+                $row['Ingestion Notes'] ? 'Ingestion notes: '.$row['Ingestion Notes'] : null,
+                $row['Migration Notes'] ? 'Migration notes: '.$row['Migration Notes'] : null,
+            ]);
+
+            $attributes = [
+                'title' => $row['Series Name'],
+                'organization_id' => $producerEntry && $producerEntry['type'] === 'organization' ? $producerEntry['id'] : null,
+                'recurrence_rule' => $row['Recurrence Type'] ?: null,
+                'cadence_raw' => $row['Cadence Raw'] ?: null,
+                'event_type_raw' => $row['Event Type Raw'] ?: null,
+                'notes' => $noteParts ? implode(' ', $noteParts) : null,
+            ];
+
+            if ($dryRun) {
+                $this->seriesMap[$row['Canonical Series ID']] = null;
+                $seriesCreated++;
+
+                continue;
+            }
+
+            $existing = EventSeries::query()->where('legacy_series_id', $row['Legacy Series ID'])->first();
+            $wasNew = ! $existing;
+
+            $series = EventSeries::updateOrCreate(
+                ['legacy_series_id' => $row['Legacy Series ID']],
+                [...$attributes, 'slug' => $existing?->slug ?? $this->uniqueSlug(EventSeries::class, $row['Series Name'])]
+            );
+
+            $wasNew ? $seriesCreated++ : $seriesUpdated++;
+            $this->seriesMap[$row['Canonical Series ID']] = $series->id;
+        }
+
+        $this->info("Event series: {$seriesCreated} created, {$seriesUpdated} updated.");
+
+        [$producerLinksCreated, $producerLinksUpdated, $unresolvedProducerLinks] = [0, 0, 0];
+
+        foreach ($producerRows as $row) {
+            $canonicalSeriesId = $canonicalSeriesByLegacyId[$row['Legacy Series ID']] ?? $row['Canonical Series ID'];
+            $seriesDbId = $this->seriesMap[$canonicalSeriesId] ?? null;
+
+            $canonicalEntityId = $canonicalByLegacyId[$row['Producer Entity ID']] ?? null;
+            $producerEntry = $canonicalEntityId ? ($this->entityMap[$canonicalEntityId] ?? null) : null;
+
+            if (! $seriesDbId || ! $producerEntry) {
+                $unresolvedProducerLinks++;
+
+                continue;
+            }
+
+            if ($dryRun) {
+                $producerLinksCreated++;
+
+                continue;
+            }
+
+            $existing = EventSeriesProducer::query()->where('legacy_relation_id', $row['Series Producer Rel ID'])->first();
+            $wasNew = ! $existing;
+
+            EventSeriesProducer::updateOrCreate(
+                ['legacy_relation_id' => $row['Series Producer Rel ID']],
+                [
+                    'event_series_id' => $seriesDbId,
+                    'organization_id' => $producerEntry['type'] === 'organization' ? $producerEntry['id'] : null,
+                    'venue_id' => $producerEntry['type'] === 'venue' ? $producerEntry['id'] : null,
+                    'role' => $row['Role'],
+                    'producer_raw' => $row['Producer Raw'] ?: null,
+                ]
+            );
+
+            $wasNew ? $producerLinksCreated++ : $producerLinksUpdated++;
+        }
+
+        $this->info("Series-producer links: {$producerLinksCreated} created, {$producerLinksUpdated} updated.");
+        if ($unresolvedProducerLinks > 0) {
+            $this->warn("Series-producer links skipped (series or producer didn't resolve): {$unresolvedProducerLinks}.");
+        }
+
+        $sourceIdByLegacyId = Source::query()->whereNotNull('legacy_source_id')->pluck('id', 'legacy_source_id')->all();
+        [$relCreated, $relUpdated] = [0, 0];
+
+        foreach ($relationshipRows as $row) {
+            if ($dryRun) {
+                $relCreated++;
+
+                continue;
+            }
+
+            $existing = Relationship::query()->where('production_rel_id', $row['Production Rel ID'])->first();
+            $wasNew = ! $existing;
+
+            Relationship::updateOrCreate(
+                ['production_rel_id' => $row['Production Rel ID']],
+                [
+                    'legacy_edge_id' => $row['Legacy Edge ID'] ?: null,
+                    'from_type' => $row['From Type'],
+                    'from_legacy_id' => $row['From Legacy ID'] ?: null,
+                    'from_canonical_id' => $row['From Canonical ID'] ?: null,
+                    'from_name' => $row['From Name'] ?: null,
+                    'relationship_type' => $row['Relationship'],
+                    'to_type' => $row['To Type'],
+                    'to_legacy_id' => $row['To Legacy ID'] ?: null,
+                    'to_canonical_id' => $row['To Canonical ID'] ?: null,
+                    'to_name' => $row['To Name'] ?: null,
+                    'evidence_source_id' => $sourceIdByLegacyId[$row['Evidence Source ID']] ?? null,
+                    'confidence' => $row['Confidence'] ?: null,
+                    'resolution_method' => $row['Resolution Method'] ?: null,
+                    'notes' => $row['Notes'] ?: null,
+                ]
+            );
+
+            $wasNew ? $relCreated++ : $relUpdated++;
+        }
+
+        $this->info("Relationship edges: {$relCreated} created, {$relUpdated} updated.");
+
+        $venueEnriched = 0;
+
+        if (! $dryRun) {
+            $occursAtEdges = Relationship::query()
+                ->where('relationship_type', 'occurs_at')
+                ->where('from_type', 'Series')
+                ->where('to_type', 'Entity')
+                ->get();
+
+            foreach ($occursAtEdges as $edge) {
+                $seriesDbId = $this->seriesMap[$edge->from_canonical_id] ?? null;
+                $entry = $edge->to_canonical_id ? ($this->entityMap[$edge->to_canonical_id] ?? null) : null;
+
+                if (! $seriesDbId || ! $entry || $entry['type'] !== 'venue') {
+                    continue;
+                }
+
+                $series = EventSeries::find($seriesDbId);
+                if ($series && ! $series->venue_id) {
+                    $series->venue_id = $entry['id'];
+                    $series->save();
+                    $venueEnriched++;
+                }
+            }
+        }
+
+        $this->info("Series venues backfilled from the relationship graph: {$venueEnriched}.");
 
         if ($dryRun) {
             $this->comment('Dry run — no database writes were made.');

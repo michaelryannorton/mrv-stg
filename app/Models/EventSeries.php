@@ -16,8 +16,8 @@ class EventSeries extends Model
     protected $table = 'event_series';
 
     protected $fillable = [
-        'uuid', 'title', 'slug', 'description', 'organization_id', 'venue_id',
-        'recurrence_rule', 'status',
+        'uuid', 'legacy_series_id', 'title', 'slug', 'description', 'organization_id', 'venue_id',
+        'recurrence_rule', 'cadence_raw', 'event_type_raw', 'notes', 'status',
     ];
 
     public function organization(): BelongsTo
@@ -33,5 +33,10 @@ class EventSeries extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class, 'event_series_id');
+    }
+
+    public function producers(): HasMany
+    {
+        return $this->hasMany(EventSeriesProducer::class);
     }
 }

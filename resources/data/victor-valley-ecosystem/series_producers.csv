@@ -1,0 +1,214 @@
+Series Producer Rel ID,Canonical Series ID,Producer Entity ID,Role,Producer Raw,Legacy Series ID
+SP-00001,SER-0001,ENT-0001,primary,Hesperia Recreation and Park District,SER-0001
+SP-00002,SER-0002,ENT-0001,primary,Hesperia Recreation and Park District,SER-0002
+SP-00003,SER-0003,ENT-0001,primary,Hesperia Recreation and Park District,SER-0003
+SP-00004,SER-0047,ENT-0270,primary,Local market organizers / HRPD calendar,SER-0004
+SP-00005,SER-0005,ENT-0006,primary,Victor Valley Museum,SER-0005
+SP-00006,SER-0006,ENT-0006,primary,Victor Valley Museum,SER-0006
+SP-00007,SER-0007,ENT-0250,primary,San Bernardino County Library,SER-0007
+SP-00008,SER-0008,ENT-0250,primary,San Bernardino County Library,SER-0008
+SP-00009,SER-0009,ENT-0250,primary,San Bernardino County Library,SER-0009
+SP-00010,SER-0010,ENT-0237,primary,City of Victorville Library,SER-0010
+SP-00011,SER-0011,ENT-0015,primary,Victor Valley Community Concert Association,SER-0011
+SP-00012,SER-0012,ENT-0017,primary,Hilltop Tavern & Inn,SER-0012
+SP-00013,SER-0013,ENT-0020,primary,Village Grind & Wine / Wrightwood Blues Society,SER-0013
+SP-00014,SER-0013,ENT-0228,co_producer,Village Grind & Wine / Wrightwood Blues Society,SER-0013
+SP-00015,SER-0014,ENT-0022,primary,Hesperia Leisure League / Groove Hunters,SER-0014
+SP-00016,SER-0014,ENT-0021,co_producer,Hesperia Leisure League / Groove Hunters,SER-0014
+SP-00017,SER-0015,ENT-0023,primary,High Desert Astronomical Society,SER-0015
+SP-00018,SER-0016,ENT-0031,primary,Linebreakers,SER-0016
+SP-00019,SER-0017,ENT-0031,primary,Linebreakers,SER-0017
+SP-00020,SER-0018,ENT-0031,primary,Linebreakers,SER-0018
+SP-00021,SER-0019,ENT-0033,primary,Sevens Goods and The Paladin's Rest,SER-0019
+SP-00022,SER-0020,ENT-0032,primary,Baseball & Games,SER-0020
+SP-00023,SER-0021,ENT-0037,primary,Apple Valley Gun Club,SER-0021
+SP-00024,SER-0022,ENT-0037,primary,Apple Valley Gun Club,SER-0022
+SP-00025,SER-0023,ENT-0039,primary,Calvary Chapel Apple Valley,SER-0023
+SP-00026,SER-0024,ENT-0040,primary,Saint Mary Coptic Orthodox Church,SER-0024
+SP-00027,SER-0025,ENT-0043,primary,Apple Valley Church of the Nazarene,SER-0025
+SP-00028,SER-0026,ENT-0046,primary,Mojave River Valley Horsemen's Association,SER-0026
+SP-00029,SER-0027,ENT-0047,primary,HD BMX,SER-0027
+SP-00030,SER-0028,ENT-0047,primary,HD BMX,SER-0028
+SP-00031,SER-0029,ENT-0051,primary,Thunderbird Square Dance Club,SER-0029
+SP-00032,SER-0030,ENT-0050,primary,Praise Chapel Apple Valley,SER-0030
+SP-00033,SER-0031,ENT-0050,primary,Praise Chapel Apple Valley,SER-0031
+SP-00034,SER-0033,ENT-0058,primary,Hesperia Heat AYSO Region 878,SER-0033
+SP-00035,SER-0034,ENT-0059,primary,Hesperia Trojans,SER-0034
+SP-00036,SER-0035,ENT-0060,primary,AYSO Region 665,SER-0035
+SP-00037,SER-0036,ENT-0064,primary,High Desert Second Chance,SER-0036
+SP-00038,SER-0037,ENT-0225,primary,Rescue Mission Alliance / Victor Valley Rescue Mission,SER-0037
+SP-00039,SER-0037,ENT-0065,co_producer,Rescue Mission Alliance / Victor Valley Rescue Mission,SER-0037
+SP-00040,SER-0038,ENT-0067,primary,New Life Chapel,SER-0038
+SP-00041,SER-0039,ENT-0257,primary,Spirit Filled Family Church,SER-0039
+SP-00042,SER-0040,ENT-0257,primary,Spirit Filled Family Church,SER-0040
+SP-00043,SER-0041,ENT-0069,primary,Holy Family Catholic Church,SER-0041
+SP-00044,SER-0042,ENT-0069,primary,Holy Family Catholic Church,SER-0042
+SP-00045,SER-0043,ENT-0070,primary,The Village in Apple Valley PBID,SER-0043
+SP-00046,SER-0044,ENT-0060,primary,AYSO Region 665,SER-0044
+SP-00047,SER-0045,ENT-0073,primary,San Bernardino County Workforce Development Board,SER-0045
+SP-00048,SER-0046,ENT-0075,primary,Victor Valley Community Services Council,SER-0046
+SP-00049,SER-0047,ENT-0270,primary,Hesperia Community Farmers Market,SER-0047
+SP-00050,SER-0048,ENT-0077,primary,High Desert Farmers Market,SER-0048
+SP-00051,SER-0154,ENT-0078,primary,Phelan Certified Farmers Market,SER-0049
+SP-00052,SER-0050,ENT-0233,primary,California Farmers Market Collective,SER-0050
+SP-00053,SER-0051,ENT-0082,primary,High Desert Marines,SER-0051
+SP-00054,SER-0052,ENT-0083,primary,Today's Woman Foundation,SER-0052
+SP-00055,SER-0053,ENT-0084,primary,Poised-N-Polished,SER-0053
+SP-00056,SER-0054,ENT-0085,primary,Triumph Foundation / Apple Valley Gun Club,SER-0054
+SP-00057,SER-0054,ENT-0037,co_producer,Triumph Foundation / Apple Valley Gun Club,SER-0054
+SP-00058,SER-0055,ENT-0088,primary,Victorville Senior Citizens Club,SER-0055
+SP-00059,SER-0056,ENT-0089,primary,Apple Valley Senior Citizens Club,SER-0056
+SP-00060,SER-0057,ENT-0091,primary,Hesperia Music Academy,SER-0057
+SP-00061,SER-0058,ENT-0092,primary,High Desert Hispanic Chamber of Commerce,SER-0058
+SP-00062,SER-0059,ENT-0092,primary,High Desert Hispanic Chamber of Commerce,SER-0059
+SP-00063,SER-0060,ENT-0092,primary,High Desert Hispanic Chamber of Commerce,SER-0060
+SP-00064,SER-0061,ENT-0093,primary,FORGE Foundation,SER-0061
+SP-00065,SER-0062,ENT-0093,primary,FORGE Foundation,SER-0062
+SP-00066,SER-0063,ENT-0093,primary,FORGE Foundation,SER-0063
+SP-00067,SER-0064,ENT-0224,primary,King Trivia / 3rd Strike Beer Co.,SER-0064
+SP-00068,SER-0064,ENT-0097,co_producer,King Trivia / 3rd Strike Beer Co.,SER-0064
+SP-00069,SER-0065,ENT-0098,primary,VFW Post 2924 Joshua Palms,SER-0065
+SP-00070,SER-0066,ENT-0269,primary,High Desert car-club community,SER-0066
+SP-00071,SER-0067,ENT-0100,primary,LifeStream Blood Bank,SER-0067
+SP-00072,SER-0068,ENT-0101,primary,DAV Chapter 92,SER-0068
+SP-00073,SER-0069,ENT-0101,primary,DAV Chapter 92,SER-0069
+SP-00074,SER-0070,ENT-0102,primary,High Desert Vet Center,SER-0070
+SP-00075,SER-0071,ENT-0246,primary,Providence St. Mary Medical Center,SER-0071
+SP-00076,SER-0072,ENT-0246,primary,Providence St. Mary Medical Center,SER-0072
+SP-00077,SER-0073,ENT-0246,primary,Providence St. Mary Medical Center,SER-0073
+SP-00078,SER-0074,ENT-0104,primary,Rhea Lana's of The High Desert,SER-0074
+SP-00079,SER-0075,ENT-0105,primary,Gladiator Challenge,SER-0075
+SP-00080,SER-0076,ENT-0106,primary,High Desert Home Shows,SER-0076
+SP-00081,SER-0077,ENT-0107,primary,Crown City Cat Club,SER-0077
+SP-00082,SER-0078,ENT-0108,primary,Bingo Loco,SER-0078
+SP-00083,SER-0079,ENT-0110,primary,Ricky's Bar,SER-0079
+SP-00084,SER-0080,ENT-0119,primary,Wheel2Wheel Raceway,SER-0080
+SP-00085,SER-0081,ENT-0120,primary,SoCal Mower Racing,SER-0081
+SP-00086,SER-0082,ENT-0121,primary,Fuentez Entertainment LLC,SER-0082
+SP-00087,SER-0083,ENT-0122,primary,Little Mania Wrestling / Fuentez Entertainment,SER-0083
+SP-00088,SER-0083,ENT-0121,co_producer,Little Mania Wrestling / Fuentez Entertainment,SER-0083
+SP-00089,SER-0084,ENT-0111,primary,Frogee's Cocktail Lounge,SER-0084
+SP-00090,SER-0085,ENT-0246,primary,Providence St. Mary Medical Center,SER-0085
+SP-00091,SER-0086,ENT-0127,primary,El Dorado Broadcasters,SER-0086
+SP-00092,SER-0087,ENT-0124,primary,Desert Valley Hospital / Desert Valley Medical Group,SER-0087
+SP-00093,SER-0088,ENT-0125,primary,San Bernardino County Fair & Event Center,SER-0088
+SP-00094,SER-0089,ENT-0125,primary,San Bernardino County Fair & Event Center,SER-0089
+SP-00095,SER-0090,ENT-0126,primary,Hesperia Wranglers,SER-0090
+SP-00096,SER-0091,ENT-0126,primary,Hesperia Wranglers,SER-0091
+SP-00097,SER-0092,ENT-0126,primary,Hesperia Wranglers / Double F Cattle Co.,SER-0092
+SP-00098,SER-0092,ENT-0131,co_producer,Hesperia Wranglers / Double F Cattle Co.,SER-0092
+SP-00099,SER-0093,ENT-0127,primary,El Dorado Broadcasters,SER-0093
+SP-00100,SER-0094,ENT-0127,primary,El Dorado Broadcasters,SER-0094
+SP-00101,SER-0095,ENT-0128,primary,Kiwanis Club of Victorville,SER-0095
+SP-00102,SER-0096,ENT-0128,primary,Kiwanis Club of Victorville,SER-0096
+SP-00103,SER-0097,ENT-0129,primary,Providence St. Mary Medical Center Foundation,SER-0097
+SP-00104,SER-0098,ENT-0124,primary,Desert Valley Hospital & Medical Group,SER-0098
+SP-00105,SER-0100,ENT-0132,primary,San Bernardino County Department of Behavioral Health,SER-0100
+SP-00106,SER-0101,ENT-0132,primary,San Bernardino County Department of Behavioral Health,SER-0101
+SP-00107,SER-0102,ENT-0132,primary,San Bernardino County Department of Behavioral Health,SER-0102
+SP-00108,SER-0103,ENT-0134,primary,San Bernardino County Department of Public Health,SER-0103
+SP-00109,SER-0104,ENT-0135,primary,San Bernardino County Airports / Apple Valley Airport,SER-0104
+SP-00110,SER-0104,ENT-0136,co_producer,San Bernardino County Airports / Apple Valley Airport,SER-0104
+SP-00111,SER-0105,ENT-0137,primary,San Bernardino County Land Use Services,SER-0105
+SP-00112,SER-0106,ENT-0250,primary,San Bernardino County Library,SER-0106
+SP-00113,SER-0107,ENT-0250,primary,San Bernardino County Library,SER-0107
+SP-00114,SER-0108,ENT-0254,primary,Local law enforcement / SBC Sheriff partners,SER-0108
+SP-00115,SER-0109,ENT-0139,primary,San Bernardino County Animal Care,SER-0109
+SP-00116,SER-0110,ENT-0140,primary,San Bernardino County Human Resources,SER-0110
+SP-00117,SER-0111,ENT-0254,primary,San Bernardino County Sheriff's Department,SER-0111
+SP-00118,SER-0112,ENT-0142,primary,San Bernardino County Child Support Services,SER-0112
+SP-00119,SER-0113,ENT-0143,primary,San Bernardino County Children and Family Services,SER-0113
+SP-00120,SER-0114,ENT-0144,primary,San Bernardino County District Attorney,SER-0114
+SP-00121,SER-0115,ENT-0145,primary,San Bernardino County Economic Development Agency,SER-0115
+SP-00122,SER-0116,ENT-0146,primary,San Bernardino County Fire Protection District,SER-0116
+SP-00123,SER-0117,ENT-0147,primary,San Bernardino County Transitional Assistance Department,SER-0117
+SP-00124,SER-0118,ENT-0148,primary,First 5 San Bernardino,SER-0118
+SP-00125,SER-0119,ENT-0149,primary,San Bernardino County Veterans Affairs + DAAS-PG,SER-0119
+SP-00126,SER-0119,ENT-0150,co_producer,San Bernardino County Veterans Affairs + DAAS-PG,SER-0119
+SP-00127,SER-0120,ENT-0149,primary,San Bernardino County Veterans Affairs,SER-0120
+SP-00128,SER-0121,ENT-0229,primary,San Bernardino County / On-The-Go Health,SER-0121
+SP-00129,SER-0121,ENT-0230,co_producer,San Bernardino County / On-The-Go Health,SER-0121
+SP-00130,SER-0122,ENT-0151,primary,Third District Supervisor + workforce/community partners,SER-0122
+SP-00131,SER-0122,ENT-0073,co_producer,Third District Supervisor + workforce/community partners,SER-0122
+SP-00132,SER-0123,ENT-0152,primary,San Bernardino County Office of Homeless Services,SER-0123
+SP-00133,SER-0124,ENT-0153,primary,San Bernardino County Children's Network / CFS partners,SER-0124
+SP-00134,SER-0124,ENT-0143,co_producer,San Bernardino County Children's Network / CFS partners,SER-0124
+SP-00135,SER-0125,ENT-0154,primary,San Bernardino County Homeless Partnership,SER-0125
+SP-00136,SER-0126,ENT-0155,primary,San Bernardino County Public Works — Solid Waste Management,SER-0126
+SP-00137,SER-0127,ENT-0159,primary,I Am Love,SER-0127
+SP-00138,SER-0128,ENT-0159,primary,I Am Love,SER-0128
+SP-00139,SER-0129,ENT-0157,primary,Adelanto Elementary School District,SER-0129
+SP-00140,SER-0130,ENT-0157,primary,Adelanto Elementary School District,SER-0130
+SP-00141,SER-0131,ENT-0162,primary,Adelanto Little League,SER-0131
+SP-00142,SER-0132,ENT-0156,primary,City of Adelanto / Molding Hearts Foundation,SER-0132
+SP-00143,SER-0132,ENT-0164,co_producer,City of Adelanto / Molding Hearts Foundation,SER-0132
+SP-00144,SER-0133,ENT-0161,primary,Adelanto Bilingual Seventh-day Adventist Church,SER-0133
+SP-00145,SER-0134,ENT-0165,primary,BMB Entertainment / Busco Mi Banda,SER-0134
+SP-00146,SER-0135,ENT-0168,primary,Kushstock Festival,SER-0135
+SP-00147,SER-0136,ENT-0167,primary,OC TRUCK EVENTS,SER-0136
+SP-00148,SER-0137,ENT-0166,primary,SKYS PRESENTS / Adelanto Plaza,SER-0137
+SP-00149,SER-0137,ENT-0014,co_producer,SKYS PRESENTS / Adelanto Plaza,SER-0137
+SP-00150,SER-0138,ENT-0266,primary,Assembly District 39,SER-0138
+SP-00151,SER-0139,ENT-0171,primary,Adelanto Heat Youth Football & Cheer,SER-0139
+SP-00152,SER-0140,ENT-0173,primary,Praise Chapel Adelanto,SER-0140
+SP-00153,SER-0141,ENT-0173,primary,Praise Chapel Adelanto,SER-0141
+SP-00154,SER-0142,ENT-0174,primary,Christ the Good Shepherd Catholic Church,SER-0142
+SP-00155,SER-0143,ENT-0175,primary,Detour SoCal,SER-0143
+SP-00156,SER-0144,ENT-0175,primary,Detour SoCal / TG The Gym,SER-0144
+SP-00157,SER-0145,ENT-0176,primary,Hope of a Higher Glory Community Church,SER-0145
+SP-00158,SER-0146,ENT-0177,primary,American Legion Leo Collins Post 229,SER-0146
+SP-00159,SER-0147,ENT-0178,primary,American Legion Riders Chapter 229,SER-0147
+SP-00160,SER-0148,ENT-0179,primary,Southern California Timing Association,SER-0148
+SP-00161,SER-0149,ENT-0181,primary,GBodyFest,SER-0149
+SP-00162,SER-0150,ENT-0182,primary,KMC Wheels,SER-0150
+SP-00163,SER-0151,ENT-0183,primary,Phelan Judo Club / PPHCSD,SER-0151
+SP-00164,SER-0152,ENT-0183,primary,PPHCSD,SER-0152
+SP-00165,SER-0153,ENT-0186,primary,Phelan Chamber of Commerce,SER-0153
+SP-00166,SER-0154,ENT-0078,primary,Phelan Certified Farmers Market,SER-0154
+SP-00167,SER-0155,ENT-0187,primary,High Desert Baptist Church,SER-0155
+SP-00168,SER-0156,ENT-0188,primary,Wrightwood Chamber of Commerce,SER-0156
+SP-00169,SER-0157,ENT-0188,primary,Wrightwood Chamber of Commerce,SER-0157
+SP-00170,SER-0158,ENT-0188,primary,Wrightwood Chamber of Commerce,SER-0158
+SP-00171,SER-0159,ENT-0188,primary,Wrightwood Chamber of Commerce,SER-0159
+SP-00172,SER-0160,ENT-0188,primary,Wrightwood Chamber of Commerce,SER-0160
+SP-00173,SER-0161,ENT-0188,primary,Wrightwood Chamber of Commerce,SER-0161
+SP-00174,SER-0162,ENT-0189,primary,Wrightwood Arts Center,SER-0162
+SP-00175,SER-0163,ENT-0189,primary,Wrightwood Arts Center,SER-0163
+SP-00176,SER-0164,ENT-0268,primary,Wrightwood Certified Farmers Market,SER-0164
+SP-00177,SER-0165,ENT-0190,primary,Wrightwood Community Services District,SER-0165
+SP-00178,SER-0166,ENT-0192,primary,Hillside Community Church,SER-0166
+SP-00179,SER-0167,ENT-0195,primary,Lucerne Valley Senior Citizens,SER-0167
+SP-00180,SER-0168,ENT-0195,primary,Lucerne Valley Senior Citizens,SER-0168
+SP-00181,SER-0169,ENT-0222,primary,Lucerne Valley Lions Club,SER-0169
+SP-00182,SER-0170,ENT-0194,primary,Lucerne Valley Chamber of Commerce,SER-0170
+SP-00183,SER-0171,ENT-0201,primary,Silver Lakes Association,SER-0171
+SP-00184,SER-0172,ENT-0202,primary,Helendale Community Services District,SER-0172
+SP-00185,SER-0173,ENT-0202,primary,Helendale Community Services District,SER-0173
+SP-00186,SER-0174,ENT-0202,primary,Helendale Community Services District,SER-0174
+SP-00187,SER-0175,ENT-0205,primary,Oak Hills Municipal Advisory Council,SER-0175
+SP-00188,SER-0176,ENT-0206,primary,Oak Hills High School / Hesperia Unified,SER-0176
+SP-00189,SER-0176,ENT-0241,co_producer,Oak Hills High School / Hesperia Unified,SER-0176
+SP-00190,SER-0177,ENT-0207,primary,Oak Hills High School Instrumental Music Program,SER-0177
+SP-00191,SER-0178,ENT-0209,primary,Revival Dance Lab,SER-0178
+SP-00192,SER-0179,ENT-0210,primary,Phelan/Pinon Hills CERT,SER-0179
+SP-00193,SER-0180,ENT-0211,primary,Wrightwood Fire Safe Council,SER-0180
+SP-00194,SER-0181,ENT-0190,primary,Wrightwood CSD + Wrightwood Fire Safe Council,SER-0181
+SP-00195,SER-0181,ENT-0211,co_producer,Wrightwood CSD + Wrightwood Fire Safe Council,SER-0181
+SP-00196,SER-0182,ENT-0212,primary,Lucerne Valley Museum & History Association,SER-0182
+SP-00197,SER-0183,ENT-0212,primary,Lucerne Valley Museum & History Association,SER-0183
+SP-00198,SER-0184,ENT-0213,primary,Lucerne Valley Roadrunners,SER-0184
+SP-00199,SER-0185,ENT-0214,primary,Lucerne Valley Root Diggers Genealogy Association,SER-0185
+SP-00200,SER-0186,ENT-0215,primary,Lucerne Valley Moose Lodge 2096,SER-0186
+SP-00201,SER-0187,ENT-0215,primary,Lucerne Valley Moose Lodge 2096,SER-0187
+SP-00202,SER-0188,ENT-0216,primary,Lucerne Valley Economic Development Association,SER-0188
+SP-00203,SER-0189,ENT-0217,primary,Desert Crossroads Garden Club,SER-0189
+SP-00204,SER-0190,ENT-0215,primary,American Legion participants / Lucerne Valley Moose Lodge,SER-0190
+SP-00205,SER-0191,ENT-0218,primary,Wild Wind Ranch Oak Hills,SER-0191
+SP-00206,SER-0192,ENT-0219,primary,Mojave Archers,SER-0192
+SP-00207,SER-0193,ENT-0219,primary,Mojave Archers,SER-0193
+SP-00208,SER-0194,ENT-0183,primary,Phelan Piñon Hills CSD + Shine Bright Paint,SER-0194
+SP-00209,SER-0194,ENT-0220,co_producer,Phelan Piñon Hills CSD + Shine Bright Paint,SER-0194
+SP-00210,SER-0195,ENT-0183,primary,Phelan Piñon Hills CSD + Drawing Together,SER-0195
+SP-00211,SER-0195,ENT-0221,co_producer,Phelan Piñon Hills CSD + Drawing Together,SER-0195
+SP-00212,SER-0196,ENT-0222,primary,Lucerne Valley Lions Club,SER-0196
+SP-00213,SER-0197,ENT-0223,primary,Can You Dig It Ranch,SER-0197
