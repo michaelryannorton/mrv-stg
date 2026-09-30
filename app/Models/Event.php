@@ -50,7 +50,7 @@ class Event extends Model
         'location_name_override', 'address_override', 'latitude', 'longitude',
         'canonical_url', 'ticket_url', 'price_min', 'price_max', 'currency', 'is_free',
         'age_restriction', 'accessibility_notes', 'primary_image_path',
-        'status', 'editorial_status', 'verification_status', 'overridden_fields', 'stale_fields',
+        'status', 'editorial_status', 'verification_status', 'access_scope', 'overridden_fields', 'stale_fields',
         'created_by_user_id', 'published_at', 'last_verified_at',
     ];
 

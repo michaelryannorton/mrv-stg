@@ -49,6 +49,7 @@ interface ModerationEvent {
     canonical_url: string | null;
     status: string;
     editorial_status: string;
+    access_scope: string;
     venue: Venue | null;
     organizer: Organization | null;
     categories: Taxonomy[];
@@ -67,6 +68,27 @@ type StatusTab = 'pending' | 'published' | 'rejected';
 type SortKey = 'start_at' | 'title' | 'venue' | 'source';
 type SortDir = 'asc' | 'desc';
 type BulkAction = 'approve' | 'reject' | 'revert';
+
+// access_scope values come straight from the source-level classification in the Victor Valley
+// corpus (see community/Victor Valley Event Ecosystem - Coverage Gaps and Research Queue.md,
+// "Access-scope classification"). 'public' is the expected, unremarkable case and gets no badge —
+// everything else means Michael should look closer before approving.
+const ACCESS_SCOPE_META: Record<string, { label: string; className: string }> = {
+    mixed: { label: 'Mixed access', className: 'border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-400' },
+    public_with_eligibility: { label: 'Eligibility-gated', className: 'border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-400' },
+    public_with_registration: { label: 'Registration required', className: 'border-sky-600/40 bg-sky-600/10 text-sky-700 dark:text-sky-400' },
+    unknown: { label: 'Unclassified', className: 'text-muted-foreground' },
+};
+
+function AccessScopeBadge({ accessScope }: { accessScope: string }) {
+    const meta = ACCESS_SCOPE_META[accessScope];
+    if (!meta) return null;
+    return (
+        <Badge variant="outline" className={meta.className}>
+            {meta.label}
+        </Badge>
+    );
+}
 
 interface AdminEventsIndexProps {
     events: ModerationEvent[];
@@ -121,6 +143,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [sourceFilter, setSourceFilter] = useState('all');
+    const [accessScopeFilter, setAccessScopeFilter] = useState('all');
     const [sortKey, setSortKey] = useState<SortKey>('start_at');
     const [sortDir, setSortDir] = useState<SortDir>('asc');
     const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -146,6 +169,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
         const filtered = events.filter((e) => {
             if (categoryFilter !== 'all' && !e.categories.some((c) => c.slug === categoryFilter)) return false;
             if (sourceFilter !== 'all' && sourceName(e) !== sourceFilter) return false;
+            if (accessScopeFilter !== 'all' && e.access_scope !== accessScopeFilter) return false;
             return matchesQuery(searchableText(e), search);
         });
 
@@ -153,7 +177,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
             const cmp = compareEvents(a, b, sortKey);
             return sortDir === 'asc' ? cmp : -cmp;
         });
-    }, [events, search, categoryFilter, sourceFilter, sortKey, sortDir]);
+    }, [events, search, categoryFilter, sourceFilter, accessScopeFilter, sortKey, sortDir]);
 
     const visibleIds = useMemo(() => rows.map((r) => r.id), [rows]);
     const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selected.has(id));
@@ -252,6 +276,20 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                         </SelectContent>
                     </Select>
 
+                    <Select value={accessScopeFilter} onValueChange={setAccessScopeFilter}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="All access scopes" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All access scopes</SelectItem>
+                            <SelectItem value="public">Public</SelectItem>
+                            <SelectItem value="mixed">Mixed access</SelectItem>
+                            <SelectItem value="public_with_eligibility">Eligibility-gated</SelectItem>
+                            <SelectItem value="public_with_registration">Registration required</SelectItem>
+                            <SelectItem value="unknown">Unclassified</SelectItem>
+                        </SelectContent>
+                    </Select>
+
                     <Select value={sourceFilter} onValueChange={setSourceFilter}>
                         <SelectTrigger className="w-[200px]">
                             <SelectValue placeholder="All sources" />
@@ -342,6 +380,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                                                     />
                                                 )}
                                             </div>
+                                            <AccessScopeBadge accessScope={event.access_scope} />
                                             {event.canonical_url && (
                                                 <a
                                                     href={event.canonical_url}

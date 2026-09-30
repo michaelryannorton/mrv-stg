@@ -101,6 +101,7 @@ class EventIngestor
                 'canonical_url' => $item['url'],
                 'location_name_override' => $item['location'],
                 'organizer_id' => $source->organization_id,
+                'access_scope' => $source->access_scope,
                 'status' => $autoPublish ? 'scheduled' : 'candidate',
                 'editorial_status' => $autoPublish ? 'published' : 'pending_review',
             ]);
