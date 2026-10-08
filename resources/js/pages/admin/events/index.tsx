@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { formatWhen } from '@/lib/event-formatting';
@@ -80,6 +81,11 @@ const ACCESS_SCOPE_META: Record<string, { label: string; className: string }> = 
     unknown: { label: 'Unclassified', className: 'text-muted-foreground' },
 };
 
+// Approving any of these asks for a second click first. Deliberately not 'unknown' (most of the
+// queue, so a warning there would fire on nearly every approval and stop meaning anything) and not
+// 'public_with_registration' (still open to the public, just needs a sign-up).
+const CONFIRM_ACCESS_SCOPES = new Set(['mixed', 'public_with_eligibility']);
+
 function AccessScopeBadge({ accessScope }: { accessScope: string }) {
     const meta = ACCESS_SCOPE_META[accessScope];
     if (!meta) return null;
@@ -147,6 +153,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
     const [sortKey, setSortKey] = useState<SortKey>('start_at');
     const [sortDir, setSortDir] = useState<SortDir>('asc');
     const [selected, setSelected] = useState<Set<number>>(new Set());
+    const [pendingApproval, setPendingApproval] = useState<{ ids: number[]; flagged: ModerationEvent[] } | null>(null);
 
     useEffect(() => setSelected(new Set()), [status]);
 
@@ -214,6 +221,23 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
     function act(action: BulkAction, ids: number[]) {
         if (ids.length === 0) return;
         router.post(route('admin.events.bulk'), { action, ids }, { preserveScroll: true, onSuccess: () => setSelected(new Set()) });
+    }
+
+    // Single gate for both the bulk bar and the per-row button: approves straight away unless the
+    // selection includes events that aren't fully public, in which case it opens the confirm dialog.
+    function requestApprove(ids: number[]) {
+        const idSet = new Set(ids);
+        const flagged = events.filter((e) => idSet.has(e.id) && CONFIRM_ACCESS_SCOPES.has(e.access_scope));
+        if (flagged.length === 0) {
+            act('approve', ids);
+            return;
+        }
+        setPendingApproval({ ids, flagged });
+    }
+
+    function confirmApproval(ids: number[]) {
+        setPendingApproval(null);
+        act('approve', ids);
     }
 
     function SortHeader({ label, sortKeyValue }: { label: string; sortKeyValue: SortKey }) {
@@ -309,7 +333,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                     <div className="border-sidebar-border bg-accent/50 flex items-center gap-3 rounded-md border px-4 py-2">
                         <span className="text-sm font-medium">{selected.size} selected</span>
                         {status !== 'published' && (
-                            <Button size="sm" onClick={() => act('approve', Array.from(selected))}>
+                            <Button size="sm" onClick={() => requestApprove(Array.from(selected))}>
                                 Approve
                             </Button>
                         )}
@@ -412,7 +436,7 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                                                     <Link href={route('admin.events.edit', event.id)}>Edit</Link>
                                                 </Button>
                                                 {status !== 'published' && (
-                                                    <Button size="sm" onClick={() => act('approve', [event.id])}>
+                                                    <Button size="sm" onClick={() => requestApprove([event.id])}>
                                                         Approve
                                                     </Button>
                                                 )}
@@ -441,6 +465,68 @@ export default function AdminEventsIndex({ events, status, counts }: AdminEvents
                     </p>
                 )}
             </div>
+
+            <Dialog open={pendingApproval !== null} onOpenChange={(open) => !open && setPendingApproval(null)}>
+                <DialogContent>
+                    {pendingApproval && (
+                        <ApprovalConfirmBody pending={pendingApproval} onConfirm={confirmApproval} onCancel={() => setPendingApproval(null)} />
+                    )}
+                </DialogContent>
+            </Dialog>
         </AppLayout>
+    );
+}
+
+const FLAGGED_LIST_LIMIT = 8;
+
+function ApprovalConfirmBody({
+    pending,
+    onConfirm,
+    onCancel,
+}: {
+    pending: { ids: number[]; flagged: ModerationEvent[] };
+    onConfirm: (ids: number[]) => void;
+    onCancel: () => void;
+}) {
+    const { ids, flagged } = pending;
+    const flaggedIds = new Set(flagged.map((e) => e.id));
+    const unflaggedIds = ids.filter((id) => !flaggedIds.has(id));
+    const shown = flagged.slice(0, FLAGGED_LIST_LIMIT);
+    const hidden = flagged.length - shown.length;
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>
+                    {flagged.length} of {ids.length} {ids.length === 1 ? 'event is' : 'events are'} not fully public
+                </DialogTitle>
+                <DialogDescription>
+                    Approving publishes to the public calendar. These come from sources classified as mixed-access or eligibility-gated, so check that
+                    each one is open to the general public.
+                </DialogDescription>
+            </DialogHeader>
+
+            <ul className="flex max-h-64 flex-col gap-2 overflow-y-auto text-sm">
+                {shown.map((e) => (
+                    <li key={e.id} className="flex items-start justify-between gap-3">
+                        <span>{e.title}</span>
+                        <AccessScopeBadge accessScope={e.access_scope} />
+                    </li>
+                ))}
+                {hidden > 0 && <li className="text-muted-foreground">…and {hidden} more</li>}
+            </ul>
+
+            <DialogFooter className="gap-2 sm:gap-2">
+                <Button variant="ghost" onClick={onCancel}>
+                    Cancel
+                </Button>
+                {unflaggedIds.length > 0 && (
+                    <Button variant="outline" onClick={() => onConfirm(unflaggedIds)}>
+                        Approve only the {unflaggedIds.length} fully public
+                    </Button>
+                )}
+                <Button onClick={() => onConfirm(ids)}>Approve all {ids.length}</Button>
+            </DialogFooter>
+        </>
     );
 }
