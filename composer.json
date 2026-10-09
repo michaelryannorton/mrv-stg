@@ -14,6 +14,7 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "sabre/vobject": "^5.0",
+        "spatie/laravel-permission": "^8.3",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {

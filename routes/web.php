@@ -23,7 +23,9 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Every /admin route is administrator-only. Curators and editors get their own /curate pages
+    // (Phase 2 slice 1c) and never reach these; see community/Community Phase 2 Slice 1 Plan.md.
+    Route::prefix('admin')->name('admin.')->middleware('role:administrator')->group(function () {
         Route::get('events', [EventModerationController::class, 'index'])->name('events.index');
         Route::post('events/bulk', [EventModerationController::class, 'bulk'])->name('events.bulk');
         Route::get('events/{event}/edit', [EventEditController::class, 'edit'])->name('events.edit');
