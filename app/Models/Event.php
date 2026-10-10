@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasUuid;
+use App\Support\ExternalUrl;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -78,6 +79,15 @@ class Event extends Model
             'published_at' => 'datetime',
             'last_verified_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Backstop for every write path (the editor, the clipper, public submissions); ingestion
+     * already cleans the value, and cleaning is idempotent.
+     */
+    protected function canonicalUrl(): Attribute
+    {
+        return Attribute::set(fn (?string $value) => ExternalUrl::clean($value));
     }
 
     /**

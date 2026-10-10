@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\EventModerationController;
 use App\Http\Controllers\Admin\SubmissionModerationController;
 use App\Http\Controllers\Admin\UserAssignmentController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ChannelPageController;
 use App\Http\Controllers\CurateController;
 use App\Http\Controllers\CuratorProfileController;
 use App\Http\Controllers\EventController;
@@ -19,6 +20,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('events', [EventController::class, 'index'])->name('events.index');
+
+// Public channel pages (Phase 2 slice 1d-ii). Only active channels are public; an administrator
+// can preview the others at the same address.
+Route::get('channels', [ChannelPageController::class, 'index'])->name('channels.index');
+Route::get('channels/{channel:slug}', [ChannelPageController::class, 'show'])->name('channels.show');
 
 Route::get('submit-event', [PublicSubmissionController::class, 'create'])->name('submit.create');
 Route::post('submit-event', [PublicSubmissionController::class, 'store'])->name('submit.store');

@@ -33,4 +33,6 @@ export interface EventItem {
     categories: Taxonomy[];
     tags: Taxonomy[];
     audiences: Taxonomy[];
+    /** Set on channel pages: the channel's curator featured this event. */
+    is_pick?: boolean;
 }

@@ -2,7 +2,7 @@ import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function PublicHeader() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, public_channels: hasChannels } = usePage<SharedData>().props;
 
     return (
         <header className="border-b border-[#e3e3e0] dark:border-[#3E3E3A]">
@@ -15,6 +15,12 @@ export default function PublicHeader() {
                     <Link href={route('events.index')} className="text-[#1b1b18] hover:underline dark:text-[#EDEDEC]">
                         Community Events
                     </Link>
+
+                    {hasChannels && (
+                        <Link href={route('channels.index')} className="text-[#1b1b18] hover:underline dark:text-[#EDEDEC]">
+                            Channels
+                        </Link>
+                    )}
 
                     <Link href={route('submit.create')} className="text-[#1b1b18] hover:underline dark:text-[#EDEDEC]">
                         Submit an Event

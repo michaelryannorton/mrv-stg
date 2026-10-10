@@ -28,7 +28,10 @@ export default function EventCard({ event, layout = 'list' }: EventCardProps) {
                             place && <p className="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]">{place}</p>
                         )}
                     </div>
-                    {event.is_free && <Badge>Free</Badge>}
+                    <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                        {event.is_pick && <Badge variant="outline">Curator's pick</Badge>}
+                        {event.is_free && <Badge>Free</Badge>}
+                    </div>
                 </div>
             </CardHeader>
             {(event.short_description || event.categories.length > 0 || event.details_url) && (

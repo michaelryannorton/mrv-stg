@@ -84,9 +84,18 @@ export default function ChannelsIndex({ channels }: { channels: ChannelRow[] }) 
                                         <td className="px-3 py-2 text-right tabular-nums">{channel.events_count}</td>
                                         <td className="px-3 py-2 text-right tabular-nums">{channel.published_events_count}</td>
                                         <td className="px-3 py-2 text-right">
-                                            <Button variant="outline" size="sm" asChild>
-                                                <Link href={route('admin.channels.edit', channel.id)}>Edit</Link>
-                                            </Button>
+                                            <div className="flex justify-end gap-2">
+                                                {channel.status !== 'archived' && (
+                                                    <Button variant="ghost" size="sm" asChild>
+                                                        <a href={route('channels.show', channel.slug)}>
+                                                            {channel.status === 'active' ? 'View page' : 'Preview'}
+                                                        </a>
+                                                    </Button>
+                                                )}
+                                                <Button variant="outline" size="sm" asChild>
+                                                    <Link href={route('admin.channels.edit', channel.id)}>Edit</Link>
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

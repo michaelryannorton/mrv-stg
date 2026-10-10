@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\EventSource;
 use App\Models\Source;
 use App\Models\SourceRecord;
+use App\Support\ExternalUrl;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -33,6 +34,10 @@ class EventIngestor
         $defaultTagIds = $source->defaultTags->pluck('id');
 
         foreach ($items as $item) {
+            // Cleaned once here, before the record is stored, so every collector gets the same
+            // treatment and the stored raw payload agrees with the event (the editor compares them).
+            $item['url'] = ExternalUrl::clean($item['url'] ?? null);
+
             $record = SourceRecord::create([
                 'source_id' => $source->id,
                 'external_id' => $item['external_id'],

@@ -28,6 +28,8 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     flash: { success?: string; error?: string };
+    /** True once at least one channel is active; the public header shows its Channels link only then. */
+    public_channels: boolean;
     [key: string]: unknown;
 }
 

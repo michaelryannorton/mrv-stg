@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Channel;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -49,6 +50,9 @@ class HandleInertiaRequests extends Middleware
                 'roles' => fn () => $request->user()?->getRoleNames()->values() ?? [],
                 'permissions' => fn () => $request->user()?->getAllPermissions()->pluck('name')->values() ?? [],
             ],
+            // Lazy: the public header shows its Channels link only once a channel is active, so
+            // there is never a link to an empty list.
+            'public_channels' => fn () => Channel::active()->exists(),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

@@ -2,6 +2,7 @@ import DayView from '@/components/calendar/day-view';
 import MonthView from '@/components/calendar/month-view';
 import WeekView from '@/components/calendar/week-view';
 import EventCard from '@/components/event-card';
+import PaginationLinks from '@/components/pagination-links';
 import PublicHeader from '@/components/public-header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatDayLabel, formatMonthLabel, formatWeekRangeLabel } from '@/lib/calendar';
 import { type EventItem, type Taxonomy } from '@/types/event';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 interface Paginated<T> {
     data: T[];
@@ -248,22 +249,7 @@ export default function EventsIndex({ events, filters, categories, audiences, vi
                         />
                     )}
 
-                    {view === 'list' && !Array.isArray(events) && events.links.length > 3 && (
-                        <div className="mt-8 flex flex-wrap gap-2">
-                            {events.links.map((link, i) => (
-                                <Link
-                                    key={i}
-                                    href={link.url ?? '#'}
-                                    className={`rounded-sm border px-3 py-1 text-sm ${
-                                        link.active
-                                            ? 'border-[#1b1b18] bg-[#1b1b18] text-white dark:border-[#EDEDEC] dark:bg-[#EDEDEC] dark:text-[#1b1b18]'
-                                            : 'border-[#e3e3e0] dark:border-[#3E3E3A]'
-                                    } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {view === 'list' && !Array.isArray(events) && <PaginationLinks links={events.links} />}
                 </main>
             </div>
         </>
