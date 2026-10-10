@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Event extends Model
 {
@@ -180,6 +181,14 @@ class Event extends Model
         return $this->belongsToMany(Audience::class, 'event_audiences');
     }
 
+    /** Explicit channel states (curated, featured, excluded); see scopeInChannel() for the computed membership. */
+    public function channelPicks(): BelongsToMany
+    {
+        return $this->belongsToMany(Channel::class, 'event_channels')
+            ->withPivot(['relationship_type', 'added_by_user_id'])
+            ->withTimestamps();
+    }
+
     public function eventSources(): HasMany
     {
         return $this->hasMany(EventSource::class);
@@ -188,6 +197,29 @@ class Event extends Model
     public function publicSubmissions(): HasMany
     {
         return $this->hasMany(PublicSubmission::class);
+    }
+
+    /**
+     * Events that are in the channel: at least one category linked to the channel, or an explicit
+     * curated or featured row, and no excluded row. Membership is computed here rather than stored
+     * per event; see community/Community Phase 2 Slice 1 Plan.md, section 6, for why. Does not look
+     * at publication status, so callers add scopePublished() where the public can see the result.
+     */
+    public function scopeInChannel(Builder $query, Channel $channel): Builder
+    {
+        $explicit = fn (array $types) => DB::table('event_channels')
+            ->select('event_id')
+            ->where('channel_id', $channel->id)
+            ->whereIn('relationship_type', $types);
+
+        return $query
+            ->whereNotIn('events.id', $explicit(['excluded']))
+            ->where(function (Builder $inner) use ($channel, $explicit) {
+                $inner->whereIn('events.id', DB::table('event_categories')
+                    ->select('event_id')
+                    ->whereIn('category_id', DB::table('channel_categories')->select('category_id')->where('channel_id', $channel->id)))
+                    ->orWhereIn('events.id', $explicit(['curated', 'featured']));
+            });
     }
 
     /**

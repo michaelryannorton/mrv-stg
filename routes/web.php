@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ChannelController;
 use App\Http\Controllers\Admin\ClipController;
 use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
@@ -36,6 +37,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('clip', [ClipController::class, 'store'])->name('clip.store');
         Route::get('drafts', [ClipController::class, 'drafts'])->name('drafts.index');
         Route::post('drafts/{event}/publish', [ClipController::class, 'publishDraft'])->name('drafts.publish');
+
+        Route::get('channels', [ChannelController::class, 'index'])->name('channels.index');
+        Route::get('channels/create', [ChannelController::class, 'create'])->name('channels.create');
+        Route::post('channels', [ChannelController::class, 'store'])->name('channels.store');
+        Route::get('channels/{channel}/edit', [ChannelController::class, 'edit'])->name('channels.edit');
+        Route::put('channels/{channel}', [ChannelController::class, 'update'])->name('channels.update');
 
         Route::get('submissions', [SubmissionModerationController::class, 'index'])->name('submissions.index');
         Route::post('submissions/bulk', [SubmissionModerationController::class, 'bulk'])->name('submissions.bulk');

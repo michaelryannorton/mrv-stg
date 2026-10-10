@@ -34,6 +34,11 @@ class Category extends Model
         return $this->belongsToMany(Event::class, 'event_categories');
     }
 
+    public function channels(): BelongsToMany
+    {
+        return $this->belongsToMany(Channel::class, 'channel_categories');
+    }
+
     public function defaultForSources(): BelongsToMany
     {
         return $this->belongsToMany(Source::class, 'source_default_categories');
