@@ -1,3 +1,4 @@
+import { AccessScopeBadge } from '@/components/access-scope-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -70,31 +71,10 @@ type SortKey = 'start_at' | 'title' | 'venue' | 'source';
 type SortDir = 'asc' | 'desc';
 type BulkAction = 'approve' | 'reject' | 'revert';
 
-// access_scope values come straight from the source-level classification in the Victor Valley
-// corpus (see community/Victor Valley Event Ecosystem - Coverage Gaps and Research Queue.md,
-// "Access-scope classification"). 'public' is the expected, unremarkable case and gets no badge —
-// everything else means Michael should look closer before approving.
-const ACCESS_SCOPE_META: Record<string, { label: string; className: string }> = {
-    mixed: { label: 'Mixed access', className: 'border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-400' },
-    public_with_eligibility: { label: 'Eligibility-gated', className: 'border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-400' },
-    public_with_registration: { label: 'Registration required', className: 'border-sky-600/40 bg-sky-600/10 text-sky-700 dark:text-sky-400' },
-    unknown: { label: 'Unclassified', className: 'text-muted-foreground' },
-};
-
 // Approving any of these asks for a second click first. Deliberately not 'unknown' (most of the
 // queue, so a warning there would fire on nearly every approval and stop meaning anything) and not
 // 'public_with_registration' (still open to the public, just needs a sign-up).
 const CONFIRM_ACCESS_SCOPES = new Set(['mixed', 'public_with_eligibility']);
-
-function AccessScopeBadge({ accessScope }: { accessScope: string }) {
-    const meta = ACCESS_SCOPE_META[accessScope];
-    if (!meta) return null;
-    return (
-        <Badge variant="outline" className={meta.className}>
-            {meta.label}
-        </Badge>
-    );
-}
 
 interface AdminEventsIndexProps {
     events: ModerationEvent[];

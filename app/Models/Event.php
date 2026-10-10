@@ -200,6 +200,23 @@ class Event extends Model
     }
 
     /**
+     * What a curator may see and act on: published events and events still waiting for review,
+     * never rejected events or an administrator's private clipper drafts. A pick never publishes
+     * an event; this only decides which events a curator can pick.
+     */
+    public function scopeVisibleToCurators(Builder $query): Builder
+    {
+        return $query->whereIn('events.editorial_status', ['published', 'pending_review', 'unreviewed'])
+            ->where('events.status', '!=', 'draft');
+    }
+
+    /** Has not ended yet. */
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q->where('events.start_at', '>=', now())->orWhere('events.end_at', '>=', now()));
+    }
+
+    /**
      * Events that are in the channel: at least one category linked to the channel, or an explicit
      * curated or featured row, and no excluded row. Membership is computed here rather than stored
      * per event; see community/Community Phase 2 Slice 1 Plan.md, section 6, for why. Does not look

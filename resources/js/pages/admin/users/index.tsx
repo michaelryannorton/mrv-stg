@@ -10,6 +10,7 @@ interface UserRow {
     name: string;
     email: string;
     roles: string[];
+    channels: string[];
     status: 'active' | 'invited';
     invited_at: string | null;
     editable: boolean;
@@ -60,6 +61,7 @@ export default function UsersIndex({ users }: { users: UserRow[] }) {
                                 <th className="px-3 py-2 font-medium">Name</th>
                                 <th className="px-3 py-2 font-medium">Email</th>
                                 <th className="px-3 py-2 font-medium">Role</th>
+                                <th className="px-3 py-2 font-medium">Channels</th>
                                 <th className="px-3 py-2 font-medium">Status</th>
                                 <th className="px-3 py-2" />
                             </tr>
@@ -71,6 +73,9 @@ export default function UsersIndex({ users }: { users: UserRow[] }) {
                                     <td className="px-3 py-2">{user.email}</td>
                                     <td className="px-3 py-2">
                                         {user.roles.length ? user.roles.join(', ') : <span className="text-muted-foreground">none</span>}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {user.channels.length ? user.channels.join(', ') : <span className="text-muted-foreground">none</span>}
                                     </td>
                                     <td className="px-3 py-2">
                                         {user.status === 'invited' ? (

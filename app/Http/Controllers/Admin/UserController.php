@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Channel;
+use App\Models\CuratorAssignment;
 use App\Models\User;
 use App\Notifications\UserInvitation;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +35,7 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::query()
-            ->with('roles:id,name')
+            ->with(['roles:id,name', 'curatedChannels:channels.id,channels.name'])
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => $this->row($user));
@@ -96,9 +98,23 @@ class UserController extends Controller
 
         $user->load(['roles:id,name', 'invitedBy:id,name']);
 
+        $assignments = $user->curatorAssignments()->with('channel:id,name,status')->get();
+        $activeChannelIds = $assignments->where('status', 'active')->pluck('channel_id');
+
         return Inertia::render('admin/users/edit', [
             'user' => [...$this->row($user), 'role' => $user->roles->first()?->name, 'invited_by' => $user->invitedBy?->name],
             'roles' => self::INVITABLE_ROLES,
+            'assignments' => $assignments->map(fn (CuratorAssignment $a) => [
+                'channel_id' => $a->channel_id,
+                'channel_name' => $a->channel->name,
+                'channel_status' => $a->channel->status,
+                'role' => $a->role,
+                'status' => $a->status,
+                'started_at' => $a->started_at?->toIso8601String(),
+                'ended_at' => $a->ended_at?->toIso8601String(),
+            ])->values(),
+            'available_channels' => Channel::query()->where('status', '!=', 'archived')->whereNotIn('id', $activeChannelIds)->orderBy('name')->get(['id', 'name']),
+            'assignment_roles' => CuratorAssignment::ROLES,
         ]);
     }
 
@@ -146,6 +162,26 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', "Invitation for {$user->email} revoked.");
     }
 
+    /**
+     * Removes an accepted account: its assignments go with it, its roles are cleared, its sessions
+     * are deleted so it is logged out everywhere, and the user row is deleted. What it did stays:
+     * its picks remain in their channels with no author recorded, and events it clipped or
+     * submissions it reviewed keep their data with no author. A pending invitation is revoked
+     * instead (destroy), and administrator accounts are never removed here.
+     */
+    public function remove(User $user): RedirectResponse
+    {
+        abort_if($this->isAdministrator($user), 404);
+        abort_if($user->isPending(), 422, 'This person has not accepted yet. Revoke the invitation instead.');
+
+        DB::transaction(function () use ($user) {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+            $user->delete();
+        });
+
+        return redirect()->route('admin.users.index')->with('success', "{$user->name} was removed.");
+    }
+
     private function sendInvitation(User $user, User $inviter, string $role): void
     {
         $token = Password::broker('invitations')->createToken($user);
@@ -171,6 +207,7 @@ class UserController extends Controller
             'email' => $user->email,
             'roles' => $user->roles->pluck('name')->values(),
             'status' => $user->isPending() ? 'invited' : 'active',
+            'channels' => $user->relationLoaded('curatedChannels') ? $user->curatedChannels->pluck('name')->values() : [],
             'invited_at' => $user->invited_at?->toIso8601String(),
             'editable' => ! $this->isAdministrator($user),
         ];

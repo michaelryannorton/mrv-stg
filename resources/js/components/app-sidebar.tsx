@@ -4,13 +4,20 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Users } from 'lucide-react';
+import { BookOpen, CalendarCheck, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Sparkles, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const dashboardNavItem: NavItem = {
     title: 'Dashboard',
     url: '/dashboard',
     icon: LayoutGrid,
+};
+
+// Shown to anyone who holds the channels.curate permission (editors, curators, administrators).
+const curateNavItem: NavItem = {
+    title: 'Curate',
+    url: '/curate',
+    icon: Sparkles,
 };
 
 // Shown only to administrators; the server enforces this too (every /admin route needs the role).
@@ -62,7 +69,11 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const mainNavItems = auth.roles.includes('administrator') ? [dashboardNavItem, ...adminNavItems] : [dashboardNavItem];
+    const mainNavItems = [
+        dashboardNavItem,
+        ...(auth.permissions.includes('channels.curate') ? [curateNavItem] : []),
+        ...(auth.roles.includes('administrator') ? adminNavItems : []),
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="inset">

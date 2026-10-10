@@ -33,7 +33,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Editors and curators work in the curator workspace; everyone else lands on the dashboard.
+        $user = $request->user();
+        $home = $user->can('channels.curate') && ! $user->hasRole('administrator') ? 'curate.index' : 'dashboard';
+
+        return redirect()->intended(route($home, absolute: false));
     }
 
     /**

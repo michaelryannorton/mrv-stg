@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -61,6 +63,19 @@ class User extends Authenticatable
     public function scopePending(Builder $query): Builder
     {
         return $query->whereNotNull('invited_at')->whereNull('invitation_accepted_at');
+    }
+
+    public function curatorAssignments(): HasMany
+    {
+        return $this->hasMany(CuratorAssignment::class);
+    }
+
+    /** Channels this user has an active curator assignment to (not the channels an administrator may reach). */
+    public function curatedChannels(): BelongsToMany
+    {
+        return $this->belongsToMany(Channel::class, 'curator_assignments')
+            ->wherePivot('status', 'active')
+            ->withPivot(['role']);
     }
 
     public function invitedBy(): BelongsTo

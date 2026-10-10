@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\ClipController;
 use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
 use App\Http\Controllers\Admin\SubmissionModerationController;
+use App\Http\Controllers\Admin\UserAssignmentController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CurateController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PublicSubmissionController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +26,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    // The curator workspace (Phase 2 slice 1c-ii). Needs the channels.curate permission; every
+    // action is then authorized per channel by ChannelPolicy, which answers 404 for channels the
+    // user is not assigned to.
+    Route::middleware('permission:channels.curate')->prefix('curate')->name('curate.')->group(function () {
+        Route::get('/', [CurateController::class, 'index'])->name('index');
+        Route::get('channels/{channel:slug}', [CurateController::class, 'show'])->name('channels.show');
+        Route::post('channels/{channel:slug}/events/{event}/{action}', [CurateController::class, 'act'])
+            ->whereNumber('event')
+            ->where('action', 'feature|unfeature|exclude|restore|add')
+            ->name('channels.act');
+    });
 
     // Every /admin route is administrator-only. Curators and editors get their own /curate pages
     // (Phase 2 slice 1c) and never reach these; see community/Community Phase 2 Slice 1 Plan.md.
@@ -52,6 +66,10 @@ Route::middleware(['auth'])->group(function () {
         Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::post('users/{user}/resend', [UserController::class, 'resend'])->name('users.resend');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::post('users/{user}/remove', [UserController::class, 'remove'])->name('users.remove');
+        Route::post('users/{user}/assignments', [UserAssignmentController::class, 'store'])->name('users.assignments.store');
+        Route::put('users/{user}/assignments/{channel}', [UserAssignmentController::class, 'update'])->name('users.assignments.update');
+        Route::delete('users/{user}/assignments/{channel}', [UserAssignmentController::class, 'destroy'])->name('users.assignments.destroy');
 
         Route::get('submissions', [SubmissionModerationController::class, 'index'])->name('submissions.index');
         Route::post('submissions/bulk', [SubmissionModerationController::class, 'bulk'])->name('submissions.bulk');
