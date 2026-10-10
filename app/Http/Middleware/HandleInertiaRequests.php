@@ -44,9 +44,14 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
+                // Lazy, so the permission lookups only run for Inertia responses. The sidebar uses
+                // these to show only what the signed-in user can use; the server still enforces access.
+                'roles' => fn () => $request->user()?->getRoleNames()->values() ?? [],
+                'permissions' => fn () => $request->user()?->getAllPermissions()->pluck('name')->values() ?? [],
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
             ],
         ]);
     }

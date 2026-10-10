@@ -2,17 +2,19 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, Files, Folder, Inbox, Layers, LayoutGrid, Link2 } from 'lucide-react';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, CalendarCheck, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
+const dashboardNavItem: NavItem = {
+    title: 'Dashboard',
+    url: '/dashboard',
+    icon: LayoutGrid,
+};
+
+// Shown only to administrators; the server enforces this too (every /admin route needs the role).
+const adminNavItems: NavItem[] = [
     {
         title: 'Review queue',
         url: '/admin/events',
@@ -22,6 +24,11 @@ const mainNavItems: NavItem[] = [
         title: 'Channels',
         url: '/admin/channels',
         icon: Layers,
+    },
+    {
+        title: 'Users',
+        url: '/admin/users',
+        icon: Users,
     },
     {
         title: 'Submissions',
@@ -54,6 +61,9 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const mainNavItems = auth.roles.includes('administrator') ? [dashboardNavItem, ...adminNavItems] : [dashboardNavItem];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

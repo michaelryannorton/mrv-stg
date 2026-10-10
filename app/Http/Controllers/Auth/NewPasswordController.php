@@ -30,7 +30,7 @@ class NewPasswordController extends Controller
     /**
      * Handle an incoming new password request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
@@ -49,6 +49,9 @@ class NewPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
+                    // Finishing a reset proves the person owns the inbox, so it also completes a
+                    // pending invitation (Phase 2 slice 1c).
+                    'invitation_accepted_at' => $user->isPending() ? now() : $user->invitation_accepted_at,
                 ])->save();
 
                 event(new PasswordReset($user));

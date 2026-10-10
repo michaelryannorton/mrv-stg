@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ClipController;
 use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
 use App\Http\Controllers\Admin\SubmissionModerationController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PublicSubmissionController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('channels', [ChannelController::class, 'store'])->name('channels.store');
         Route::get('channels/{channel}/edit', [ChannelController::class, 'edit'])->name('channels.edit');
         Route::put('channels/{channel}', [ChannelController::class, 'update'])->name('channels.update');
+
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::post('users/{user}/resend', [UserController::class, 'resend'])->name('users.resend');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
         Route::get('submissions', [SubmissionModerationController::class, 'index'])->name('submissions.index');
         Route::post('submissions/bulk', [SubmissionModerationController::class, 'bulk'])->name('submissions.bulk');
