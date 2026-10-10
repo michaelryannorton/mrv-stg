@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SubmissionModerationController;
 use App\Http\Controllers\Admin\UserAssignmentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CurateController;
+use App\Http\Controllers\CuratorProfileController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PublicSubmissionController;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,12 @@ Route::middleware(['auth'])->group(function () {
             ->whereNumber('event')
             ->where('action', 'feature|unfeature|exclude|restore|add')
             ->name('channels.act');
+    });
+
+    // The signed-in user's own public profile (Phase 2 slice 1c-iii). No id in the URL.
+    Route::middleware('permission:profile.edit')->group(function () {
+        Route::get('curate/profile', [CuratorProfileController::class, 'edit'])->name('curate.profile.edit');
+        Route::put('curate/profile', [CuratorProfileController::class, 'update'])->name('curate.profile.update');
     });
 
     // Every /admin route is administrator-only. Curators and editors get their own /curate pages

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -63,6 +64,11 @@ class User extends Authenticatable
     public function scopePending(Builder $query): Builder
     {
         return $query->whereNotNull('invited_at')->whereNull('invitation_accepted_at');
+    }
+
+    public function curatorProfile(): HasOne
+    {
+        return $this->hasOne(CuratorProfile::class);
     }
 
     public function curatorAssignments(): HasMany

@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Sparkles, Users } from 'lucide-react';
+import { BookOpen, CalendarCheck, CircleUser, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Sparkles, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const dashboardNavItem: NavItem = {
@@ -18,6 +18,13 @@ const curateNavItem: NavItem = {
     title: 'Curate',
     url: '/curate',
     icon: Sparkles,
+};
+
+// Shown to anyone who holds profile.edit (editors, curators, administrators).
+const profileNavItem: NavItem = {
+    title: 'Public profile',
+    url: '/curate/profile',
+    icon: CircleUser,
 };
 
 // Shown only to administrators; the server enforces this too (every /admin route needs the role).
@@ -72,6 +79,7 @@ export function AppSidebar() {
     const mainNavItems = [
         dashboardNavItem,
         ...(auth.permissions.includes('channels.curate') ? [curateNavItem] : []),
+        ...(auth.permissions.includes('profile.edit') ? [profileNavItem] : []),
         ...(auth.roles.includes('administrator') ? adminNavItems : []),
     ];
 
