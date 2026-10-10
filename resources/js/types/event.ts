@@ -26,6 +26,8 @@ export interface EventItem {
     timezone: string;
     all_day: boolean;
     is_free: boolean | null;
+    /** Absolute http(s) address of the event's own page, or null. Set by the server; safe to use as an href. */
+    details_url: string | null;
     venue: Venue | null;
     organizer: Organization | null;
     categories: Taxonomy[];

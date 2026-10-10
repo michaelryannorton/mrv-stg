@@ -1,15 +1,13 @@
 import DayView from '@/components/calendar/day-view';
 import MonthView from '@/components/calendar/month-view';
 import WeekView from '@/components/calendar/week-view';
+import EventCard from '@/components/event-card';
 import PublicHeader from '@/components/public-header';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatDayLabel, formatMonthLabel, formatWeekRangeLabel } from '@/lib/calendar';
-import { formatWhen } from '@/lib/event-formatting';
 import { type EventItem, type Taxonomy } from '@/types/event';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -222,38 +220,7 @@ export default function EventsIndex({ events, filters, categories, audiences, vi
                     {view === 'list' && eventList.length > 0 && (
                         <div className="grid gap-4">
                             {eventList.map((event) => (
-                                <Card key={event.id}>
-                                    <CardHeader>
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div>
-                                                <CardTitle>{event.title}</CardTitle>
-                                                <p className="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                                    {formatWhen(event)}
-                                                    {event.venue && ` · ${event.venue.name}`}
-                                                    {event.venue?.city && `, ${event.venue.city}`}
-                                                </p>
-                                            </div>
-                                            {event.is_free && <Badge>Free</Badge>}
-                                        </div>
-                                    </CardHeader>
-                                    {(event.short_description || event.categories.length > 0) && (
-                                        <CardContent>
-                                            {event.short_description && <p className="mb-3 text-sm">{event.short_description}</p>}
-                                            <div className="flex flex-wrap gap-2">
-                                                {event.categories.map((c) => (
-                                                    <Badge key={c.id} variant="secondary">
-                                                        {c.name}
-                                                    </Badge>
-                                                ))}
-                                                {event.tags.map((t) => (
-                                                    <Badge key={t.id} variant="outline">
-                                                        {t.name}
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        </CardContent>
-                                    )}
-                                </Card>
+                                <EventCard key={event.id} event={event} />
                             ))}
                         </div>
                     )}
