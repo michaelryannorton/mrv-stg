@@ -15,6 +15,8 @@
         "laravel/tinker": "^2.10.1",
         "sabre/vobject": "^5.0",
         "spatie/laravel-permission": "^8.3",
+        "symfony/http-client": "^8.1",
+        "symfony/postmark-mailer": "^8.1",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
