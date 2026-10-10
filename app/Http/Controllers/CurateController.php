@@ -30,6 +30,7 @@ class CurateController extends Controller
             : $user->curatedChannels()->where('channels.status', '!=', 'archived')->orderBy('channels.name')->get();
 
         return Inertia::render('curate/index', [
+            'viewer_is_administrator' => $user->hasRole('administrator'),
             'channels' => $channels->map(fn (Channel $channel) => [
                 'id' => $channel->id,
                 'name' => $channel->name,

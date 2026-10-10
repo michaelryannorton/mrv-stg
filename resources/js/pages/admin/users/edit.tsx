@@ -1,3 +1,4 @@
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 interface ManagedUser {
     id: number;
@@ -82,31 +83,44 @@ export default function EditUser({ user, roles, assignments, available_channels,
         router.put(route('admin.users.assignments.update', [user.id, channelId]), { role }, { preserveScroll: true });
     }
 
-    function endAssignment(assignment: Assignment) {
-        if (window.confirm(`End ${user.name}'s work on "${assignment.channel_name}"? They lose access to it immediately.`)) {
-            router.delete(route('admin.users.assignments.destroy', [user.id, assignment.channel_id]), { preserveScroll: true });
-        }
-    }
-
     function resend() {
         router.post(route('admin.users.resend', user.id), {}, { preserveScroll: true });
     }
 
-    function revoke() {
-        if (window.confirm(`Revoke the invitation for ${user.email}? Their account will be removed.`)) {
-            router.delete(route('admin.users.destroy', user.id));
-        }
-    }
+    // The three destructive actions share one in-page confirmation (no native dialog).
+    const [pending, setPending] = useState<{ kind: 'end'; assignment: Assignment } | { kind: 'revoke' } | { kind: 'remove' } | null>(null);
 
-    function removeAccount() {
-        if (
-            window.confirm(
-                `Remove ${user.name}'s account? They are logged out everywhere and lose all access. Their picks stay in the channels. This cannot be undone.`,
-            )
-        ) {
+    function runPending() {
+        if (!pending) return;
+        const action = pending;
+        setPending(null);
+        if (action.kind === 'end') {
+            router.delete(route('admin.users.assignments.destroy', [user.id, action.assignment.channel_id]), { preserveScroll: true });
+        } else if (action.kind === 'revoke') {
+            router.delete(route('admin.users.destroy', user.id));
+        } else {
             router.post(route('admin.users.remove', user.id));
         }
     }
+
+    const dialog = {
+        end: (a: Assignment) => ({
+            title: `End work on "${a.channel_name}"?`,
+            description: `${user.name} loses access to this channel immediately. Their earlier picks stay.`,
+            confirmLabel: 'End assignment',
+        }),
+        revoke: () => ({
+            title: 'Revoke this invitation?',
+            description: `The invitation link for ${user.email} stops working and the pending account is removed.`,
+            confirmLabel: 'Revoke invitation',
+        }),
+        remove: () => ({
+            title: `Remove ${user.name}'s account?`,
+            description: 'They are logged out everywhere and lose all access. Their picks stay in the channels. This cannot be undone.',
+            confirmLabel: 'Remove account',
+        }),
+    };
+    const dialogText = pending === null ? null : pending.kind === 'end' ? dialog.end(pending.assignment) : dialog[pending.kind]();
 
     const active = assignments.filter((a) => a.status === 'active');
     const ended = assignments.filter((a) => a.status === 'ended');
@@ -176,7 +190,7 @@ export default function EditUser({ user, roles, assignments, available_channels,
                                                 onChange={(value) => changeAssignmentRole(assignment.channel_id, value)}
                                             />
                                         </div>
-                                        <Button type="button" variant="outline" size="sm" onClick={() => endAssignment(assignment)}>
+                                        <Button type="button" variant="outline" size="sm" onClick={() => setPending({ kind: 'end', assignment })}>
                                             End
                                         </Button>
                                     </div>
@@ -241,7 +255,7 @@ export default function EditUser({ user, roles, assignments, available_channels,
                             <Button type="button" variant="outline" onClick={resend}>
                                 Resend invitation
                             </Button>
-                            <Button type="button" variant="destructive" onClick={revoke}>
+                            <Button type="button" variant="destructive" onClick={() => setPending({ kind: 'revoke' })}>
                                 Revoke invitation
                             </Button>
                         </div>
@@ -254,7 +268,7 @@ export default function EditUser({ user, roles, assignments, available_channels,
                             channels, with no author recorded.
                         </p>
                         <div>
-                            <Button type="button" variant="destructive" onClick={removeAccount}>
+                            <Button type="button" variant="destructive" onClick={() => setPending({ kind: 'remove' })}>
                                 Remove account
                             </Button>
                         </div>
@@ -267,6 +281,16 @@ export default function EditUser({ user, roles, assignments, available_channels,
                     </Button>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={pending !== null}
+                title={dialogText?.title ?? ''}
+                description={dialogText?.description ?? ''}
+                confirmLabel={dialogText?.confirmLabel ?? 'Confirm'}
+                destructive
+                onConfirm={runPending}
+                onCancel={() => setPending(null)}
+            />
         </AppLayout>
     );
 }

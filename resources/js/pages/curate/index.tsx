@@ -17,7 +17,7 @@ interface CurateChannel {
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Curate', href: '/curate' }];
 
-export default function CurateIndex({ channels }: { channels: CurateChannel[] }) {
+export default function CurateIndex({ channels, viewer_is_administrator }: { channels: CurateChannel[]; viewer_is_administrator: boolean }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Curate" />
@@ -33,7 +33,9 @@ export default function CurateIndex({ channels }: { channels: CurateChannel[] })
 
                 {channels.length === 0 ? (
                     <div className="border-sidebar-border/70 text-muted-foreground rounded-md border p-8 text-center text-sm">
-                        You are not assigned to a channel yet. The administrator assigns channels.
+                        {viewer_is_administrator
+                            ? 'There are no channels to curate yet. Create one under Channels.'
+                            : 'You are not assigned to a channel yet. The administrator assigns channels.'}
                     </div>
                 ) : (
                     <div className="grid gap-3 sm:grid-cols-2">

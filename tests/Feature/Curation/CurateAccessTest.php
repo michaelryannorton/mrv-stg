@@ -124,4 +124,13 @@ class CurateAccessTest extends CurationTestCase
         $this->get(route('admin.events.index'))->assertForbidden();
         $this->assertSame('Concert', $event->fresh()->title);
     }
+
+    public function test_the_empty_state_tells_an_administrator_apart_from_a_curator(): void
+    {
+        $this->actingAs($this->admin())->get(route('curate.index'))
+            ->assertInertia(fn (Assert $page) => $page->has('channels', 0)->where('viewer_is_administrator', true));
+
+        $this->actingAs($this->curator())->get(route('curate.index'))
+            ->assertInertia(fn (Assert $page) => $page->has('channels', 0)->where('viewer_is_administrator', false));
+    }
 }
