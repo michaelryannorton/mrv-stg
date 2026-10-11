@@ -46,7 +46,13 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('submit.store'), { onSuccess: () => reset() });
+        // Only a real success clears the form; a rate-limit refusal also redirects back to this page
+        // and must not throw away what the visitor typed.
+        post(route('submit.store'), {
+            onSuccess: (page) => {
+                if ((page.props as unknown as SharedData).flash?.success) reset();
+            },
+        });
     };
 
     const foundNothing = sourceUrl && Object.keys(prefilled).length === 0;
@@ -66,6 +72,12 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
                 {flash?.success && (
                     <div className="mb-6 rounded-md border border-green-600/30 bg-green-600/10 px-4 py-2 text-sm text-green-700 dark:text-green-400">
                         {flash.success}
+                    </div>
+                )}
+
+                {flash?.error && (
+                    <div className="mb-6 rounded-md border border-red-600/30 bg-red-600/10 px-4 py-2 text-sm text-red-700 dark:text-red-400">
+                        {flash.error}
                     </div>
                 )}
 

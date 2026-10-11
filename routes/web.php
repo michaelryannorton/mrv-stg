@@ -26,8 +26,9 @@ Route::get('events', [EventController::class, 'index'])->name('events.index');
 Route::get('channels', [ChannelPageController::class, 'index'])->name('channels.index');
 Route::get('channels/{channel:slug}', [ChannelPageController::class, 'show'])->name('channels.show');
 
-Route::get('submit-event', [PublicSubmissionController::class, 'create'])->name('submit.create');
-Route::post('submit-event', [PublicSubmissionController::class, 'store'])->name('submit.store');
+// Open to anonymous visitors, so both routes are rate limited (AppServiceProvider::configurePublicSubmissionLimits).
+Route::get('submit-event', [PublicSubmissionController::class, 'create'])->middleware('throttle:submission-lookups')->name('submit.create');
+Route::post('submit-event', [PublicSubmissionController::class, 'store'])->middleware('throttle:submissions')->name('submit.store');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {

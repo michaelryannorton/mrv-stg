@@ -6,6 +6,7 @@ use App\Models\Audience;
 use App\Models\Category;
 use App\Models\Event;
 use App\Services\CalendarRangeCalculator;
+use App\Support\PublicEventCard;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,7 +29,7 @@ class EventController extends Controller
         $view = $filters['view'] ?? 'list';
 
         $query = Event::published()
-            ->with(['venue', 'organizer', 'categories', 'tags', 'audiences'])
+            ->with(PublicEventCard::RELATIONS)
             ->when($filters['category'] ?? null, fn ($q, $slug) => $q->whereHas('categories', fn ($q) => $q->where('slug', $slug)))
             ->when($filters['audience'] ?? null, fn ($q, $slug) => $q->whereHas('audiences', fn ($q) => $q->where('slug', $slug)))
             ->when($filters['free'] ?? null, fn ($q) => $q->where('is_free', true))
@@ -55,7 +56,8 @@ class EventController extends Controller
                 })
                 ->orderBy('start_at')
                 ->paginate(20)
-                ->withQueryString();
+                ->withQueryString()
+                ->through(fn (Event $event) => PublicEventCard::make($event));
         } else {
             $anchor = isset($filters['date'])
                 ? CarbonImmutable::parse($filters['date'], 'America/Los_Angeles')->startOfDay()
@@ -67,6 +69,8 @@ class EventController extends Controller
                 ->between($range['rangeStart'], $range['rangeEnd'])
                 ->orderBy('start_at')
                 ->get();
+
+            $events = PublicEventCard::collection($events);
 
             $calendar = [
                 'anchorDate' => $anchor->toDateString(),

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Channel;
 use App\Models\CuratorAssignment;
 use App\Models\Event;
+use App\Support\PublicEventCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -95,7 +96,7 @@ class ChannelPageController extends Controller
     private function publicEvents(Channel $channel)
     {
         return $channel->events()->published()->upcoming()
-            ->with(['venue:id,name,city', 'organizer:id,name', 'categories:id,name,slug', 'tags:id,name,slug', 'audiences:id,name,slug']);
+            ->with(PublicEventCard::RELATIONS);
     }
 
     /** @return Collection<int, array{display_name: string, role: string, blurb: ?string, since: ?string}> */
@@ -124,26 +125,6 @@ class ChannelPageController extends Controller
 
     private function card(Event $event, bool $isPick): array
     {
-        $taxonomy = fn ($items) => $items->map(fn ($item) => ['id' => $item->id, 'name' => $item->name, 'slug' => $item->slug])->values();
-
-        return [
-            'id' => $event->id,
-            'uuid' => $event->uuid,
-            'title' => $event->title,
-            'slug' => $event->slug,
-            'short_description' => $event->short_description,
-            'start_at' => $event->start_at,
-            'end_at' => $event->end_at,
-            'timezone' => $event->timezone,
-            'all_day' => $event->all_day,
-            'is_free' => $event->is_free,
-            'details_url' => $event->details_url,
-            'venue' => $event->venue ? ['id' => $event->venue->id, 'name' => $event->venue->name, 'city' => $event->venue->city] : null,
-            'organizer' => $event->organizer ? ['id' => $event->organizer->id, 'name' => $event->organizer->name] : null,
-            'categories' => $taxonomy($event->categories),
-            'tags' => $taxonomy($event->tags),
-            'audiences' => $taxonomy($event->audiences),
-            'is_pick' => $isPick,
-        ];
+        return PublicEventCard::make($event, $isPick);
     }
 }
