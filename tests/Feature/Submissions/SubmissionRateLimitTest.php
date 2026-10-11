@@ -55,7 +55,7 @@ class SubmissionRateLimitTest extends TestCase
 
         $this->followingRedirects()->submit()->assertOk()->assertInertia(fn (Assert $page) => $page
             ->component('submit/create')
-            ->where('flash.error', 'You have submitted several events recently. Please try again in an hour.'));
+            ->where('flash.error', "You've reached the limit for event submissions from your connection for now. What you entered is still in the form. Please try again in about 1 hour. The limit keeps spam out of the review queue and applies to everyone."));
     }
 
     public function test_another_address_is_not_affected(): void
@@ -92,7 +92,7 @@ class SubmissionRateLimitTest extends TestCase
         $this->assertSame(30, PublicSubmission::count());
 
         Carbon::setTestNow('2026-10-11 12:15:00');
-        $this->submit()->assertSessionHas('error', 'You have reached the daily limit for submissions. Please try again tomorrow.');
+        $this->submit()->assertSessionHas('error', "You've reached today's limit for event submissions from your connection. What you entered is still in the form. Please try again in about 21 hours. The limit keeps spam out of the review queue and applies to everyone.");
         $this->assertSame(30, PublicSubmission::count());
     }
 
@@ -107,7 +107,7 @@ class SubmissionRateLimitTest extends TestCase
 
         $this->get(route('submit.create', ['url' => 'https://example.org/e7']))
             ->assertRedirect(route('submit.create'))
-            ->assertSessionHas('error', 'Too many link lookups. Wait a minute, or fill in the form by hand.');
+            ->assertSessionHas('error', 'Too many link lookups in a short time. You can fill in the form by hand now, or try the link again in about a minute. The limit applies to everyone.');
         Http::assertSentCount(6);
 
         Carbon::setTestNow(now()->addMinutes(2));
@@ -130,5 +130,24 @@ class SubmissionRateLimitTest extends TestCase
 
         $this->submit()->assertSessionMissing('error');
         $this->assertSame(1, PublicSubmission::count());
+    }
+
+    public function test_refusal_messages_say_when_to_come_back_but_never_state_the_limits(): void
+    {
+        Http::fake(['*' => Http::response('', 404)]);
+        for ($i = 0; $i < 10; $i++) {
+            $this->submit();
+        }
+        $hourly = $this->submit()->getSession()->get('error');
+
+        for ($i = 0; $i < 7; $i++) {
+            $this->get(route('submit.create', ['url' => 'https://example.org/e'.$i]));
+        }
+        $lookup = $this->get(route('submit.create', ['url' => 'https://example.org/x']))->getSession()->get('error');
+
+        foreach ([$hourly, $lookup] as $message) {
+            $this->assertMatchesRegularExpression('/try .*again in about /', $message);
+            $this->assertDoesNotMatchRegularExpression('/\b(10|30|6|ten|thirty|six)\b/i', $message);
+        }
     }
 }

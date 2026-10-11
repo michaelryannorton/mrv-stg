@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\WaitPhrase;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -34,23 +35,27 @@ class AppServiceProvider extends ServiceProvider
      */
     private function configurePublicSubmissionLimits(): void
     {
+        // The message says what happened and when to come back, but not the numbers behind the limit.
+        // $message gets the wait time as a phrase such as "12 minutes".
         $tooMany = fn (string $message) => fn (Request $request, array $headers) => redirect()
             ->route('submit.create')
-            ->with('error', $message)
+            ->with('error', sprintf($message, WaitPhrase::for((int) ($headers['Retry-After'] ?? 60))))
             ->withHeaders($headers);
+
+        $notice = 'The limit keeps spam out of the review queue and applies to everyone.';
 
         RateLimiter::for('submissions', fn (Request $request) => [
             Limit::perHour(10)->by('hour:'.$request->ip())
-                ->response($tooMany('You have submitted several events recently. Please try again in an hour.')),
+                ->response($tooMany("You've reached the limit for event submissions from your connection for now. What you entered is still in the form. Please try again in about %s. {$notice}")),
             Limit::perDay(30)->by('day:'.$request->ip())
-                ->response($tooMany('You have reached the daily limit for submissions. Please try again tomorrow.')),
+                ->response($tooMany("You've reached today's limit for event submissions from your connection. What you entered is still in the form. Please try again in about %s. {$notice}")),
         ]);
 
         // Looking up a link makes the server fetch that page, which is the costly part, so it has its
         // own limit; opening the empty form is never limited.
         RateLimiter::for('submission-lookups', fn (Request $request) => $request->filled('url')
             ? Limit::perMinute(6)->by('lookup:'.$request->ip())
-                ->response($tooMany('Too many link lookups. Wait a minute, or fill in the form by hand.'))
+                ->response($tooMany('Too many link lookups in a short time. You can fill in the form by hand now, or try the link again in about %s. The limit applies to everyone.'))
             : Limit::none());
     }
 }

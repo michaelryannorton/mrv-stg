@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Support\SafeHttp\SafeFetcher;
+use App\Support\SafeHttp\UnsafeUrlException;
 use Carbon\Carbon;
 use DOMDocument;
 use DOMXPath;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Pulls whatever a page will hand over about a single event, for the clipper (section 6) and the
@@ -20,21 +22,27 @@ class EventExtractor
     /**
      * Fetches $sourceUrl itself and runs extract() against it — the one entry point both
      * ClipController and PublicSubmissionController call, so the fetch (timeout, user agent,
-     * content-type check, network-failure handling) only lives in one place. Returns an empty
+     * content-type check, network-failure handling) only lives in one place. The address is
+     * untrusted input on the public form, so the request goes through SafeFetcher, which refuses
+     * anything pointing at a private network. Returns an empty
      * array on any failure — a network error, a non-HTML response, anything — since the caller's
      * form is specified to just come back blank in that case, same as manual entry.
      */
     public static function extractFromUrl(string $sourceUrl): array
     {
         try {
-            $response = Http::withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; MRVCommunityClipper/1.0)'])
-                ->timeout(10)
-                ->get($sourceUrl);
+            $response = app(SafeFetcher::class)->get($sourceUrl, ['User-Agent' => 'Mozilla/5.0 (compatible; MRVCommunityClipper/1.0)']);
+        } catch (UnsafeUrlException $e) {
+            // The address came from a visitor and was refused (private network, odd port, and so on).
+            // The form just comes back blank, the same as for a page with nothing to read.
+            Log::info('Refused to fetch an address for an event lookup: '.$e->getMessage());
+
+            return [];
         } catch (\Throwable) {
             return [];
         }
 
-        if (! $response->successful() || ! str_contains($response->header('Content-Type', ''), 'html')) {
+        if (! $response->successful() || ! str_contains($response->header('Content-Type', ''), 'html') || $response->body() === '') {
             return [];
         }
 
