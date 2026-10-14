@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\InviteOnlyGate;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
+            InviteOnlyGate::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
@@ -27,6 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
+
+        // The invite-only gate must see a signed-out visitor before the auth middleware (which would
+        // redirect without the noindex header) and before route-model binding (which would answer an
+        // unknown channel with a 404). Run it right after the session has started.
+        $middleware->prependToPriorityList(before: AuthenticatesRequests::class, prepend: InviteOnlyGate::class);
 
         // Decide authorization before route-model binding, so a user without access gets a 403 for
         // every event id and cannot tell which ids exist from 404-versus-403.

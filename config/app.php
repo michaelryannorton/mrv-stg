@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Invite-Only Mode
+    |--------------------------------------------------------------------------
+    |
+    | When true (staging sets STAGING_INVITE_ONLY=true), a signed-out visitor is sent to the
+    | login page for every address except login, password reset and the invitation page, and
+    | every response is marked noindex. See App\Http\Middleware\InviteOnlyGate.
+    |
+    */
+
+    'invite_only' => (bool) env('STAGING_INVITE_ONLY', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
