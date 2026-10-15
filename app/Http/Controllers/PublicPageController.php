@@ -38,6 +38,21 @@ class PublicPageController extends Controller
         return $this->page($request, 'data/index');
     }
 
+    public function overview(Request $request): Response
+    {
+        return $this->page($request, 'overview/index');
+    }
+
+    public function earthquakes(Request $request): Response
+    {
+        return $this->page($request, 'earthquakes/index');
+    }
+
+    public function groundwater(Request $request): Response
+    {
+        return $this->page($request, 'groundwater/index');
+    }
+
     public function publicArt(Request $request): Response
     {
         return $this->page($request, 'art/index');

@@ -38,15 +38,15 @@ export const SITE_NAV: NavItem[] = [
         id: 'geography',
         label: 'Geography',
         children: [
-            { id: 'overview', label: 'Overview', ready: false },
+            { id: 'overview', label: 'Overview', ready: true, route: 'overview.index' },
             { id: 'city', label: 'City Explorer', ready: false },
             // Not built on production either (greyed out there): later work items.
             { id: 'compare', label: 'Compare Cities', ready: false },
             { id: 'trends', label: 'Climate Trends', ready: false },
             { id: 'garden', label: 'Garden & Grow', ready: false },
             { id: 'airquality', label: 'Air Quality', ready: false },
-            { id: 'earthquakes', label: 'Earthquakes', ready: false },
-            { id: 'groundwater', label: 'Groundwater', ready: false },
+            { id: 'earthquakes', label: 'Earthquakes', ready: true, route: 'earthquakes.index' },
+            { id: 'groundwater', label: 'Groundwater', ready: true, route: 'groundwater.index' },
             { id: 'climate', label: 'Climate Projections', ready: false },
         ],
     },

@@ -40,6 +40,9 @@ return [
             'markets.index',
             'data.index',
             'art.index',
+            'overview.index',
+            'earthquakes.index',
+            'groundwater.index',
         ],
     ],
 ];

@@ -13,7 +13,17 @@ export function makeLeaflet(log, extra = {}) {
         return o;
     };
     const map = () => chain('map', extra.invalidateSize ? ['setView', 'fitBounds', 'remove', 'invalidateSize'] : ['setView', 'fitBounds', 'remove']);
-    const layerGroup = () => chain('layerGroup', ['addTo', 'clearLayers']);
+    const layerGroup = () => {
+        const g = chain('layerGroup', ['addTo', 'clearLayers']);
+        if (extra.handlers) {
+            const clear = g.clearLayers;
+            g.clearLayers = (...a) => {
+                extra.handlers.list.length = 0; // the markers are gone, so are their click handlers
+                return clear(...a);
+            };
+        }
+        return g;
+    };
     return {
         map: (container, opts) => {
             rec('L.map', [typeof container === 'string' ? container : 'element', opts]);
@@ -33,7 +43,18 @@ export function makeLeaflet(log, extra = {}) {
         },
         circleMarker: (ll, opts) => {
             rec('L.circleMarker', [ll, opts]);
-            return chain('marker', ['bindPopup', 'bindTooltip', 'addTo']);
+            const m = chain(
+                'marker',
+                extra.wells ? ['bindPopup', 'bindTooltip', 'addTo', 'on', 'setStyle', 'bringToFront'] : ['bindPopup', 'bindTooltip', 'addTo'],
+            );
+            if (extra.handlers) {
+                m.on = (ev, fn) => {
+                    rec('marker.on', [ev, fn]);
+                    extra.handlers.list.push(fn);
+                    return m;
+                };
+            }
+            return m;
         },
     };
 }

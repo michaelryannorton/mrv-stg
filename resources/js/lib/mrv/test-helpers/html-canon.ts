@@ -11,7 +11,19 @@
 
 const VOID = new Set(['br', 'img', 'input', 'hr', 'meta', 'link']);
 /** Containers laid out as flex or grid (checked in resources/css): whitespace between their children is not rendered. */
-const FLEX_OR_GRID = new Set(['map-legend', 'map-controls', 'market-tags', 'card-themes', 'filter-row', 'card-grid', 'grid-markets', 'gallery-grid']);
+const FLEX_OR_GRID = new Set([
+    'map-legend',
+    'map-controls',
+    'market-tags',
+    'card-themes',
+    'filter-row',
+    'card-grid',
+    'grid-markets',
+    'gallery-grid',
+    'grid',
+    'magnitude-legend',
+    'quake-row',
+]);
 const INLINE = new Set([
     'a',
     'span',

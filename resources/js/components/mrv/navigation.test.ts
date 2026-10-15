@@ -14,7 +14,19 @@ describe('navigation', () => {
             .filter((p) => p.ready)
             .map((p) => p.id)
             .sort();
-        expect(ready).toEqual(['art', 'channels', 'data', 'events', 'home', 'markets', 'route66', 'submit']);
+        expect(ready).toEqual([
+            'art',
+            'channels',
+            'data',
+            'earthquakes',
+            'events',
+            'groundwater',
+            'home',
+            'markets',
+            'overview',
+            'route66',
+            'submit',
+        ]);
     });
 
     it('every ready page names a route (previews carry a literal address instead)', () => {

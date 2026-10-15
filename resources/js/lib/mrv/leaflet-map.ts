@@ -4,6 +4,7 @@
  * tile layer as production. The legacy module kept the marker layer in a module variable; here it is returned.
  */
 import * as L from 'leaflet';
+import { markerStyle, wellTooltip, type Well } from './groundwater';
 import { colorForValue, radiusForValue, TILE_ATTRIBUTION, TILE_URL } from './region-map';
 
 export interface MapPoint {
@@ -94,7 +95,7 @@ export interface PointMarker {
     fillColor: string;
     fillOpacity: number;
     /** HTML string (Leaflet reads tooltips and popups as HTML): escape any text that came from data. */
-    tooltip: string;
+    tooltip?: string;
     popup: string;
 }
 
@@ -103,8 +104,13 @@ export interface FitOptions {
     maxZoom: number;
 }
 
-export function createMarkerMap(container: string | HTMLElement): RegionMapHandle {
-    const map = L.map(container).setView([34.55, -117.0], 8);
+export interface MapView {
+    center: [number, number];
+    zoom: number;
+}
+
+export function createMarkerMap(container: string | HTMLElement, view: MapView = { center: [34.55, -117.0], zoom: 8 }): RegionMapHandle {
+    const map = L.map(container).setView(view.center, view.zoom);
     L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 14 }).addTo(map);
     const markers = L.layerGroup().addTo(map);
     return { map, markers };
@@ -113,10 +119,15 @@ export function createMarkerMap(container: string | HTMLElement): RegionMapHandl
 export function drawMarkers(layer: L.LayerGroup, markers: PointMarker[], { clear = true }: { clear?: boolean } = {}): void {
     if (clear) layer.clearLayers();
     for (const m of markers) {
-        L.circleMarker([m.lat, m.lon], { radius: m.radius, color: '#2E2A26', weight: 1, fillColor: m.fillColor, fillOpacity: m.fillOpacity })
-            .bindTooltip(m.tooltip, { direction: 'top', offset: [0, -m.radius] })
-            .bindPopup(m.popup)
-            .addTo(layer);
+        const marker = L.circleMarker([m.lat, m.lon], {
+            radius: m.radius,
+            color: '#2E2A26',
+            weight: 1,
+            fillColor: m.fillColor,
+            fillOpacity: m.fillOpacity,
+        });
+        if (m.tooltip !== undefined) marker.bindTooltip(m.tooltip, { direction: 'top', offset: [0, -m.radius] });
+        marker.bindPopup(m.popup).addTo(layer);
     }
 }
 
@@ -159,4 +170,31 @@ export function reshowMarkerMap(handle: RegionMapHandle, spec: MarkerMapSpec): v
 /** Leaflet measures its container once; after the container is shown (or just made) it needs this nudge, a tick later. */
 export function invalidateSoon(map: L.Map): ReturnType<typeof setTimeout> {
     return setTimeout(() => map.invalidateSize(), 0);
+}
+
+// ---- the Groundwater map: wells that can be selected (port phase 4) --------------------------------------------------------
+
+export type WellMarkers = Map<string, L.CircleMarker>;
+
+/** Production's drawMarkers in groundwater.js: clear, then one marker per well, drawn in the selected style when it is the selected one. */
+export function drawWellMarkers(layer: L.LayerGroup, wells: Well[], selectedId: string | null, onSelect: (siteId: string) => void): WellMarkers {
+    layer.clearLayers();
+    const markers: WellMarkers = new Map();
+    for (const w of wells) {
+        const marker = L.circleMarker([w.latitude, w.longitude], markerStyle(w, w.site_id === selectedId))
+            .bindTooltip(wellTooltip(w), { direction: 'top', offset: [0, -6] })
+            .on('click', () => onSelect(w.site_id))
+            .addTo(layer);
+        markers.set(w.site_id, marker);
+    }
+    return markers;
+}
+
+/** Production's selectWell, map part: restyle every drawn marker and bring the selected one to the front (no redraw). */
+export function selectWellMarker(markers: WellMarkers, wells: Well[], selectedId: string): void {
+    for (const [id, marker] of markers) {
+        const well = wells.find((x) => x.site_id === id) as Well;
+        marker.setStyle(markerStyle(well, id === selectedId));
+        if (id === selectedId) marker.bringToFront();
+    }
 }

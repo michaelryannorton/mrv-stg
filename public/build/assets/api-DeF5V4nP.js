@@ -1,1 +1,0 @@
-const r="https://data.mojaverivervalley.org/v1";async function n(a,e=(t,s)=>fetch(t,s),o=t=>`API fetch failed: HTTP ${t} (${a})`){const t=await e(a,{cache:"no-store"});if(!t.ok)throw new Error(o(t.status));return await t.json()}export{r as M,n as f};
