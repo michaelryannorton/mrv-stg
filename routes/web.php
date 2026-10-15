@@ -12,12 +12,31 @@ use App\Http\Controllers\CurateController;
 use App\Http\Controllers\CuratorProfileController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PublicSubmissionController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+
+// Local environment only: the port's component sheet (port/phase-1), compared with production's look. Never
+// registered on staging, on production or under test.
+if (app()->environment('local')) {
+    Route::get('port/components', function (Request $request) {
+        $season = $request->query('season');
+
+        return Inertia::render('port/components', [
+            // Production's markup, with its one renamed class (`container` is `mrv-container` here, see mrv.css).
+            'html' => preg_replace_callback(
+                '/class="([^"]*)"/',
+                fn (array $m) => 'class="'.preg_replace('/(?<![\w-])container(?![\w-])/', 'mrv-container', $m[1]).'"',
+                file_get_contents(base_path('../port/phase-1/reference/sheet-body.html')),
+            ),
+            'season' => in_array($season, ['winter', 'spring', 'summer', 'fall'], true) ? $season : null,
+        ]);
+    })->name('port.components');
+}
 
 Route::get('events', [EventController::class, 'index'])->name('events.index');
 

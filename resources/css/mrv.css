@@ -1,0 +1,1354 @@
+/* ==========================================================================
+   Mojave River Valley, public site design system.
+
+   Generated 2026-10-14 from public_html/css/styles.css (SHA-256 b9d0c9e2b3955e1e...)
+   by port/phase-1/tools/convert_css.py, then kept by hand: from here on THIS file is the
+   source of the design system for the Laravel app; the legacy copy stays frozen until it is
+   retired. A change to the legacy stylesheet while both sites run has to be mirrored here.
+
+   What the conversion did, and nothing else:
+   - Every rule sits inside one `.mrv-site` block (native CSS nesting), so none of it applies
+     outside the public layout's wrapper (/admin, /curate, /settings and sign-in are untouched).
+   - `:root` and `body` rules apply to the wrapper itself; `html[data-season="x"]` is
+     `[data-season="x"]` on the wrapper (the City Explorer season switch sets it there).
+   - The Google Fonts @import is gone; resources/js/layouts/public-layout.tsx loads Fraunces and Inter.
+   - `* { box-sizing: border-box }` is part of the reset below.
+   - ONE class is renamed: `.container` is `.mrv-container`. Tailwind has a `container` utility (generated whenever
+     the class name appears in the source) that sits in a higher cascade layer and would override production's
+     max-width and margins. Production markup ported to React uses `mrv-container`.
+   Class names, values and comments are otherwise exactly production's.
+
+   Imported by resources/css/app.css into the `mrv` cascade layer (after Tailwind's base layer,
+   before its utilities), so Tailwind utilities still win inside the wrapper.
+   ========================================================================== */
+
+/* Browser defaults, as on production (which has no CSS reset): undo Tailwind's preflight for everything
+   inside the wrapper, then apply production's own rules below. SVG is left out of the `all: revert` on
+   purpose: `revert` also throws away presentation attributes (a path's `d`, `fill`, `stroke`, which Leaflet
+   and the icons rely on), so the svg element gets only the two values preflight changed. `:where()` keeps
+   the specificity of the reset at (0,1,0). */
+.mrv-site,
+.mrv-site :where(*:not(svg, svg *)),
+.mrv-site :where(*:not(svg, svg *))::before,
+.mrv-site :where(*:not(svg, svg *))::after {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.mrv-site svg {
+  display: inline;
+  vertical-align: baseline;
+}
+
+/* Preflight's `border: 0 solid` and shadcn's border and outline colors on every element: invisible on SVG
+   (zero width) but they change the computed style, so put the browser values back. */
+.mrv-site svg,
+.mrv-site svg * {
+  border: revert;
+  outline: revert;
+}
+
+/* Two properties Tailwind's preflight sets on <html> and the wrapper would inherit (a `revert` of an
+   inherited property keeps the inherited value): put back the browser values production has. */
+.mrv-site {
+  tab-size: 8;
+  -webkit-text-size-adjust: auto;
+  text-size-adjust: auto;
+}
+
+html:has(.mrv-site) { scroll-behavior: smooth; }
+
+.mrv-site {
+  /* ==========================================================================
+     Mojave River Valley — Design System
+     Palette: warm desert neutrals + terracotta / sage / sky accents
+     Type: Fraunces (headings) + Inter (body)
+     ========================================================================== */
+
+
+  & {
+    /* Palette */
+    --color-sand-50:  #FBF7EF;
+    --color-sand-100: #F4EBD9;
+    --color-sand-200: #E8DCC5;
+    --color-sand-300: #D9C7A3;
+    --color-terracotta:      #C1592F;
+    --color-terracotta-dark: #9E4322;
+    --color-terracotta-light:#E9C3AE;
+    --color-sage:      #7C8A6E;
+    --color-sage-dark:  #5F6B54;
+    --color-sky:       #4E7C9B;
+    --color-sky-dark:  #375A73;
+    --color-gold:      #C79A3D;
+    --color-plum:      #7A4B6B;
+    --color-dusk:      #2E2A26;
+    --color-dusk-soft: #55504A;
+    --color-white:     #FFFDF9;
+
+    /* Status (reserved — functional meaning, never reused for chart/categorical
+       series, and deliberately not overridden by seasonal themes below) */
+    --color-status-severe-bg:     #FBE4E1;
+    --color-status-severe-text:   #9B2F1F;
+    --color-status-moderate-bg:   #FBEBD9;
+    --color-status-moderate-text: #8A5A15;
+    --color-status-mild-bg:       #FBF3D9;
+    --color-status-mild-text:     #6E5A10;
+
+    /* Chart color sequence */
+    --chart-1: var(--color-terracotta);
+    --chart-2: var(--color-sky);
+    --chart-3: var(--color-sage);
+    --chart-4: var(--color-gold);
+    --chart-5: var(--color-plum);
+    --chart-6: var(--color-sky-dark);
+
+    /* Type */
+    --font-heading: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    /* Layout */
+    --max-width: 1180px;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(46, 42, 38, 0.08), 0 1px 2px rgba(46, 42, 38, 0.06);
+    --shadow-md: 0 4px 16px rgba(46, 42, 38, 0.10), 0 2px 6px rgba(46, 42, 38, 0.06);
+    --shadow-lg: 0 12px 32px rgba(46, 42, 38, 0.14), 0 4px 12px rgba(46, 42, 38, 0.08);
+  }
+
+  /* ---------- Seasonal themes ----------
+     Toggled at runtime via html[data-season] (see js/city.js) when a visitor
+     picks a Winter/Spring/Summer/Fall date preset — a session-only visual
+     flourish, never persisted, reset by an actual page reload. Only the
+     "mood" roles shift (neutrals, primary accent, gold/plum, ink); --color-sky
+     and --color-sage stay put since they carry specific meaning (rain/water,
+     wind) rather than general brand chrome. */
+
+  &[data-season="winter"] {
+    --color-sand-50:  #F3F7FA;
+    --color-sand-100: #E5EEF3;
+    --color-sand-200: #D2E3EA;
+    --color-sand-300: #AFC9D6;
+    --color-terracotta:       #3E7CA6;
+    --color-terracotta-dark:  #2C5C7D;
+    --color-terracotta-light: #C3DDE9;
+    --color-gold:  #7C97A8;
+    --color-plum:  #5C6E96;
+    --color-dusk:      #1F2E38;
+    --color-dusk-soft: #47606D;
+    --color-white:     #FCFEFF;
+  }
+
+  &[data-season="spring"] {
+    --color-sand-50:  #F6FAF1;
+    --color-sand-100: #E9F3DE;
+    --color-sand-200: #D7E9C2;
+    --color-sand-300: #B9D89A;
+    --color-terracotta:       #C15C87;
+    --color-terracotta-dark:  #9A4267;
+    --color-terracotta-light: #EFC9DA;
+    --color-gold:  #9CB84A;
+    --color-plum:  #82508F;
+    --color-dusk:      #2A3620;
+    --color-dusk-soft: #55654A;
+    --color-white:     #FDFEFA;
+  }
+
+  &[data-season="summer"] {
+    /* The site's native palette is already summer-desert — restated
+       explicitly so all four seasons are complete, symmetric themes. */
+    --color-sand-50:  #FBF7EF;
+    --color-sand-100: #F4EBD9;
+    --color-sand-200: #E8DCC5;
+    --color-sand-300: #D9C7A3;
+    --color-terracotta:       #C1592F;
+    --color-terracotta-dark:  #9E4322;
+    --color-terracotta-light: #E9C3AE;
+    --color-gold:  #C79A3D;
+    --color-plum:  #7A4B6B;
+    --color-dusk:      #2E2A26;
+    --color-dusk-soft: #55504A;
+    --color-white:     #FFFDF9;
+  }
+
+  &[data-season="fall"] {
+    --color-sand-50:  #FBF2E8;
+    --color-sand-100: #F3DFC2;
+    --color-sand-200: #E6C494;
+    --color-sand-300: #D2A265;
+    --color-terracotta:       #A8431F;
+    --color-terracotta-dark:  #7D2F14;
+    --color-terracotta-light: #E7B48F;
+    --color-gold:  #B8841F;
+    --color-plum:  #7A3626;
+    --color-dusk:      #3B2A1E;
+    --color-dusk-soft: #6B5240;
+    --color-white:     #FFF9F2;
+  }
+
+
+
+  & {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-dusk);
+    background: var(--color-sand-50);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.6s ease, color 0.6s ease;
+  }
+
+  /* Season-swap transitions on the elements that carry the mood colors,
+     so a theme change reads as a gentle shift rather than a jarring flash. */
+  .site-header, .site-footer, .card, .hero, section.alt, .btn-toggle,
+  .date-range-input, select, .stat-value, h1, h2, h3, h4, a,
+  .social-icon, .footer-nav-list a, .control-row-label {
+    transition: background-color 0.6s ease, color 0.6s ease, border-color 0.6s ease;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--color-dusk);
+    line-height: 1.2;
+    margin: 0 0 0.5em;
+  }
+
+  h1 { font-size: clamp(2.1rem, 4vw, 3.1rem); font-weight: 700; }
+  h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+  h3 { font-size: 1.2rem; }
+
+  p { margin: 0 0 1em; color: var(--color-dusk-soft); }
+
+  a { color: var(--color-sky-dark); text-decoration: none; }
+  a:hover { color: var(--color-terracotta); }
+
+  .mrv-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Header / Nav ---------- */
+
+  .site-header {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-sand-200);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .site-header .mrv-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .site-wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--color-dusk);
+  }
+
+  .site-wordmark .wordmark-accent { color: var(--color-terracotta); }
+
+  .site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-nav a, .site-nav .nav-soon {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-size: 0.93rem;
+    font-weight: 500;
+    color: var(--color-dusk-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .site-nav a:hover { background: var(--color-sand-100); color: var(--color-terracotta-dark); }
+
+  .site-nav a.active {
+    background: var(--color-terracotta);
+    color: var(--color-white);
+  }
+  .site-nav a.active:hover { color: var(--color-white); }
+
+  .site-nav .nav-soon {
+    color: var(--color-sand-300);
+    cursor: default;
+    position: relative;
+  }
+  .site-nav .nav-soon:hover::after {
+    content: 'Coming soon';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-dusk);
+    color: var(--color-white);
+    font-size: 0.75rem;
+    padding: 4px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .nav-group { position: relative; }
+
+  .nav-group-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 100px;
+    border: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 0.93rem;
+    font-weight: 500;
+    color: var(--color-dusk-soft);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .nav-group-toggle:hover { background: var(--color-sand-100); color: var(--color-terracotta-dark); }
+  .nav-group.active .nav-group-toggle { background: var(--color-terracotta); color: var(--color-white); }
+  .nav-group.active .nav-group-toggle:hover { color: var(--color-white); }
+
+  .nav-caret {
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    margin-top: -3px;
+    transition: transform 0.15s ease;
+  }
+  .nav-group.open .nav-caret { transform: rotate(-135deg); margin-top: 3px; }
+
+  .nav-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 190px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: 14px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 110;
+  }
+  .nav-dropdown a, .nav-dropdown .nav-soon { border-radius: 8px; }
+
+  .nav-group.open .nav-dropdown,
+  .nav-group:hover .nav-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  /* On a phone the second group's (Attractions) dropdown starts too far right and
+     runs 37px past the screen edge (it also widened every page). Anchor it to the
+     group's right edge. */
+  @media (max-width: 640px) {
+    .nav-group + .nav-group .nav-dropdown {
+      left: auto;
+      right: 0;
+    }
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    background: linear-gradient(160deg, var(--color-sand-200) 0%, var(--color-sand-100) 55%, var(--color-sand-50) 100%);
+    padding: 56px 0 48px;
+    border-bottom: 1px solid var(--color-sand-200);
+  }
+
+  .hero .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-terracotta-dark);
+    margin-bottom: 10px;
+  }
+
+  .hero p.lede {
+    font-size: 1.1rem;
+    max-width: 640px;
+    color: var(--color-dusk-soft);
+  }
+
+  /* ---------- Cards ---------- */
+
+  .card {
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 22px;
+  }
+
+  .card h3 {
+    margin-bottom: 4px;
+  }
+
+  .card .card-note {
+    font-size: 0.85rem;
+    color: var(--color-dusk-soft);
+    margin: 0;
+  }
+
+  .grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .grid-stats {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .grid-charts {
+    grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  }
+
+  .stat-card {
+    text-align: left;
+  }
+
+  .stat-value {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-terracotta-dark);
+    line-height: 1;
+    margin: 6px 0 4px;
+  }
+
+  .stat-label {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-dusk-soft);
+    font-weight: 600;
+  }
+
+  .stat-sub {
+    font-size: 0.85rem;
+    color: var(--color-dusk-soft);
+    margin-top: 4px;
+  }
+
+  /* ---------- Live Conditions (S10) ---------- */
+
+  .live-conditions-loading {
+    padding: 16px 0;
+    color: var(--color-dusk-soft);
+    font-size: 0.9rem;
+  }
+
+  .live-conditions-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .live-conditions-time {
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+  }
+
+  .live-conditions-main {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .live-conditions-temp {
+    font-family: var(--font-heading);
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--color-terracotta-dark);
+    line-height: 1;
+  }
+
+  .live-conditions-detail {
+    font-size: 0.92rem;
+    color: var(--color-dusk-soft);
+    line-height: 1.5;
+  }
+
+  .live-alert {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .live-alert--severe {
+    background: var(--color-status-severe-bg);
+    color: var(--color-status-severe-text);
+  }
+
+  .live-alert--moderate {
+    background: var(--color-status-moderate-bg);
+    color: var(--color-status-moderate-text);
+  }
+
+  .live-alert--mild {
+    background: var(--color-status-mild-bg);
+    color: var(--color-status-mild-text);
+  }
+
+  /* ---------- Sections ---------- */
+
+  section {
+    padding: 44px 0;
+  }
+
+  section.alt { background: var(--color-sand-100); }
+
+  .section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .section-heading p { margin: 0; }
+
+  /* ---------- Map ---------- */
+
+  #map {
+    height: 520px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-sand-200);
+  }
+
+  #city-mini-map {
+    height: 220px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-sand-200);
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 10px;
+    font-family: var(--font-body);
+  }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--color-dusk-soft);
+    align-items: center;
+  }
+
+  .map-legend .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .legend-toggle {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-white);
+    color: var(--color-dusk-soft);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .legend-toggle:hover {
+    border-color: var(--color-terracotta);
+  }
+
+  .legend-toggle.off {
+    opacity: 0.4;
+  }
+
+  .legend-toggle.off .swatch {
+    filter: grayscale(1);
+  }
+
+  .map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Buttons / Controls ---------- */
+
+  .btn-toggle {
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-white);
+    color: var(--color-dusk-soft);
+    padding: 7px 14px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-toggle:hover { border-color: var(--color-terracotta); color: var(--color-terracotta-dark); }
+
+  .btn-toggle.active {
+    background: var(--color-terracotta);
+    border-color: var(--color-terracotta);
+    color: var(--color-white);
+  }
+
+  .btn-nav-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-white);
+    color: var(--color-dusk-soft);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-nav-arrow:hover:not(:disabled) { border-color: var(--color-terracotta); color: var(--color-terracotta-dark); }
+  .btn-nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  select, .select {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-white);
+    color: var(--color-dusk);
+  }
+
+  .date-range-input {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-white);
+    color: var(--color-dusk);
+    min-width: 220px;
+    cursor: pointer;
+  }
+  .date-range-input:focus {
+    outline: none;
+    border-color: var(--color-terracotta);
+    box-shadow: 0 0 0 3px var(--color-terracotta-light);
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .control-row-label {
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .control-row .map-controls { margin: 0; }
+
+  .btn-toggle:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .btn-toggle:disabled:hover {
+    border-color: var(--color-sand-300);
+    color: var(--color-dusk-soft);
+  }
+
+  /* ---------- Chart containers ---------- */
+
+  .chart-card > canvas {
+    max-height: 320px;
+  }
+
+  /* A wide table scrolls inside its own box instead of widening the page. The
+     groundwater, climate and overview drought tables sit outside a .chart-card,
+     so this cannot be scoped to one. */
+  .chart-scroll {
+    overflow-x: auto;
+  }
+
+  .chart-card .chart-tall {
+    position: relative;
+    height: 340px;
+  }
+
+  @media (max-width: 640px) {
+    .chart-card .chart-tall { height: 260px; }
+  }
+
+  /* ---------- Footer ---------- */
+
+  .site-footer {
+    border-top: 1px solid var(--color-sand-200);
+    background: var(--color-white);
+    padding: 44px 0 0;
+    margin-top: 40px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.4fr;
+    gap: 40px;
+    padding-bottom: 36px;
+  }
+
+  .footer-col h4 {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-dusk);
+    margin: 0 0 14px;
+  }
+
+  .footer-brand .site-wordmark { font-size: 1.15rem; }
+
+  .social-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .social-icons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .social-icon svg { width: 16px; height: 16px; fill: currentColor; }
+  .social-icon:hover { background: var(--color-terracotta); color: var(--color-white); }
+
+  .footer-nav-columns {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-nav-list a {
+    color: var(--color-dusk-soft);
+    font-size: 0.92rem;
+  }
+  .footer-nav-list a:hover { color: var(--color-terracotta); }
+  .footer-nav-list a.active { color: var(--color-terracotta-dark); font-weight: 600; }
+  .footer-nav-soon {
+    font-size: 0.92rem;
+    color: var(--color-sand-300);
+  }
+
+  .footer-mc-form .mc-field-group {
+    margin-bottom: 10px;
+  }
+  .footer-mc-form label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+    margin-bottom: 4px;
+  }
+  .footer-mc-form .asterisk { color: var(--color-terracotta); }
+  .footer-mc-form input[type="email"],
+  .footer-mc-form input[type="text"] {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-sand-50);
+    color: var(--color-dusk);
+  }
+  .footer-mc-form input:focus {
+    outline: none;
+    border-color: var(--color-terracotta);
+    background: var(--color-white);
+  }
+  .footer-mc-form .response {
+    font-size: 0.85rem;
+    margin: 6px 0;
+  }
+  #mce-error-response { color: var(--color-terracotta-dark); }
+  #mce-success-response { color: var(--color-sage-dark); }
+
+  .btn-primary {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 100px;
+    background: var(--color-terracotta);
+    color: var(--color-white);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .btn-primary:hover { background: var(--color-terracotta-dark); }
+
+  .footer-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 18px 0;
+    border-top: 1px solid var(--color-sand-200);
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+  }
+
+  @media (max-width: 800px) {
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* ---------- Front page (topophilia landing) ---------- */
+
+  .topo-hero {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--color-sand-200);
+    background: linear-gradient(160deg, var(--color-sand-200) 0%, var(--color-sand-100) 55%, var(--color-sand-50) 100%);
+  }
+  .topo-hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .topo-hero-copy h1 { font-size: clamp(2rem, 3.6vw, 2.9rem); }
+  .topo-hero-photo { margin: 0; }
+  .topo-hero-photo img {
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    display: block;
+  }
+  .topo-hero-photo figcaption {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--color-dusk-soft);
+  }
+
+  .doorway-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .doorway-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 28px;
+  }
+  .doorway-kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--color-terracotta-dark);
+    margin-bottom: 6px;
+  }
+  .doorway-card h3 { font-size: 1.5rem; margin-bottom: 8px; }
+  .doorway-card p { margin-bottom: 16px; }
+  .doorway-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .doorway-links a {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .doorway-links a:hover { background: var(--color-terracotta); color: var(--color-white); }
+
+  .spotlight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .spotlight-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    color: inherit;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .spotlight-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); color: inherit; }
+  .spotlight-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  .spotlight-body { padding: 16px 18px 18px; }
+  .spotlight-tag {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-terracotta-dark);
+    margin-bottom: 6px;
+  }
+  .spotlight-card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .spotlight-card p { font-size: 0.88rem; margin: 0; }
+
+  .spotlight-plain .spotlight-body { padding-top: 22px; }
+  .spotlight-plain::before { content: ''; display: block; height: 6px; }
+  .spotlight-art::before { background: var(--color-plum); }
+  .spotlight-garden::before { background: var(--color-sage); }
+  .spotlight-quake::before { background: var(--color-sky); }
+
+  .topo-origin { max-width: 720px; }
+  .topo-origin p { font-size: 1.02rem; }
+
+  @media (max-width: 860px) {
+    .topo-hero-grid { grid-template-columns: 1fr; }
+    .topo-hero-photo img { height: 260px; }
+  }
+
+  /* ---------- Loading / status ---------- */
+
+  .data-status {
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .data-status .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-sage);
+    display: inline-block;
+  }
+
+  .data-status.loading .dot { background: var(--color-gold); }
+  .data-status.error .dot { background: var(--color-terracotta); }
+
+  .loading-panel {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-dusk-soft);
+  }
+
+  .error-panel {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--color-terracotta-dark);
+    background: var(--color-terracotta-light);
+    border-radius: var(--radius);
+  }
+
+  /* ---------- Flatpickr theme (match site palette) ---------- */
+
+  .flatpickr-calendar {
+    font-family: var(--font-body);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-sand-200);
+  }
+
+  .flatpickr-calendar.arrowTop::before,
+  .flatpickr-calendar.arrowTop::after {
+    border-bottom-color: var(--color-sand-100);
+  }
+
+  .flatpickr-months {
+    background: var(--color-sand-100);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    padding-top: 4px;
+  }
+
+  .flatpickr-current-month {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--color-dusk);
+  }
+
+  .flatpickr-current-month input.cur-year,
+  .flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-family: var(--font-body);
+    color: var(--color-dusk);
+  }
+
+  .flatpickr-prev-month, .flatpickr-next-month { color: var(--color-dusk-soft); }
+  .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: var(--color-terracotta); }
+  .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: var(--color-dusk-soft); }
+
+  .flatpickr-weekdays { background: var(--color-sand-100); }
+  span.flatpickr-weekday {
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .flatpickr-day {
+    color: var(--color-dusk);
+    border-radius: 6px;
+  }
+
+  .flatpickr-day.today { border-color: var(--color-sky); }
+  .flatpickr-day.today:hover { border-color: var(--color-sky); color: var(--color-white); background: var(--color-sky); }
+
+  .flatpickr-day:hover, .flatpickr-day:focus {
+    background: var(--color-sand-200);
+    border-color: var(--color-sand-200);
+  }
+
+  .flatpickr-day.selected,
+  .flatpickr-day.startRange,
+  .flatpickr-day.endRange,
+  .flatpickr-day.selected:hover,
+  .flatpickr-day.startRange:hover,
+  .flatpickr-day.endRange:hover {
+    background: var(--color-terracotta);
+    border-color: var(--color-terracotta);
+    color: var(--color-white);
+  }
+
+  .flatpickr-day.inRange {
+    background: var(--color-terracotta-light);
+    border-color: var(--color-terracotta-light);
+    box-shadow: -5px 0 0 var(--color-terracotta-light), 5px 0 0 var(--color-terracotta-light);
+  }
+
+  .flatpickr-day.flatpickr-disabled,
+  .flatpickr-day.prevMonthDay,
+  .flatpickr-day.nextMonthDay {
+    color: var(--color-sand-300);
+  }
+
+  /* ---------- Farmers Market Directory ---------- */
+
+  .grid-markets {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .market-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .market-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .market-schedule {
+    font-weight: 600;
+    color: var(--color-dusk);
+    margin: 0;
+  }
+
+  .market-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 2px 0;
+  }
+
+  .market-tag {
+    display: inline-block;
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+    border-radius: 100px;
+    padding: 3px 10px;
+    font-size: 0.76rem;
+  }
+
+  .market-tag-more {
+    background: transparent;
+    color: var(--color-dusk-soft);
+    padding-left: 0;
+  }
+
+  .market-features {
+    font-size: 0.85rem;
+    color: var(--color-sage-dark);
+  }
+
+  .market-flag {
+    font-size: 0.82rem;
+    color: var(--color-status-moderate-text);
+    background: var(--color-status-moderate-bg);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+  }
+
+  .market-popup-flag {
+    font-size: 0.8rem;
+    color: var(--color-status-moderate-text);
+    margin-top: 4px;
+  }
+
+  .market-btn {
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .market-social {
+    font-size: 0.85rem;
+  }
+
+  .market-social a {
+    color: var(--color-sky-dark);
+  }
+
+  .map-legend-item {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ---------- Earthquake Activity (S7) ---------- */
+
+  .magnitude-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 320px;
+    margin-top: 10px;
+  }
+  .magnitude-legend-gradient {
+    flex: 1;
+    height: 10px;
+    border-radius: 100px;
+    border: 1px solid var(--color-sand-300);
+  }
+  .magnitude-legend-label {
+    font-size: 0.8rem;
+    color: var(--color-dusk-soft);
+    white-space: nowrap;
+  }
+
+  .quake-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--color-sand-200);
+    flex-wrap: wrap;
+  }
+  .quake-row:last-child { border-bottom: none; }
+
+  .quake-mag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    padding: 4px 8px;
+    border-radius: 100px;
+    color: var(--color-white);
+    font-weight: 600;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+
+  .quake-place {
+    flex: 1 1 220px;
+    font-weight: 500;
+  }
+
+  .quake-time, .quake-depth {
+    flex-shrink: 0;
+  }
+
+  /* ---------- Air Quality: days-by-category bar ---------- */
+  .aqi-days-bar {
+    display: flex;
+    gap: 2px;                 /* surface gap between stacked segments */
+    height: 30px;
+    margin: 10px 0 12px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .aqi-days-seg {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .aqi-days-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    font-size: 0.86rem;
+    color: var(--color-dusk);
+  }
+  .aqi-days-legend li { display: flex; align-items: center; gap: 7px; }
+  .aqi-days-legend .swatch {
+    width: 12px; height: 12px; border-radius: 3px; flex: 0 0 auto;
+  }
+  .aqi-days-legend .aqi-days-count { color: var(--color-dusk-soft); }
+
+  /* ---------- Public Art Directory ---------- */
+
+  .hidden { display: none !important; }
+
+  .art-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .art-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .art-status-note {
+    display: inline-block;
+    align-self: flex-start;
+    background: var(--color-status-mild-bg);
+    color: var(--color-status-mild-text);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  #art-table-view {
+    overflow-x: auto;
+  }
+
+  .art-table, .data-table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    background: var(--color-white);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .art-table th, .art-table td, .data-table th, .data-table td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-sand-200);
+    font-size: 0.92rem;
+  }
+
+  .art-table th, .data-table th {
+    background: var(--color-sand-100);
+    font-weight: 600;
+    color: var(--color-dusk-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.76rem;
+  }
+
+  .art-table tbody tr:last-child td, .data-table tbody tr:last-child td { border-bottom: none; }
+  .art-table tbody tr:hover, .data-table tbody tr:hover { background: var(--color-sand-50); }
+
+  .table-type-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* ---------- Responsive ---------- */
+
+  @media (max-width: 640px) {
+    .site-header .mrv-container { flex-direction: column; align-items: flex-start; }
+    section { padding: 32px 0; }
+    #map { height: 380px; }
+    #market-map { height: 380px; }
+    #quake-map { height: 380px; }
+    #art-map { height: 380px; }
+    .art-table { font-size: 0.85rem; }
+  }
+
+}

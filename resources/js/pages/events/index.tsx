@@ -3,11 +3,11 @@ import MonthView from '@/components/calendar/month-view';
 import WeekView from '@/components/calendar/week-view';
 import EventCard from '@/components/event-card';
 import PaginationLinks from '@/components/pagination-links';
-import PublicHeader from '@/components/public-header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import PublicLayout from '@/layouts/public-layout';
 import { formatDayLabel, formatMonthLabel, formatWeekRangeLabel } from '@/lib/calendar';
 import { type EventItem, type Taxonomy } from '@/types/event';
 import { Head, router } from '@inertiajs/react';
@@ -97,161 +97,151 @@ export default function EventsIndex({ events, filters, categories, audiences, vi
     const eventList = Array.isArray(events) ? events : events.data;
 
     return (
-        <>
+        <PublicLayout activeId="events">
             <Head title="Community Events" />
 
-            <div className="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
-                <PublicHeader />
+            <div className="mx-auto max-w-4xl px-6 py-10">
+                <h1 className="mb-2 text-2xl font-semibold">What's happening in the Mojave River Valley</h1>
+                <p className="mb-8 text-[#706f6c] dark:text-[#A1A09A]">Events curated and verified by the Mojave River Valley Community team.</p>
 
-                <main className="mx-auto max-w-4xl px-6 py-10">
-                    <h1 className="mb-2 text-2xl font-semibold">What's happening in the Mojave River Valley</h1>
-                    <p className="mb-8 text-[#706f6c] dark:text-[#A1A09A]">Events curated and verified by the Mojave River Valley Community team.</p>
+                <div className="mb-4 flex gap-1.5">
+                    {VIEW_OPTIONS.map((o) => (
+                        <button
+                            key={o.value}
+                            type="button"
+                            onClick={() => switchView(o.value)}
+                            className={`rounded-md border px-3 py-1.5 text-sm ${
+                                view === o.value
+                                    ? 'border-[#1b1b18] bg-[#1b1b18] text-white dark:border-[#EDEDEC] dark:bg-[#EDEDEC] dark:text-[#1b1b18]'
+                                    : 'border-[#e3e3e0] text-[#706f6c] hover:bg-[#f5f5f4] dark:border-[#3E3E3A] dark:text-[#A1A09A] dark:hover:bg-[#1a1a19]'
+                            }`}
+                        >
+                            {o.label}
+                        </button>
+                    ))}
+                </div>
 
-                    <div className="mb-4 flex gap-1.5">
-                        {VIEW_OPTIONS.map((o) => (
-                            <button
-                                key={o.value}
-                                type="button"
-                                onClick={() => switchView(o.value)}
-                                className={`rounded-md border px-3 py-1.5 text-sm ${
-                                    view === o.value
-                                        ? 'border-[#1b1b18] bg-[#1b1b18] text-white dark:border-[#EDEDEC] dark:bg-[#EDEDEC] dark:text-[#1b1b18]'
-                                        : 'border-[#e3e3e0] text-[#706f6c] hover:bg-[#f5f5f4] dark:border-[#3E3E3A] dark:text-[#A1A09A] dark:hover:bg-[#1a1a19]'
-                                }`}
-                            >
-                                {o.label}
-                            </button>
+                <div className="mb-8 flex flex-wrap items-end gap-4 rounded-md border border-[#e3e3e0] p-4 dark:border-[#3E3E3A]">
+                    {view === 'list' ? (
+                        <div className="grid gap-1.5">
+                            <Label>When</Label>
+                            <Select value={filters.when ?? 'any'} onValueChange={(v) => updateFilter('when', v)}>
+                                <SelectTrigger className="w-[160px]">
+                                    <SelectValue placeholder="Any time" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {WHEN_OPTIONS.map((o) => (
+                                        <SelectItem key={o.value} value={o.value}>
+                                            {o.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    ) : (
+                        calendar && (
+                            <div className="grid gap-1.5">
+                                <Label>Date</Label>
+                                <div className="flex items-center gap-2">
+                                    <Button size="sm" variant="outline" onClick={() => goToDate(calendar.prevDate)}>
+                                        ‹
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => goToDate(calendar.today)}>
+                                        Today
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => goToDate(calendar.nextDate)}>
+                                        ›
+                                    </Button>
+                                </div>
+                            </div>
+                        )
+                    )}
+
+                    <div className="grid gap-1.5">
+                        <Label>Topic</Label>
+                        <Select value={filters.category ?? 'all'} onValueChange={(v) => updateFilter('category', v)}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="All topics" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All topics</SelectItem>
+                                {categories.map((c) => (
+                                    <SelectItem key={c.id} value={c.slug}>
+                                        {c.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="grid gap-1.5">
+                        <Label>Audience</Label>
+                        <Select value={filters.audience ?? 'everyone'} onValueChange={(v) => updateFilter('audience', v)}>
+                            <SelectTrigger className="w-[160px]">
+                                <SelectValue placeholder="Everyone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="everyone">Everyone</SelectItem>
+                                {audiences.map((a) => (
+                                    <SelectItem key={a.id} value={a.slug}>
+                                        {a.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex items-center gap-2 pb-2">
+                        <Checkbox
+                            id="free"
+                            checked={!!filters.free}
+                            onCheckedChange={(checked) => updateFilter('free', checked === true ? '1' : undefined)}
+                        />
+                        <Label htmlFor="free">Free only</Label>
+                    </div>
+                </div>
+
+                {calendar && (
+                    <h2 className="mb-4 text-lg font-medium">
+                        {view === 'day' && formatDayLabel(calendar.anchorDate)}
+                        {view === 'week' && formatWeekRangeLabel(calendar.gridStart, calendar.gridEnd)}
+                        {view === 'month' && formatMonthLabel(calendar.anchorDate)}
+                    </h2>
+                )}
+
+                {view === 'list' && eventList.length === 0 && (
+                    <p className="rounded-md border border-dashed border-[#e3e3e0] p-8 text-center text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                        No events match right now. Check back soon — new events are added as they're found and verified.
+                    </p>
+                )}
+
+                {view === 'list' && eventList.length > 0 && (
+                    <div className="grid gap-4">
+                        {eventList.map((event) => (
+                            <EventCard key={event.id} event={event} />
                         ))}
                     </div>
+                )}
 
-                    <div className="mb-8 flex flex-wrap items-end gap-4 rounded-md border border-[#e3e3e0] p-4 dark:border-[#3E3E3A]">
-                        {view === 'list' ? (
-                            <div className="grid gap-1.5">
-                                <Label>When</Label>
-                                <Select value={filters.when ?? 'any'} onValueChange={(v) => updateFilter('when', v)}>
-                                    <SelectTrigger className="w-[160px]">
-                                        <SelectValue placeholder="Any time" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {WHEN_OPTIONS.map((o) => (
-                                            <SelectItem key={o.value} value={o.value}>
-                                                {o.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        ) : (
-                            calendar && (
-                                <div className="grid gap-1.5">
-                                    <Label>Date</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Button size="sm" variant="outline" onClick={() => goToDate(calendar.prevDate)}>
-                                            ‹
-                                        </Button>
-                                        <Button size="sm" variant="outline" onClick={() => goToDate(calendar.today)}>
-                                            Today
-                                        </Button>
-                                        <Button size="sm" variant="outline" onClick={() => goToDate(calendar.nextDate)}>
-                                            ›
-                                        </Button>
-                                    </div>
-                                </div>
-                            )
-                        )}
+                {view === 'day' && <DayView events={eventList} />}
 
-                        <div className="grid gap-1.5">
-                            <Label>Topic</Label>
-                            <Select value={filters.category ?? 'all'} onValueChange={(v) => updateFilter('category', v)}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="All topics" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All topics</SelectItem>
-                                    {categories.map((c) => (
-                                        <SelectItem key={c.id} value={c.slug}>
-                                            {c.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                {view === 'week' && calendar && (
+                    <WeekView gridStart={calendar.gridStart} gridEnd={calendar.gridEnd} today={calendar.today} events={eventList} dayHref={dayHref} />
+                )}
 
-                        <div className="grid gap-1.5">
-                            <Label>Audience</Label>
-                            <Select value={filters.audience ?? 'everyone'} onValueChange={(v) => updateFilter('audience', v)}>
-                                <SelectTrigger className="w-[160px]">
-                                    <SelectValue placeholder="Everyone" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="everyone">Everyone</SelectItem>
-                                    {audiences.map((a) => (
-                                        <SelectItem key={a.id} value={a.slug}>
-                                            {a.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                {view === 'month' && calendar && (
+                    <MonthView
+                        anchorDate={calendar.anchorDate}
+                        gridStart={calendar.gridStart}
+                        gridEnd={calendar.gridEnd}
+                        today={calendar.today}
+                        events={eventList}
+                        dayHref={dayHref}
+                    />
+                )}
 
-                        <div className="flex items-center gap-2 pb-2">
-                            <Checkbox
-                                id="free"
-                                checked={!!filters.free}
-                                onCheckedChange={(checked) => updateFilter('free', checked === true ? '1' : undefined)}
-                            />
-                            <Label htmlFor="free">Free only</Label>
-                        </div>
-                    </div>
-
-                    {calendar && (
-                        <h2 className="mb-4 text-lg font-medium">
-                            {view === 'day' && formatDayLabel(calendar.anchorDate)}
-                            {view === 'week' && formatWeekRangeLabel(calendar.gridStart, calendar.gridEnd)}
-                            {view === 'month' && formatMonthLabel(calendar.anchorDate)}
-                        </h2>
-                    )}
-
-                    {view === 'list' && eventList.length === 0 && (
-                        <p className="rounded-md border border-dashed border-[#e3e3e0] p-8 text-center text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
-                            No events match right now. Check back soon — new events are added as they're found and verified.
-                        </p>
-                    )}
-
-                    {view === 'list' && eventList.length > 0 && (
-                        <div className="grid gap-4">
-                            {eventList.map((event) => (
-                                <EventCard key={event.id} event={event} />
-                            ))}
-                        </div>
-                    )}
-
-                    {view === 'day' && <DayView events={eventList} />}
-
-                    {view === 'week' && calendar && (
-                        <WeekView
-                            gridStart={calendar.gridStart}
-                            gridEnd={calendar.gridEnd}
-                            today={calendar.today}
-                            events={eventList}
-                            dayHref={dayHref}
-                        />
-                    )}
-
-                    {view === 'month' && calendar && (
-                        <MonthView
-                            anchorDate={calendar.anchorDate}
-                            gridStart={calendar.gridStart}
-                            gridEnd={calendar.gridEnd}
-                            today={calendar.today}
-                            events={eventList}
-                            dayHref={dayHref}
-                        />
-                    )}
-
-                    {view === 'list' && !Array.isArray(events) && <PaginationLinks links={events.links} />}
-                </main>
+                {view === 'list' && !Array.isArray(events) && <PaginationLinks links={events.links} />}
             </div>
-        </>
+        </PublicLayout>
     );
 }

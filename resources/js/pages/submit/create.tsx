@@ -1,9 +1,9 @@
-import PublicHeader from '@/components/public-header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import PublicLayout from '@/layouts/public-layout';
 import { type SharedData } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -58,11 +58,10 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
     const foundNothing = sourceUrl && Object.keys(prefilled).length === 0;
 
     return (
-        <div className="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
+        <PublicLayout activeId="submit">
             <Head title="Submit an Event" />
-            <PublicHeader />
 
-            <main className="mx-auto max-w-2xl px-6 py-10">
+            <div className="mx-auto max-w-2xl px-6 py-10">
                 <h1 className="mb-2 text-2xl font-semibold">Submit an event</h1>
                 <p className="mb-8 text-[#706f6c] dark:text-[#A1A09A]">
                     Know about something happening in the Mojave River Valley? Paste a link to the event's page below, or just fill in what you know
@@ -213,7 +212,7 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
                         </Button>
                     </div>
                 </form>
-            </main>
-        </div>
+            </div>
+        </PublicLayout>
     );
 }
