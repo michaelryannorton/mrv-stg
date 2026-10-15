@@ -1,0 +1,1 @@
+function e(t){return String(t??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}function r(t){return typeof t=="string"&&/^https?:\/\//i.test(t.trim())?t:void 0}export{e,r as s};

@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Mojave River Valley, public site: additions that production does not have.
+
+   The design system (mrv.css) and the Route 66 styles (mrv-route66.css) are production's rules, converted. This file
+   holds the few rules the port needs that production never did, so they are easy to find and to retire:
+   - A link to a page that is not ported yet renders as muted text (like the header's `.nav-soon`), not a link.
+   - The Community pages (events calendar, channels, submit an event) have no production counterpart; their bodies are
+     built from production's classes (.hero, .card, .btn-toggle, .select, .market-tag, ...) plus the few rules below
+     (event cards, calendar grids, form notes) written in production's palette and spacing.
+   Same cascade layer as mrv.css; imported after it.
+   ========================================================================== */
+
+.mrv-site {
+  .doorway-links .doorway-soon {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: var(--color-sand-100);
+    color: var(--color-sand-300);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: default;
+  }
+  .spotlight-card.spotlight-soon,
+  .spotlight-card.spotlight-soon:hover {
+    box-shadow: var(--shadow-sm);
+    transform: none;
+    cursor: default;
+  }
+  .spotlight-card.spotlight-soon h3,
+  .spotlight-card.spotlight-soon p { color: var(--color-dusk-soft); opacity: 0.65; }
+
+  /* ---------- Community: event cards ---------- */
+
+  .event-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .event-card-head > div:first-child { min-width: 0; }
+  .event-card .event-time {
+    margin: 0 0 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-terracotta-dark);
+  }
+  .event-badges { display: flex; flex: none; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+  .event-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+  }
+  .event-badge.free { background: var(--color-sage); color: var(--color-white); }
+  .event-badge.pick { background: var(--color-terracotta-light); color: var(--color-terracotta-dark); }
+  .event-card .event-body { margin: 12px 0 10px; font-size: 0.92rem; }
+  .event-card .event-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .event-card .event-details-link { margin-left: auto; font-size: 0.85rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .event-list { display: grid; gap: 16px; }
+
+  /* ---------- Community: filters, notes, empty states ---------- */
+
+  .event-filters { align-items: flex-end; gap: 14px 18px; margin-bottom: 22px; }
+  .event-filter { display: flex; flex-direction: column; gap: 4px; }
+  .event-filter .check { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; font-size: 0.9rem; color: var(--color-dusk-soft); }
+  .event-filter input[type="checkbox"] { accent-color: var(--color-terracotta); width: 16px; height: 16px; }
+  .view-switch { margin-bottom: 14px; }
+  .calendar-heading { font-size: 1.25rem; margin: 0 0 14px; }
+  .empty-card { text-align: center; padding: 36px 22px; }
+  .empty-card p { margin: 0; }
+  .notice { border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.9rem; margin: 0 0 18px; }
+  .notice.success { background: #E4EFD9; color: #3F5A2A; }
+  .notice.error { background: var(--color-status-severe-bg); color: var(--color-status-severe-text); }
+  .notice.preview { background: var(--color-status-moderate-bg); color: var(--color-status-moderate-text); text-align: center; margin: 0; border-radius: 0; }
+  .field-error { margin: 0; font-size: 0.85rem; color: var(--color-status-severe-text); }
+  .page-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+  .page-links .disabled { pointer-events: none; opacity: 0.4; }
+  .back-link-row { margin: 0 0 14px; font-size: 0.88rem; }
+  .curator-card h3 { font-size: 1.05rem; margin-bottom: 2px; }
+  .curator-card .blurb { margin: 10px 0 0; font-size: 0.9rem; white-space: pre-line; }
+  .form-stack { display: flex; flex-direction: column; gap: 18px; }
+  .form-section { display: flex; flex-direction: column; gap: 16px; }
+  .form-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-check { display: flex; align-items: center; gap: 8px; }
+  .form-actions { display: flex; justify-content: flex-end; }
+  @media (max-width: 640px) { .form-pair { grid-template-columns: 1fr; } }
+
+  /* ---------- Community: week and month calendar ---------- */
+
+  .cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+  .cal-day {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px;
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: var(--radius-sm);
+  }
+  .cal-day.today { border-color: var(--color-terracotta); box-shadow: 0 0 0 1px var(--color-terracotta); }
+  .cal-day-link { font-size: 0.88rem; font-weight: 600; color: var(--color-dusk); }
+  .cal-items { display: flex; flex-direction: column; gap: 6px; }
+  .cal-item { font-size: 0.78rem; color: var(--color-dusk); }
+  .cal-item .cal-time, .cal-none { color: var(--color-dusk-soft); }
+  .cal-none { margin: 0; font-size: 0.78rem; }
+  .cal-item .event-badge { margin-left: 4px; padding: 0 6px; font-size: 0.66rem; }
+  .cal-month { overflow: hidden; background: var(--color-white); border: 1px solid var(--color-sand-200); border-radius: var(--radius); }
+  .cal-month-head {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    text-align: center;
+    background: var(--color-sand-100);
+    border-bottom: 1px solid var(--color-sand-200);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-dusk-soft);
+  }
+  .cal-month-head div { padding: 8px 0; }
+  .cal-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .cal-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    min-height: 6rem;
+    padding: 6px;
+    border-right: 1px solid var(--color-sand-200);
+    border-bottom: 1px solid var(--color-sand-200);
+  }
+  .cal-cell:nth-child(7n) { border-right: 0; }
+  .cal-cell.outside { background: var(--color-sand-50); }
+  .cal-date { align-self: flex-start; padding: 0 7px; border-radius: 100px; font-size: 0.78rem; color: var(--color-dusk); }
+  .cal-cell.outside .cal-date { color: var(--color-dusk-soft); }
+  .cal-date.today { background: var(--color-terracotta); color: var(--color-white); }
+  .cal-cell-item { overflow: hidden; font-size: 0.7rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; color: var(--color-dusk); }
+  .cal-cell-item .cal-time { color: var(--color-dusk-soft); }
+  .cal-more { font-size: 0.7rem; color: var(--color-dusk-soft); }
+  @media (max-width: 760px) {
+    .cal-week { grid-template-columns: 1fr; }
+    .cal-cell { min-height: 4.5rem; padding: 4px; }
+  }
+}

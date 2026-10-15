@@ -1,0 +1,393 @@
+/* ==========================================================================
+   Mojave River Valley, Route 66 section styles.
+
+   Generated 2026-10-14 from public_html/route66/css/route66.css (SHA-256 be5ee5217ef668f8...)
+   by port/phase-3/tools/convert_route66_css.py, then kept by hand: from here on THIS file is the source for the
+   Route 66 pages in the Laravel app; the legacy copy stays frozen until it is retired.
+
+   Applies only inside `.mrv-site.mrv-route66` (PublicLayout section="route66"). Production loads this file after
+   styles.css on its two Route 66 pages, and it redefines some base rules (.hero, a, the shadow tokens); the
+   `:where()` keeps each rule's specificity equal to production's, and this file is imported after mrv.css, so the
+   same rules win as on production, on these pages only. Conversion: `:root` and `body` are the wrapper (`&`), the
+   Google Fonts @import and `* { box-sizing }` are dropped, `.container` is `.mrv-container`. Nothing else changed.
+   ========================================================================== */
+
+.mrv-site:where(.mrv-route66) {
+  /* ==========================================================================
+     Route 66 Centennial — card view
+     Shares the Mojave River Valley design language (Fraunces/Inter, warm
+     desert palette) but is a self-contained stylesheet — this sub-site
+     deploys and versions independently of the weather site's css/styles.css.
+     ========================================================================== */
+
+
+  & {
+    --color-sand-50:  #FBF7EF;
+    --color-sand-100: #F4EBD9;
+    --color-sand-200: #E8DCC5;
+    --color-sand-300: #D9C7A3;
+    --color-terracotta:       #C1592F;
+    --color-terracotta-dark:  #9E4322;
+    --color-terracotta-light: #E9C3AE;
+    --color-sage:      #7C8A6E;
+    --color-sky:       #4E7C9B;
+    --color-gold:      #C79A3D;
+    --color-plum:      #7A4B6B;
+    --color-dusk:      #2E2A26;
+    --color-dusk-soft: #55504A;
+    --color-white:     #FFFDF9;
+
+    /* Relevance tiers — fixed categorical order, reused from the site's chart
+       sequence (never cycled, never reassigned by filter state). */
+    --tier-historic: var(--color-terracotta);
+    --tier-origins:  var(--color-gold);
+    --tier-today:    var(--color-sky);
+    --tier-context:  var(--color-sage);
+    --tier-interest: var(--color-plum);
+
+    --font-heading: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --max-width: 1180px;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(46, 42, 38, 0.08), 0 1px 2px rgba(46, 42, 38, 0.06);
+    --shadow-md: 0 6px 20px rgba(46, 42, 38, 0.12), 0 2px 6px rgba(46, 42, 38, 0.06);
+  }
+
+
+  & {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-dusk);
+    background: var(--color-sand-50);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 700; margin: 0 0 0.3em; color: var(--color-dusk); }
+  p { margin: 0 0 1em; color: var(--color-dusk-soft); }
+  a { color: var(--color-terracotta-dark); text-decoration: none; }
+  a:hover { color: var(--color-terracotta); }
+
+  .mrv-container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Header ----------
+     The header itself (site-header/site-wordmark/site-nav/dropdowns) is now
+     the shared chrome from ../css/styles.css + ../js/nav.js, so this site is
+     part of the same top nav as the rest of mrv.org instead of an island.
+     Only the Route 66-specific "back to all sites" bar below it is local. */
+
+  .detail-backbar {
+    border-bottom: 1px solid var(--color-sand-200);
+    padding: 10px 0;
+  }
+  .back-link { font-size: 0.88rem; font-weight: 500; color: var(--color-dusk-soft); }
+  .back-link:hover { color: var(--color-terracotta-dark); }
+
+  /* ---------- Hero / intro ---------- */
+
+  .hero {
+    background: linear-gradient(160deg, var(--color-sand-200) 0%, var(--color-sand-100) 55%, var(--color-sand-50) 100%);
+    padding: 44px 0 36px;
+    border-bottom: 1px solid var(--color-sand-200);
+  }
+  .hero .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-terracotta-dark);
+    margin-bottom: 10px;
+  }
+  .hero h1 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); }
+  .hero p.lede { font-size: 1.05rem; max-width: 680px; }
+  .mockup-note {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-300);
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+  }
+
+  /* ---------- Filter bar ---------- */
+
+  .filter-bar {
+    position: sticky;
+    top: 61px;
+    z-index: 90;
+    background: rgba(251, 247, 239, 0.94);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--color-sand-200);
+    padding: 12px 0;
+  }
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .filter-row .filter-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-dusk-soft);
+    margin-right: 4px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--color-sand-300);
+    background: var(--color-white);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-dusk-soft);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .chip:hover { border-color: var(--color-terracotta); color: var(--color-dusk); }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .chip.active {
+    background: var(--color-dusk);
+    border-color: var(--color-dusk);
+    color: var(--color-white);
+  }
+  .chip[data-tier="Route 66 Historic"] .dot { background: var(--tier-historic); }
+  .chip[data-tier="Route Origins"] .dot { background: var(--tier-origins); }
+  .chip[data-tier="Route 66 Today"] .dot { background: var(--tier-today); }
+  .chip[data-tier="Regional Context"] .dot { background: var(--tier-context); }
+  .chip[data-tier="Regional Interest"] .dot { background: var(--tier-interest); }
+
+  .result-count {
+    margin-left: auto;
+    font-size: 0.82rem;
+    color: var(--color-dusk-soft);
+  }
+
+  /* ---------- Card grid ---------- */
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+    padding: 32px 0 64px;
+  }
+
+  .site-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .site-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+  .site-card .card-image {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--color-sand-100);
+    overflow: hidden;
+  }
+  .site-card .card-image > a:not(.pd-badge) { display: block; width: 100%; height: 100%; }
+  .site-card .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .site-card .card-body-link {
+    color: inherit;
+    display: block;
+  }
+  .site-card .card-body-link:hover { color: inherit; }
+  .site-card .card-body-link:hover h3 { color: var(--color-terracotta-dark); }
+  .site-card .card-image .tier-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px 4px 8px;
+    border-radius: 100px;
+    background: rgba(46, 42, 38, 0.78);
+    color: var(--color-white);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    backdrop-filter: blur(3px);
+  }
+  .site-card .card-image .tier-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .site-card .card-image .pd-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: rgba(255, 253, 249, 0.92);
+    color: var(--color-dusk-soft);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  a.pd-badge:hover {
+    background: var(--color-white);
+    color: var(--color-terracotta-dark);
+  }
+
+  .card-credit {
+    padding: 7px 18px;
+    font-size: 0.74rem;
+    color: var(--color-dusk-soft);
+    background: var(--color-sand-50);
+    border-bottom: 1px solid var(--color-sand-200);
+  }
+  .card-credit a { color: var(--color-dusk-soft); text-decoration: underline; text-decoration-color: var(--color-sand-300); }
+  .card-credit a:hover { color: var(--color-terracotta-dark); text-decoration-color: var(--color-terracotta); }
+
+  .site-card .card-body {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .site-card h3 { font-size: 1.12rem; margin-bottom: 2px; line-height: 1.25; }
+
+  .card-meta {
+    font-size: 0.8rem;
+    color: var(--color-terracotta-dark);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .card-meta .sep { color: var(--color-sand-300); margin: 0 6px; font-weight: 400; }
+
+  .card-story {
+    font-size: 0.9rem;
+    color: var(--color-dusk-soft);
+    margin-bottom: 12px;
+    flex: 1;
+  }
+
+  .card-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+  }
+  .theme-tag {
+    font-size: 0.72rem;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+    white-space: nowrap;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-dusk-soft);
+  }
+
+  @media (max-width: 640px) {
+    .filter-bar { top: 57px; }
+    .result-count { width: 100%; margin-left: 0; order: 99; }
+  }
+
+  /* ==========================================================================
+     Site detail page
+     ========================================================================== */
+
+  .detail-main { padding: 32px 24px 72px; }
+
+  .detail-hero-image {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-sand-100);
+    aspect-ratio: 16 / 8;
+    max-height: 440px;
+  }
+  .detail-hero-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .detail-hero-image .tier-badge {
+    position: absolute; top: 14px; left: 14px;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px 5px 10px; border-radius: 100px;
+    background: rgba(46, 42, 38, 0.78); color: var(--color-white);
+    font-size: 0.78rem; font-weight: 600;
+  }
+  .detail-hero-image .tier-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .detail-hero-image .pd-badge {
+    position: absolute; top: 14px; right: 14px;
+    padding: 4px 11px; border-radius: 100px;
+    background: rgba(255, 253, 249, 0.92); color: var(--color-dusk-soft);
+    font-size: 0.76rem; font-weight: 600; text-decoration: none;
+  }
+  .detail-hero-noimage {
+    display: flex; align-items: center; justify-content: center;
+    aspect-ratio: 16 / 6;
+    border: 1px dashed var(--color-sand-300);
+  }
+  .detail-hero-noimage .tier-badge { position: static; background: var(--color-dusk); }
+  .no-image-note { margin-left: 14px; color: var(--color-dusk-soft); font-size: 0.9rem; }
+
+  .detail-title-block { padding: 22px 0 8px; border-bottom: 1px solid var(--color-sand-200); margin-bottom: 26px; }
+  .detail-title-block h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: 4px; }
+  .alt-names { font-size: 0.88rem; font-style: italic; margin-bottom: 6px; }
+
+  .detail-columns { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; align-items: start; }
+  .detail-main-col { min-width: 0; }
+
+  .detail-section { margin-bottom: 34px; }
+  .detail-section h2 { font-size: 1.05rem; margin-bottom: 12px; }
+  .detail-notes { background: var(--color-sand-100); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.9rem; }
+
+  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+  .gallery-item { margin: 0; }
+  .gallery-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: var(--radius-sm); display: block; }
+  .gallery-item figcaption { margin-top: 4px; }
+  .gallery-item .pd-badge {
+    display: inline-block; position: static;
+    font-size: 0.7rem; padding: 2px 8px; border-radius: 100px;
+    background: var(--color-sand-100); color: var(--color-dusk-soft); text-decoration: none;
+    margin-bottom: 3px;
+  }
+  .gallery-item .card-credit { padding: 0; background: none; border: none; font-size: 0.72rem; }
+
+  .source-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .source-list li { padding-bottom: 10px; border-bottom: 1px solid var(--color-sand-200); }
+  .source-title { display: block; font-size: 0.92rem; }
+  .source-meta { display: block; font-size: 0.78rem; color: var(--color-dusk-soft); margin-top: 2px; }
+
+  .detail-sidebar {
+    background: var(--color-white);
+    border: 1px solid var(--color-sand-200);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: sticky;
+    top: 80px;
+  }
+  .detail-sidebar h2 { font-size: 0.95rem; margin-bottom: 14px; }
+  .fact-list { margin: 0; }
+  .fact { margin-bottom: 14px; }
+  .fact:last-child { margin-bottom: 0; }
+  .fact dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-dusk-soft); font-weight: 600; margin-bottom: 2px; }
+  .fact dd { margin: 0; font-size: 0.88rem; color: var(--color-dusk); }
+
+  @media (max-width: 860px) {
+    .detail-columns { grid-template-columns: 1fr; }
+    .detail-sidebar { position: static; }
+  }
+
+}

@@ -13,7 +13,8 @@ declare global {
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    // The public pages carry production's own titles ("Data Explorer — Mojave River Valley"); every other page gets the application name added.
+    title: (title) => (title.endsWith('Mojave River Valley') ? title : `${title} - ${appName}`),
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);

@@ -1,0 +1,1707 @@
+{
+  "status_by_site": {
+    "ND-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Fred Harvey-era postcards + contemporary restoration photos, 34 results"
+    },
+    "ND-002": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Batch 2: found 'MUSEUM' street-entrance photo at 929 Front St, matches the former J.C. Penney building. 2 images, CC BY 3.0, Renjishino 2007-2008."
+    },
+    "ND-003": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "Batch 2: quick-win candidate verified by opening the actual Commons file page and downloaded. CC BY-SA 2.0, Thad Roan 2002."
+    },
+    "ND-005": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "5 direct images, exterior + signage"
+    },
+    "ND-011": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "2 LOC-catalogued images (LCCN), likely genuinely PD"
+    },
+    "ND-012": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: cross-checked against a newly-discovered systematic April 2026 Commons photo survey of Needles by contributor Lorax (G. Edward Johnson, ~60 CC BY 4.0 files) - covers motels, schools, and Main Street storefronts but no BLM 5 Mile Exit kiosk or interpretive gateway signage. Still none."
+    },
+    "ND-013": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-checked the Lorax April 2026 Needles survey - \"Needles CA wagon sign\" (CC BY 4.0) is a large wooden borax-wagon sculpture at 305-399 W. Broadway, a different object entirely, not the Wagon Wheel Restaurant. The batch-2-flagged Highsmith LOC mural photo (LCCN 2013630416) remains unmirrored to Commons and loc.gov is still Cloudflare bot-gated. Still none."
+    },
+    "ND-015": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "8 results, general Needles streetscape + vintage postcards, not building-specific"
+    },
+    "ND-016": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "ND-018": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-checked the Lorax survey (\"Old Trails Inn gas station\" is a different, named building) and reconsidered \"Benzinaio alla periferia di Needles\" (CC BY-SA 4.0, Andre Corboz) - a 1990s-era Shell-branded self-serve station on the Needles outskirts. Same unconfirmed-match problem batch 2 flagged for this photo: nothing on the file page ties it specifically to the Stout Texaco building. Still none."
+    },
+    "ND-019": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same \"Benzinaio alla periferia di Needles\" Shell station photo considered and rejected as an unconfirmed match (see ND-018 note) - could equally be Union 76/Minute Man or neither. Still none."
+    },
+    "ND-020": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: checked the Lorax survey's full Needles motel set (Days Inn, Quality Inn, Motel 6, Imperial 400 Motor Inn, Sage Motel, 66 Motel) - none are named Desert Inn or Econo Lodge, and the corpus's alt name \"Riverstone Apartments\" (current use) wasn't found either. Still none."
+    },
+    "ND-026": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: checked the Lorax survey's Topock, AZ photos - \"BLM Historic Route 66 sign\" and \"Mohave County US 66 sign\" are modern informational signage in Golden Shores/Oatman AZ, not the ca. 1935 river-rock-and-stucco concrete billboard (the actual object, ~6ft x 15ft with twin towers, historically advertised Sunfreze Ice Cream) described in the corpus. Checked FHWA \"America's Byways\" federal photo set for this corridor (bywayId 2489) - has Trails Arch Bridge (already used for ND-003) and a different \"Welcome Wagon\" sculpture photo, nothing matching the billboard. Still none - good outreach candidate given how well-documented the object is off-Commons."
+    },
+    "GO-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "10 results incl. a 1914 historic photo"
+    },
+    "GO-002": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed via direct category API query - Category:Goffs, California contains exactly 1 file (an unrelated AT&SF Railroad Ripley Branch image). Still none."
+    },
+    "GO-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same single-file Category:Goffs, California result as GO-002 - no depot replica or archives building imagery. Still none."
+    },
+    "FP-001": {
+      "coverage": "thin",
+      "source": "nps.gov",
+      "note": "1 official NPS photo confirmed (nps.gov/places/ft-piute.htm), genuinely PD; zero on Commons"
+    },
+    "ES-001": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: confirmed via direct API query that Category:Essex, California does not exist / has zero files on Commons. Full-text search for the wishing well and Auto Club well also returned nothing relevant. Still none."
+    },
+    "ES-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: confirmed Category:Fenner, California also has zero files. No Hi Sahara Oasis or Chevron-branded station imagery found via search. Still none."
+    },
+    "ES-005": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no Essex steel truss bridge results from category or full-text search; distinct from the Old Trails/Trails Arch Bridge at Topock (ND-003, already resolved). Still none."
+    },
+    "ES-006": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no Wayside Cafe/Market results; this is a separate ghost structure from the well-documented Road Runners Retreat at Chambless (CH-004, resolved). Still none."
+    },
+    "AM-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "PD Margolies/LOC historic + CC-BY-SA contemporary, best-covered site overall"
+    },
+    "AM-002": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "Batch 2: found in Category:Amboy, California - confirmed school building photo, CC BY-SA 3.0, Chris Walker 2007."
+    },
+    "AM-004": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "148+ results, popular hiking/landscape photo subject"
+    },
+    "AM-005": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "general Amboy townscape items: post office, BNSF crossing, peace car"
+    },
+    "CH-001": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "2 results (Road Runner's Retreat.jpg + variant)"
+    },
+    "CH-002": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "likely shares images with CH-001, same structure/sign"
+    },
+    "CH-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "CH-004": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Batch 2: excellent recent (2026) high-res coverage of the whole complex - gas station/Road Runners Retreat, store, and cabins - all CC BY 4.0 by G. Edward Johnson."
+    },
+    "CS-001": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: full-text search for \"Cadiz Summit California\" returned no relevant Commons files (only unrelated USGS topo map PDFs and book scans). Still none - checked alongside the adjacent Essex/Fenner cluster since both are inside Mojave Trails National Monument, but BLM/NPS material for this stretch documents landscape features, not the roadside ruins."
+    },
+    "LU-001": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "Batch 3: found a 1927 public-domain Main Street street-scene photo (NYPL postcard collection via archive.org, PD US expired) with a legible \"GARAGE\" sign at the site's location - genuinely on point though it's a wide street view rather than a close-up. Same Category:Ludlow, California checked for LU-003 previously - this file is newer to the category than batch 2's pass."
+    },
+    "LU-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-checked the full, now-13-file Category:Ludlow, California (2 files newer than batch 2's pass: a 2022 Interstate 40 landscape shot, and the 1927 public-domain street scene now used for LU-001). Neither shows the van-and-firetruck scene. Same conclusion as batch 2 - genuine mismatch/gap persists."
+    },
+    "LU-006": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Ludlow Cafe exterior + 2008 interior, multiple angles"
+    },
+    "LU-007": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "Murphy Brothers Mercantile ruins not separately identifiable in the general Ludlow ghost-town photo set. No dedicated candidate found."
+    },
+    "DG-001": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed via direct API query that Category:Daggett, California still contains exactly 1 unrelated file (a reservoir photo). No new source tried found a Daggett-specific angle this pass; stakeholder outreach (Daggett-Calico Historical Society) remains untried. Still none."
+    },
+    "DG-002": {
+      "coverage": "none",
+      "source": "-",
+      "note": "checked Commons (pilot) and Calisphere, both zero [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "DG-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "DG-004": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same single-file Daggett category result as DG-001. Still none."
+    },
+    "DG-006": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same single-file Daggett category result as DG-001. Still none."
+    },
+    "DG-007": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "DG-012": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same single-file Daggett category result as DG-001. Still none."
+    },
+    "DG-013": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same single-file Daggett category result as DG-001. Still none."
+    },
+    "DG-014": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same single-file Daggett category result as DG-001; the Ed Ruscha photograph remains copyrighted fine art (Getty/Whitney/MOCA), not usable regardless. Still none."
+    },
+    "DG-015": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "BG-001": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed via direct API query that Category:Bagdad, California contains exactly 1 file (a public-domain Santa Fe Railroad flagman photo, unrelated to the townsite tree/plaque). Still none."
+    },
+    "BA-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "LOC Main Business Street photos + genuine PD gas-pump series (LCCN)"
+    },
+    "BA-002": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "HABS federal architectural documentation + NYPL postcard, pilot-confirmed"
+    },
+    "BA-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: browsed Category:Buildings/Culture/History in Barstow, California plus Category:Roadside America - Barstow (Highsmith LOC set) - no Mother Road Museum imagery; it's housed inside the Harvey House/Casa del Desierto building (already covered by other corpus entries) but no photo specifically shows the museum exhibits/entrance. Still none."
+    },
+    "BA-004": {
+      "coverage": "none",
+      "source": "-",
+      "note": "housed inside BA-002's building; no separate museum-interior photos found [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "BA-005": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "NASA/JPL Goldstone Deep Space Network imagery, likely genuinely PD federal work — note: depicts the antenna complex, not necessarily the visitor-center building itself"
+    },
+    "BA-008": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Batch 2: 3 PD-Highsmith LOC photos (Jon B. Lovelace Collection) - the famous 100-ft neon sign plus the motel building itself (room numbers visible), same 2012-07-31 shoot, same GPS coordinates."
+    },
+    "BA-012": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed the Highsmith LOC mural photo (LCCN 2013632939) is still not mirrored to Commons and loc.gov remains bot-gated, same as batch 2. Full-text and category search found no other Main Street mural photos. Still none."
+    },
+    "BA-013": {
+      "coverage": "none",
+      "source": "-",
+      "note": "search repeatedly confused with Desert Discovery Center, a different Barstow museum [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.] EXCEPTION: NPS profiles this museum by name on their official \"Route 66: California Places\" itinerary page (nps.gov/articles/000/route-66-california-places.htm) as one of only 12 California sites featured — but no accompanying photo/sub-page was locatable, unlike other entries on that same list (e.g. Harvey House has a dedicated itinerary page with photos, this one does not appear to)."
+    },
+    "BA-015": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Batch 3: found via Category:Buildings in Barstow, California and Category:Culture of Barstow, California - two 2007 photos explicitly titled \"Barstow Station\" showing the McDonald's-in-a-water-tower golden arches and the roadside rail-car complex with signage. Batch 2 had searched Highsmith/LOC material for Barstow and found other motels (BA-008) but missed these two community-uploaded Flickr imports."
+    },
+    "BA-020": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: browsed Barstow's full Buildings/Culture/Transport categories - no Hillcrest Motel or Budget Inn imagery found. Still none."
+    },
+    "BA-026": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed the CC BY-NC-SA Flickr photo batch 2 found remains the only candidate and is still excluded by the license bar (NC not permitted). No new candidate found this pass. Still none."
+    },
+    "BA-030": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no former Denny's/Googie diner building imagery found in any Barstow category or search. Still none."
+    },
+    "BA-050": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed the Highsmith LOC \"Standard Station\" photo (LCCN 2013632939, same underlying shoot as BA-012's mural) is still not on Commons and loc.gov is still bot-gated. Still none."
+    },
+    "BA-051": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no Barstow Oasis stone marker imagery found in any category or search pass. Still none."
+    },
+    "NB-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "51 raw results, mostly CC-BY-SA contemporary tourist photos, pilot-confirmed"
+    },
+    "NB-002": {
+      "coverage": "thin",
+      "source": "commons",
+      "note": "1 confirmed image (April 2008)"
+    },
+    "NB-005": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: fully browsed Category:Newberry Springs, California (18 files) - candidates found (Whiting Brothers Dry Creek Service Station, Abandoned Home and Tourist Store, both CC BY-SA 4.0) are different, unrelated structures, not the Henning Motel/West Winds sign. Still none."
+    },
+    "NB-007": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "NB-009": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same Newberry Springs category pass as NB-005 - no dedicated Route 66 Marker photo found. Still none."
+    },
+    "YR-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "5,277 raw results, huge category, needs curation not discovery"
+    },
+    "YR-002": {
+      "coverage": "thin",
+      "source": "commons",
+      "note": "Calico Early Man Site search returns almost entirely unrelated Rainbow Basin Natural Area photos (a different nearby BLM site). One 'CalicoVisitorCenter_8521.jpg' result is uncertain — likely the Calico Ghost Town visitor center, not the Early Man dig site itself. Not used as a candidate without visual confirmation."
+    },
+    "BK-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "good spread incl. historic Soda Springs cabin/geyser images"
+    },
+    "AC-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "78 results, popular landscape photography subject"
+    },
+    "HE-002": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed Category:Helendale, California still contains only 4 files, all aerial photography or a 2003 plane-crash category, nothing street-level. Still none."
+    },
+    "HE-004": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same 4-file Helendale category result as HE-002. Still none."
+    },
+    "HE-006": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same 4-file Helendale category result as HE-002. Still none."
+    },
+    "HE-007": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: same 4-file Helendale category result as HE-002. Still none."
+    },
+    "OR-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "pilot-confirmed"
+    },
+    "OR-005": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "Batch 2: 1860-established bank building in Oro Grande's historic commercial core, CC BY 2.0, Randy Heinitz 2013."
+    },
+    "OR-006": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: re-confirmed \"Cross eyed Cow (15496167600).jpg\" is literally a photo of a cross-eyed cow (livestock, Tony Hisgett, Birmingham UK) - not the pizza restaurant. Same mismatch batch 2 flagged. Still none."
+    },
+    "OR-007": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no 1925 railroad underpass photo found in Category:Oro Grande, California or via search. Still none."
+    },
+    "OR-008": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: checked \"The Bank of Oro Grande boarded up in 2013.jpg\" (CC BY 2.0, Randy Heinitz, same photographer as the resolved OR-005) - different building (the bank, not the Motor Inn Auto Court/Richfield station). Still none."
+    },
+    "VV-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "2 direct images + related Roy Rogers/Dale Evans Museum material"
+    },
+    "VV-002": {
+      "coverage": "thin",
+      "source": "commons",
+      "note": "1 confirmed image"
+    },
+    "VV-003": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: browsed Category:Buildings/Culture/Transport in Victorville, California in full - no Green Spot Motel imagery; the two All-Rights-Reserved Flickr photos batch 2 found remain the only candidates and are still excluded by the license bar. Still none."
+    },
+    "VV-004": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "historic NBY-series photos (owners named) + contemporary"
+    },
+    "VV-005": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "Batch 2: found in Buildings in Victorville category - Veterans Memorial at 7th St/Forrest Ave, the heart of the Old Town corridor. CC BY-SA 3.0, Mlpearc 2013."
+    },
+    "VV-006": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no new Mojave River Steel Bridge candidate found; the earlier (ca. 1905-1910) Santa Fe trestle mismatch and the All-Rights-Reserved Flickr photo from batch 2 remain the only leads, both excluded. Still none."
+    },
+    "VV-011": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "VV-021": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no Barrel House Market building imagery found in Victorville's Commons categories. Still none."
+    },
+    "HS-001": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no Outpost Cafe imagery found; Hesperia's Buildings/Culture categories are essentially empty of Route 66-era commercial buildings. Still none."
+    },
+    "HS-003": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "4 clean images, all sides of the monument + plaque"
+    },
+    "HS-004": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: browsed the large Category:Cajon Pass (120+ files) - overwhelmingly railfan photography of BNSF/ATSF trains plus 2016 Blue Cut wildfire news photos; no image of the Blue Cut historical monument/rest area itself. Still none."
+    },
+    "HS-007": {
+      "coverage": "none",
+      "source": "-",
+      "note": "Batch 3: no Rolars \"66\" Gas Station marker imagery found via category or search. Still none."
+    },
+    "SB-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "small set (7) but all LOC-catalogued, pilot-confirmed"
+    },
+    "SB-002": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Batch 2: found Category:Mitla Cafe on Commons (15 files) - closes the long-flagged gap of only having the sign, not the building. Added east exterior and front door, both CC BY-SA 4.0, RightCowLeftCoast 2024."
+    },
+    "SB-003": {
+      "coverage": "thin",
+      "source": "commons",
+      "note": "4 images, pilot-confirmed"
+    },
+    "SB-004": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "14 results spanning a 1906 postcard to 2021, genuine historic depth"
+    },
+    "SB-005": {
+      "coverage": "none",
+      "source": "-",
+      "note": " [Calisphere + NPS.gov checked 2026-09-21: no usable candidate found.]"
+    },
+    "SB-006": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "3 direct building photos"
+    },
+    "SB-007": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "Batch 2: both existing candidates verified by opening actual Commons file pages and downloaded. Both public domain."
+    },
+    "LD-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "19 results incl. a 1975 historic aerial, pilot-confirmed"
+    },
+    "KL-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "HABS architectural drawings + NPS visitor-center photos, pilot-confirmed"
+    },
+    "JT-001": {
+      "coverage": "rich",
+      "source": "commons",
+      "note": "173 results, extensive NPS-sourced documentation"
+    },
+    "PT-001": {
+      "coverage": "moderate",
+      "source": "commons",
+      "note": "3-4 direct results incl. street sign"
+    }
+  },
+  "detailed_candidates_by_site": {
+    "AM-001": [
+      {
+        "title": "Roy's Motel, Amboy, California LCCN2017710001.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Roy's_Motel,_Amboy,_California_LCCN2017710001.tif",
+        "license": "Public domain — LOC, no known restrictions (John Margolies Roadside America collection)",
+        "creator": "John Margolies",
+        "requires_attribution": false,
+        "role_suggestion": "hero",
+        "date": "1991",
+        "verified": true,
+        "local_path": "route66/media/AM-001/01-roys-motel-amboy-california-lccn2017710001.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Roy's Motel, Amboy, California LCCN2017710002.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Roy's_Motel,_Amboy,_California_LCCN2017710002.tif",
+        "license": "Public domain — LOC, no known restrictions (John Margolies Roadside America collection)",
+        "creator": "John Margolies",
+        "requires_attribution": false,
+        "role_suggestion": "gallery",
+        "date": "1991",
+        "verified": true,
+        "local_path": "route66/media/AM-001/02-roys-motel-amboy-california-lccn2017710002.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Roy's Motel sign, Route 66, Amboy, California LCCN2017703549.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Roy's_Motel_sign,_Route_66,_Amboy,_California_LCCN2017703549.tif",
+        "license": "Public domain — LOC, no known restrictions (John Margolies Roadside America collection)",
+        "creator": "John Margolies",
+        "requires_attribution": false,
+        "role_suggestion": "gallery",
+        "date": "1991",
+        "verified": true,
+        "local_path": "route66/media/AM-001/03-roys-motel-sign-route-66-amboy-california-lccn2017703549.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Roy's Motel & Café (Amboy-California).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Roy's_Motel_%26_Caf%C3%A9_(Amboy-California).jpg",
+        "license": "CC BY-SA 4.0",
+        "creator": "Bugmenot72",
+        "requires_attribution": true,
+        "role_suggestion": "gallery (contemporary color)",
+        "date": "2019-07-14",
+        "verified": true,
+        "local_path": "route66/media/AM-001/04-roys-motel-café-amboy-california.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Roys Motel lobby Amboy CA 2026-04-05 09-27-59.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Roys_Motel_lobby_Amboy_CA_2026-04-05_09-27-59.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "gallery (interior)",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/AM-001/05-roys-motel-lobby-amboy-ca-2026-04-05-09-27-59.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "ND-001": [
+      {
+        "title": "El Garces, Santa Fe Hotel, Needles, California. Fred Harvey series. (NBY 22123).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:El_Garces%2C_Santa_Fe_Hotel%2C_Needles%2C_California._Fred_Harvey_series._%28NBY_22123%29.jpg",
+        "license": "Public domain — published before 1931 (Detroit Publishing Co. / Newberry Library)",
+        "role_suggestion": "hero candidate — needs license confirmation",
+        "creator": "unknown",
+        "date": "c. 1900s",
+        "verified": true,
+        "local_path": "route66/media/ND-001/01-el-garces-santa-fe-hotel-needles-california-fred-harvey-series-nby-22123.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "SB-001": [
+      {
+        "title": "Wigwam Motel, Rialto, CA 04462u.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Wigwam_Motel,_Rialto,_CA_04462u.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "hero",
+        "creator": "Carol M. Highsmith",
+        "date": "2009-10-31",
+        "verified": true,
+        "local_path": "route66/media/SB-001/01-wigwam-motel-rialto-ca-04462u.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Wigwam Motel, San Bernardino, California LCCN2010630619.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Wigwam_Motel,_San_Bernardino,_California_LCCN2010630619.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "gallery",
+        "creator": "Carol M. Highsmith",
+        "date": "2009-10-31",
+        "verified": true,
+        "local_path": "route66/media/SB-001/02-wigwam-motel-san-bernardino-california-lccn2010630619.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Wigwam Motel, Route 66, Rialto, California LCCN2010630448.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Wigwam_Motel,_Route_66,_Rialto,_California_LCCN2010630448.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "gallery",
+        "creator": "Carol M. Highsmith",
+        "date": "2009-10-31",
+        "verified": true,
+        "local_path": "route66/media/SB-001/03-wigwam-motel-route-66-rialto-california-lccn2010630448.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "NB-001": [
+      {
+        "title": "Newberry Springs Bagdad Cafe route 66.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Newberry_Springs_Bagdad_Cafe_route_66.jpg",
+        "license": "CC0 1.0 (public domain dedication)",
+        "role_suggestion": "hero candidate",
+        "creator": "Guallendra",
+        "date": "2023-07-21",
+        "verified": true,
+        "local_path": "route66/media/NB-001/01-newberry-springs-bagdad-cafe-route-66.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Bagdad CA - Bagdad Café.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Bagdad_CA_-_Bagdad_Caf%C3%A9.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "gallery",
+        "creator": "Everjean",
+        "date": "2007-08-27",
+        "verified": true,
+        "local_path": "route66/media/NB-001/02-bagdad-ca-bagdad-café.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Bagdad CA - motel sign.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Bagdad_CA_-_motel_sign.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "gallery",
+        "creator": "Everjean",
+        "date": "2007-08-27",
+        "verified": true,
+        "local_path": "route66/media/NB-001/03-bagdad-ca-motel-sign.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "OR-001": [
+      {
+        "title": "Elmer's Bottle Tree Ranch on Route 66.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Elmer%E2%80%99s_Bottle_Tree_Ranch_on_Route_66.jpg",
+        "license": "CC BY 2.0 (confirmed) — daveynin/David P. Fulmer, 2016",
+        "role_suggestion": "hero candidate",
+        "verified": false,
+        "local_path": "route66/media/OR-001/01-elmers-bottle-tree-ranch-on-route-66.jpg",
+        "download_status": "downloaded",
+        "creator": "daveynin (David P. Fulmer)",
+        "date": "2016-03-19"
+      },
+      {
+        "title": "Bottle Tree Ranch, Route 66.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Bottle_Tree_Ranch,_Route_66.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "gallery",
+        "verified": true,
+        "creator": "daveynin",
+        "date": "2016-03-19",
+        "local_path": "route66/media/OR-001/02-bottle-tree-ranch-route-66.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "SB-003": [
+      {
+        "title": "First McDonalds, San Bernardino, California.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:First_McDonalds,_San_Bernardino,_California.jpg",
+        "license": "unverified",
+        "role_suggestion": "hero candidate"
+      },
+      {
+        "title": "First McD SBD.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:First_McD_SBD.jpg",
+        "license": "unverified",
+        "role_suggestion": "gallery"
+      }
+    ],
+    "YR-001": [
+      {
+        "title": "Calico Ghost Town Historical landmark N°782 .jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Calico_Ghost_Town_Historical_landmark_N%C2%B0782_.jpg",
+        "license": "CC BY-SA 4.0 / GFDL",
+        "role_suggestion": "hero candidate",
+        "creator": "Pierre André",
+        "date": "2016-10-14",
+        "verified": true,
+        "local_path": "route66/media/YR-001/01-calico-ghost-town-historical-landmark-n782.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "BA-002": [
+      {
+        "title": "HISTORIC VIEW OF HARVEY HOUSE, FACING NORTHEAST - Casa Del Desierto, 685 North First Avenue, Barstow, San Bernardino County, CA HABS CAL,36-BAR,1-29.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:HISTORIC_VIEW_OF_HARVEY_HOUSE%2C_FACING_NORTHEAST_-_Casa_Del_Desierto%2C_685_North_First_Avenue%2C_Barstow%2C_San_Bernardino_County%2C_CA_HABS_CAL%2C36-BAR%2C1-29.tif",
+        "license": "Public domain — HABS/NPS federal work",
+        "role_suggestion": "hero candidate",
+        "creator": "Robert Ward (HABS)",
+        "date": "c. 1924",
+        "verified": true,
+        "local_path": "route66/media/BA-002/01-historic-view-of-harvey-house-facing-northeast-casa-del-desierto-685-north-first.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "LD-001": [
+      {
+        "title": "Integratron with trees.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Integratron_with_trees.jpg",
+        "license": "CC BY-SA 3.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Max Ronnersjö",
+        "date": "2012-05-09",
+        "verified": true,
+        "local_path": "route66/media/LD-001/01-integratron-with-trees.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Integratron overhead, about 1975.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Integratron_overhead,_about_1975.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery (historic aerial)",
+        "creator": "Ray S (CA)",
+        "date": "1975-06-15",
+        "verified": true,
+        "local_path": "route66/media/LD-001/02-integratron-overhead-about-1975.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "IntegratronCeiling.jpeg",
+        "url": "https://commons.wikimedia.org/wiki/File:IntegratronCeiling.jpeg",
+        "license": "CC BY-SA 3.0",
+        "role_suggestion": "gallery (interior)",
+        "creator": "Shamrox",
+        "date": "2012-01-15",
+        "verified": true,
+        "local_path": "route66/media/LD-001/03-integratronceiling.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "KL-001": [
+      {
+        "title": "The first Kelso Depot at Mojave National Preserve, Mojave National Preserve, 1905. (32a44c1874794b1aa0d4df0f5fda046b).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:The_first_Kelso_Depot_at_Mojave_National_Preserve%2C_Mojave_National_Preserve%2C_1905._%2832a44c1874794b1aa0d4df0f5fda046b%29.jpg",
+        "license": "Public domain — published before 1931 (NPS Collection)",
+        "role_suggestion": "gallery (historic)",
+        "creator": "unknown (NPS Collection)",
+        "date": "1905",
+        "verified": true,
+        "local_path": "route66/media/KL-001/01-the-first-kelso-depot-at-mojave-national-preserve-mojave-national-preserve-1905-.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "ND-003": [
+      {
+        "title": "Trails Arch Bridge.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Trails_Arch_Bridge.jpg",
+        "license": "CC BY-SA 2.0",
+        "role_suggestion": "hero",
+        "creator": "Thad Roan (Littleton, CO, via Flickr)",
+        "date": "2002-09-18",
+        "verified": true,
+        "local_path": "route66/media/ND-003/01-trails-arch-bridge.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "DG-002": [],
+    "VV-003": [],
+    "SB-002": [
+      {
+        "title": "Mitla Cafe Route 66 sign.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Mitla_Cafe_Route_66_sign.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery",
+        "creator": "RightCowLeftCoast",
+        "date": "2024-09-29",
+        "verified": true,
+        "local_path": "route66/media/SB-002/01-mitla-cafe-route-66-sign.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Mitla Cafe east exterior.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Mitla_Cafe_east_exterior.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "hero",
+        "creator": "RightCowLeftCoast",
+        "date": "2024-09-29",
+        "verified": true,
+        "local_path": "route66/media/SB-002/02-mitla-cafe-east-exterior.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Mitla Cafe front door.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Mitla_Cafe_front_door.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery",
+        "creator": "RightCowLeftCoast",
+        "date": "2024-09-29",
+        "verified": true,
+        "local_path": "route66/media/SB-002/03-mitla-cafe-front-door.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "GO-001": [
+      {
+        "title": "Goffs School 1914 Lanfair Road, Goffs California.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Goffs_School_1914_Lanfair_Road%2C_Goffs_California.jpg",
+        "license": "CC BY-SA 4.0 — NOTE: filename's '1914' is the building's construction year, not the photo date; this is a modern photo",
+        "role_suggestion": "hero candidate — historic",
+        "creator": "Beckettphotographer1",
+        "date": "2018-09-30",
+        "verified": true,
+        "local_path": "route66/media/GO-001/01-goffs-school-1914-lanfair-road-goffs-california.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Historic Goffs School on Route 66 California.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Historic_Goffs_School_on_Route_66_California.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery",
+        "creator": "Beckettphotographer1",
+        "date": "2018-09-30",
+        "verified": true,
+        "local_path": "route66/media/GO-001/02-historic-goffs-school-on-route-66-california.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Goffs school house 1.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Goffs_school_house_1.jpg",
+        "license": "CC BY-SA 3.0",
+        "role_suggestion": "gallery",
+        "creator": "Einbierbitte",
+        "date": "2016-06-20",
+        "verified": true,
+        "local_path": "route66/media/GO-001/03-goffs-school-house-1.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Goffs Schoolhouse Informational Plaque.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Goffs_Schoolhouse_Informational_Plaque.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery",
+        "creator": "Beckettphotographer1",
+        "date": "2018-09-30",
+        "verified": true,
+        "local_path": "route66/media/GO-001/04-goffs-schoolhouse-informational-plaque.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "AM-004": [
+      {
+        "title": "Amboy Crater (53719117718).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Amboy_Crater_%2853719117718%29.jpg",
+        "license": "Public domain — BLM employee, official duties (US federal work)",
+        "role_suggestion": "hero candidate",
+        "creator": "Jesse Pluim, BLM",
+        "date": "2024-03-14",
+        "verified": true,
+        "local_path": "route66/media/AM-004/01-amboy-crater-53719117718.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Amboy Crater Below the Night Sky (52451571479).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Amboy_Crater_Below_the_Night_Sky_%2852451571479%29.jpg",
+        "license": "Public domain — BLM employee, official duties",
+        "role_suggestion": "gallery — dramatic",
+        "verified": true,
+        "creator": "Kyle Sullivan, BLM",
+        "date": "2019-02-09",
+        "local_path": "route66/media/AM-004/02-amboy-crater-below-the-night-sky-52451571479.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Trail Marker at Amboy Crater (52451747670).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Trail_Marker_at_Amboy_Crater_%2852451747670%29.jpg",
+        "license": "Public domain — BLM employee, official duties (US federal work)",
+        "role_suggestion": "gallery",
+        "creator": "Kyle Sullivan, BLM",
+        "date": "2016-03-14",
+        "verified": true,
+        "local_path": "route66/media/AM-004/03-trail-marker-at-amboy-crater-52451747670.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Rest Spot at Amboy Crater (52451747460).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Rest_Spot_at_Amboy_Crater_%2852451747460%29.jpg",
+        "license": "Public domain — BLM employee, official duties",
+        "role_suggestion": "gallery",
+        "verified": true,
+        "creator": "Jesse Pluim, BLM",
+        "date": "2019-12-14",
+        "local_path": "route66/media/AM-004/04-rest-spot-at-amboy-crater-52451747460.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "BA-001": [
+      {
+        "title": "Barstow CA - Main Business Street (NBY 437339).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Barstow_CA_-_Main_Business_Street_%28NBY_437339%29.jpg",
+        "license": "Public domain — published 1931-1963, copyright not renewed (James R. Powell Route 66 Collection, Newberry Library)",
+        "role_suggestion": "hero candidate — historic",
+        "creator": "unknown",
+        "date": "c. 1924 (postmark)",
+        "verified": true,
+        "local_path": "route66/media/BA-001/01-barstow-ca-main-business-street-nby-437339.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Far-go gas pump, Main Street, Barstow, California LCCN2017707788.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Far-go_gas_pump%2C_Main_Street%2C_Barstow%2C_California_LCCN2017707788.tif",
+        "license": "Public domain — LOC, no known restrictions (John Margolies Roadside America collection)",
+        "role_suggestion": "gallery",
+        "verified": true,
+        "creator": "John Margolies",
+        "date": "1979",
+        "local_path": "route66/media/BA-001/02-far-go-gas-pump-main-street-barstow-california-lccn2017707788.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Far-go gas pumps, Main Street, Barstow, California LCCN2017707809.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Far-go_gas_pumps%2C_Main_Street%2C_Barstow%2C_California_LCCN2017707809.tif",
+        "license": "Public domain — LOC, no known restrictions (John Margolies Roadside America collection)",
+        "role_suggestion": "gallery",
+        "verified": true,
+        "creator": "John Margolies",
+        "date": "1979",
+        "local_path": "route66/media/BA-001/03-far-go-gas-pumps-main-street-barstow-california-lccn2017707809.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "BA-005": [
+      {
+        "title": "Panorama Showcasing the 34-Meter Antennas of the DSN's Goldstone Complex (PIA26777).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Panorama_Showcasing_the_34-Meter_Antennas_of_the_DSN%E2%80%99s_Goldstone_Complex_(PIA26777).jpg",
+        "license": "Public domain (confirmed) — NASA/JPL-Caltech",
+        "role_suggestion": "hero candidate",
+        "verified": false,
+        "local_path": "route66/media/BA-005/01-panorama-goldstone-dsn-pia26777.jpg",
+        "download_status": "downloaded",
+        "creator": "NASA/JPL-Caltech",
+        "date": "2026-08"
+      },
+      {
+        "title": "Goldstone's 70-Meter Antenna Under the Stars (PIA26716).png",
+        "url": "https://commons.wikimedia.org/wiki/File:Goldstone%27s_70-Meter_Antenna_Under_the_Stars_%28PIA26716%29.png",
+        "license": "Public domain — NASA/JPL-Caltech",
+        "role_suggestion": "gallery — dramatic",
+        "verified": true,
+        "creator": "NASA/JPL-Caltech",
+        "date": "2026-01-27",
+        "local_path": "route66/media/BA-005/02-goldstones-70-meter-antenna-pia26716.jpg",
+        "download_status": "downloaded (converted from 16-bit PNG to JPEG locally, original thumbnail request returned an oversized uncompressed PNG)"
+      },
+      {
+        "title": "Deep Space Antenna 210' at Goldstone, CA (JPL ref- P-116594AC) (ARC-1972-A72-2699).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Deep_Space_Antenna_210%27_at_Goldstone%2C_CA_%28JPL_ref-_P-116594AC%29_%28ARC-1972-A72-2699%29.jpg",
+        "license": "Public domain — NASA work",
+        "role_suggestion": "gallery — historic",
+        "creator": "NASA Ames Research Center / JPL",
+        "date": "1972-04-01",
+        "verified": true,
+        "local_path": "route66/media/BA-005/03-deep-space-antenna-210-at-goldstone-ca-jpl-ref-p-116594ac-arc-1972-a72-2699.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "AC-001": [
+      {
+        "title": "Afton Canyon and Mojave River (50637878201).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Afton_Canyon_and_Mojave_River_%2850637878201%29.jpg",
+        "license": "CC BY-SA 2.0",
+        "role_suggestion": "hero candidate",
+        "creator": "formulanone",
+        "date": "2014-11-10",
+        "verified": true,
+        "local_path": "route66/media/AC-001/02-afton-canyon-and-mojave-river-50637878201.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Slot Canyon in Afton Canyon (49346803942).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Slot_Canyon_in_Afton_Canyon_%2849346803942%29.jpg",
+        "license": "Public domain — BLM employee, official duties",
+        "role_suggestion": "gallery",
+        "verified": true,
+        "creator": "Jesse Pluim, BLM",
+        "date": "2019-12-14",
+        "local_path": "route66/media/AC-001/01-slot-canyon-in-afton-canyon-49346803942.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "BK-001": [
+      {
+        "title": "Zzyzx, formerly Soda Springs (48694378807).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Zzyzx%2C_formerly_Soda_Springs_%2848694378807%29.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Janusz Sobolewski",
+        "date": "2019-09-06",
+        "verified": true,
+        "local_path": "route66/media/BK-001/02-zzyzx-formerly-soda-springs-48694378807.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Soda Springs Geyser 1.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File:Soda_Springs_Geyser_1.JPG",
+        "license": "CC BY-SA 3.0",
+        "role_suggestion": "gallery — historic feature",
+        "creator": "Dschwen",
+        "date": "2015-08-21",
+        "verified": true,
+        "local_path": "route66/media/BK-001/03-soda-springs-geyser-1.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Soda Springs Cabin.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Soda_Springs_Cabin.jpg",
+        "license": "Public domain — NPS employee, official duties",
+        "role_suggestion": "gallery",
+        "creator": "National Park Service",
+        "date": "unknown",
+        "verified": true,
+        "local_path": "route66/media/BK-001/01-soda-springs-cabin.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "VV-001": [
+      {
+        "title": "California Route 66 Museum in Victorville, California.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:California_Route_66_Museum_in_Victorville%2C_California.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Felipe Sanchez (Sanfel)",
+        "date": "2017-06-13",
+        "verified": true,
+        "local_path": "route66/media/VV-001/02-california-route-66-museum-in-victorville-california.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "California Route 66 Museum Victorville.png",
+        "url": "https://commons.wikimedia.org/wiki/File:California_Route_66_Museum_Victorville.png",
+        "license": "CC0 1.0 (public domain dedication)",
+        "role_suggestion": "gallery",
+        "verified": true,
+        "creator": "Johnson Laitonjam",
+        "date": "2026-06-28",
+        "local_path": "route66/media/VV-001/01-california-route-66-museum-victorville.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "VV-004": [
+      {
+        "title": "The New Corral Motel - Route 66 (9383348965).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:The_New_Corral_Motel_-_Route_66_%289383348965%29.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Randy Heinitz",
+        "date": "2013-07-27",
+        "verified": true,
+        "local_path": "route66/media/VV-004/02-the-new-corral-motel-route-66-9383348965.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "New Corral Motel, Mr. and Mrs. D.W. Kurtz owners, Mr. and Mrs. C.R. Preston managers (NBY 432940).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:New_Corral_Motel%2C_Mr._and_Mrs._D.W._Kurtz_owners%2C_Mr._and_Mrs._C.R._Preston_managers_%28NBY_432940%29.jpg",
+        "license": "Public domain — published 1931-1963, copyright not renewed (Curt Teich Postcard Archives)",
+        "role_suggestion": "gallery — historic",
+        "creator": "unknown",
+        "date": "1950s",
+        "verified": true,
+        "local_path": "route66/media/VV-004/01-new-corral-motel-mr-and-mrs-dw-kurtz-owners-mr-and-mrs-cr-preston-managers-nby-4.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "HS-003": [
+      {
+        "title": "Camp Cajon Monument in San Bernardino County, California. South side of monument.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Camp_Cajon_Monument_in_San_Bernardino_County%2C_California._South_side_of_monument.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Charles Hepperle (Chepp39)",
+        "date": "2019-09-15",
+        "verified": true,
+        "local_path": "route66/media/HS-003/01-camp-cajon-monument-in-san-bernardino-county-california-south-side-of-monument.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Camp Cajon Monument in San Bernardino County, California. East side of monument.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Camp_Cajon_Monument_in_San_Bernardino_County%2C_California._East_side_of_monument.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery",
+        "creator": "Charles Hepperle (Chepp39)",
+        "date": "2019-09-15",
+        "verified": true,
+        "local_path": "route66/media/HS-003/02-camp-cajon-monument-in-san-bernardino-county-california-east-side-of-monument.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Camp Cajon Monument in San Bernardino County, California. West side of monument.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Camp_Cajon_Monument_in_San_Bernardino_County%2C_California._West_side_of_monument.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery",
+        "creator": "Charles Hepperle (Chepp39)",
+        "date": "2019-09-15",
+        "verified": true,
+        "local_path": "route66/media/HS-003/03-camp-cajon-monument-in-san-bernardino-county-california-west-side-of-monument.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Camp Cajon Monument in San Bernardino County, California. Plaque on south side of monument.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Camp_Cajon_Monument_in_San_Bernardino_County%2C_California._Plaque_on_south_side_of_monument.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery — detail",
+        "creator": "Charles Hepperle (Chepp39)",
+        "date": "2019-09-15",
+        "verified": true,
+        "local_path": "route66/media/HS-003/04-camp-cajon-monument-in-san-bernardino-county-california-plaque-on-south-side-of-.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "SB-004": [
+      {
+        "title": "08145-San Bernardino-1906-Santa Fe Depot-Brück & Sohn Kunstverlag.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:08145-San_Bernardino-1906-Santa_Fe_Depot-Br%C3%BCck_%26_Sohn_Kunstverlag.jpg",
+        "license": "CC0 1.0 (public domain dedication)",
+        "role_suggestion": "gallery — historic",
+        "creator": "Brück & Sohn Kunstverlag Meißen",
+        "date": "1906",
+        "verified": true,
+        "local_path": "route66/media/SB-004/01-08145-san-bernardino-1906-santa-fe-depot-brück-sohn-kunstverlag.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "The Santa Fe Depot in San Bernardino, CA (9494837081).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:The_Santa_Fe_Depot_in_San_Bernardino%2C_CA_%289494837081%29.jpg",
+        "license": "CC BY-SA 2.0",
+        "role_suggestion": "hero candidate",
+        "verified": true,
+        "creator": "Tony Hoffarth",
+        "date": "2013-08-09",
+        "local_path": "route66/media/SB-004/03-the-santa-fe-depot-in-san-bernardino-ca-9494837081.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Santa Fe station and yards San Bernardino 1916.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File:Santa_Fe_station_and_yards_San_Bernardino_1916.JPG",
+        "license": "Public domain — published before 1931",
+        "role_suggestion": "gallery — historic",
+        "creator": "Detroit Publishing Company",
+        "date": "1916-10-26 (postmark)",
+        "verified": true,
+        "local_path": "route66/media/SB-004/02-santa-fe-station-and-yards-san-bernardino-1916.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "San Bernardino station, February 18, 1979.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:San_Bernardino_station%2C_February_18%2C_1979.jpg",
+        "license": "Freely usable (photographer's own release: \"all rights are not reserved\") — not a standard PD/CC tag",
+        "role_suggestion": "gallery — mid-century",
+        "creator": "Hikki Nagasaki",
+        "date": "1979-02-18",
+        "verified": true
+      }
+    ],
+    "SB-006": [
+      {
+        "title": "California Theatre, San Bernardino.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File:California_Theatre%2C_San_Bernardino.JPG",
+        "license": "unverified",
+        "role_suggestion": "hero candidate"
+      },
+      {
+        "title": "California Theatre Dwntn San Bernardino.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:California_Theatre_Dwntn_San_Bernardino.jpg",
+        "license": "unverified",
+        "role_suggestion": "gallery"
+      }
+    ],
+    "JT-001": [
+      {
+        "title": "Keys (Desert Queen) Ranch.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Keys_%28Desert_Queen%29_Ranch.jpg",
+        "license": "Public domain — NPS employee, official duties (dual CC BY 2.0 / PD)",
+        "role_suggestion": "hero candidate",
+        "creator": "Robb Hannawacker, Joshua Tree NP",
+        "date": "2014-02-14",
+        "verified": true,
+        "local_path": "route66/media/JT-001/01-keys-desert-queen-ranch.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Historic Preservation at Keys Ranch (49535611472).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Historic_Preservation_at_Keys_Ranch_%2849535611472%29.jpg",
+        "license": "Public domain — NPS employee, official duties",
+        "role_suggestion": "gallery",
+        "creator": "Joshua Tree National Park (Kelsey Graczyk)",
+        "date": "2017-05-30",
+        "verified": true,
+        "local_path": "route66/media/JT-001/02-historic-preservation-at-keys-ranch-49535611472.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "House; Keys (Desert Queen) Ranch.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:House%3B_Keys_%28Desert_Queen%29_Ranch.jpg",
+        "license": "Public domain — NPS employee, official duties (dual CC BY 2.0 / PD)",
+        "role_suggestion": "gallery",
+        "creator": "Robb Hannawacker, Joshua Tree NP",
+        "date": "2007-09-29",
+        "verified": true,
+        "local_path": "route66/media/JT-001/03-house-keys-desert-queen-ranch.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Blacksmith Shop; Keys (Desert Queen) Ranch.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Blacksmith_Shop%3B_Keys_%28Desert_Queen%29_Ranch.jpg",
+        "license": "Public domain — NPS employee, official duties (dual CC BY 2.0 / PD)",
+        "role_suggestion": "gallery",
+        "creator": "Robb Hannawacker, Joshua Tree NP",
+        "date": "2007-09-20",
+        "verified": true,
+        "local_path": "route66/media/JT-001/04-blacksmith-shop-keys-desert-queen-ranch.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "PT-001": [
+      {
+        "title": "Pioneertown Mane Street.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Pioneertown_Mane_Street.jpg",
+        "license": "unverified",
+        "role_suggestion": "hero candidate"
+      },
+      {
+        "title": "Pioneertown mane street sign.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Pioneertown_mane_street_sign.jpg",
+        "license": "unverified",
+        "role_suggestion": "gallery"
+      },
+      {
+        "title": "Pioneertown california saloon and bath house.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Pioneertown_california_saloon_and_bath_house.jpg",
+        "license": "unverified",
+        "role_suggestion": "gallery"
+      }
+    ],
+    "FP-001": [
+      {
+        "title": "nps.gov/places/ft-piute.htm (official page photo)",
+        "url": "https://www.nps.gov/places/ft-piute.htm",
+        "license": "PD — NPS photo, confirmed via file page text",
+        "role_suggestion": "hero candidate — only confirmed image, not yet extracted as a direct file URL"
+      }
+    ],
+    "SB-007": [
+      {
+        "title": "Mission Motel sign, Mt. Vernon Avenue at Orange Street, San Bernardino, California LCCN2017703550.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Mission_Motel_sign%2C_Mt._Vernon_Avenue_at_Orange_Street%2C_San_Bernardino%2C_California_LCCN2017703550.tif",
+        "license": "Public domain — PD-LOC, John Margolies Roadside America collection, no known copyright restrictions",
+        "role_suggestion": "hero",
+        "creator": "John Margolies",
+        "date": "1977",
+        "verified": true,
+        "local_path": "route66/media/SB-007/01-mission-motel-sign-mt-vernon-avenue-at-orange-street-san-bernardino-california-lccn2017703550.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Mission Auto Court -- One of the Best in the West. 1150 Mt. Vernon Avenue, San Bernardino, Calif (65039).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Mission_Auto_Court_--_One_of_the_Best_in_the_West._1150_Mt._Vernon_Avenue%2C_San_Bernardino%2C_Calif_%2865039%29.jpg",
+        "license": "Public domain — published in the US 1931-1977 without a copyright notice",
+        "role_suggestion": "gallery",
+        "creator": "Tichnor Brothers (publisher)",
+        "date": "circa 1930-1945",
+        "verified": true,
+        "local_path": "route66/media/SB-007/02-mission-auto-court-one-of-the-best-in-the-west-1150-mt-vernon-avenue-san-bernardino-calif-65039.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "ND-005": [
+      {
+        "title": "66 Motel front Needles CA 2026-04-05 16-23-49.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:66_Motel_front_Needles_CA_2026-04-05_16-23-49.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "hero candidate",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/ND-005/01-66-motel-front-needles-ca-2026-04-05-16-23-49.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Route 66 Motel Sign - Needles, CA.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Route_66_Motel_Sign_-_Needles%2C_CA.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "gallery",
+        "creator": "Doug Wertman",
+        "date": "2009-08-17",
+        "verified": true,
+        "local_path": "route66/media/ND-005/02-route-66-motel-sign-needles-ca.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "66 Motel sign Needles CA 2026-04-05 16-23-24.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:66_Motel_sign_Needles_CA_2026-04-05_16-23-24.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "gallery",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/ND-005/03-66-motel-sign-needles-ca-2026-04-05-16-23-24.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "LU-006": [
+      {
+        "title": "Ludlow Cafe - California Ghost Town (8327475273).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Ludlow_Cafe_-_California_Ghost_Town_%288327475273%29.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Thomas Shahan",
+        "date": "2012-12-29",
+        "verified": true,
+        "local_path": "route66/media/LU-006/01-ludlow-cafe-california-ghost-town-8327475273.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Old Ludlow Cafe - Interior, Ludlow, California (April 2008).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Old_Ludlow_Cafe_-_Interior%2C_Ludlow%2C_California_%28April_2008%29.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery — interior",
+        "verified": true,
+        "creator": "Amin Eshaiker",
+        "date": "2008-04",
+        "local_path": "route66/media/LU-006/02-old-ludlow-cafe-interior-ludlow-california-april-2008.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "ND-011": [
+      {
+        "title": "Route 66 mural in Needles, California LCCN2013630406.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Route_66_mural_in_Needles%2C_California_LCCN2013630406.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "hero candidate",
+        "creator": "Carol M. Highsmith",
+        "date": "2012-05-17",
+        "verified": true,
+        "local_path": "route66/media/ND-011/01-route-66-mural-in-needles-california-lccn2013630406.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Route 66 mural in Needles, California LCCN2013630407.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Route_66_mural_in_Needles%2C_California_LCCN2013630407.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "gallery",
+        "creator": "Carol M. Highsmith",
+        "date": "2012-05-17",
+        "verified": true,
+        "local_path": "route66/media/ND-011/02-route-66-mural-in-needles-california-lccn2013630407.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "ND-015": [
+      {
+        "title": "Needles California 4.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Needles_California_4.jpg",
+        "license": "CC BY-SA 3.0 / 2.5 / GFDL (multi-licensed)",
+        "role_suggestion": "hero candidate — general streetscape",
+        "creator": "Stan Shebs",
+        "date": "2006-12-23",
+        "verified": true,
+        "local_path": "route66/media/ND-015/01-needles-california-4.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Needles CA - Greetings from Needles, California (NBY 434176).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Needles_CA_-_Greetings_from_Needles%2C_California_%28NBY_434176%29.jpg",
+        "license": "Public domain — published 1931-1963, copyright not renewed (James R. Powell Route 66 Collection, Newberry Library)",
+        "role_suggestion": "gallery — historic",
+        "creator": "unknown",
+        "date": "1940s",
+        "verified": true,
+        "local_path": "route66/media/ND-015/02-needles-ca-greetings-from-needles-california-nby-434176.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Marker historic route 66 needles ca.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Marker_historic_route_66_needles_ca.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "gallery — wayfinding marker",
+        "creator": "Renji Shino",
+        "date": "2007-12-20",
+        "verified": true,
+        "local_path": "route66/media/ND-015/03-marker-historic-route-66-needles-ca.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "AM-005": [
+      {
+        "title": "Post Office front Amboy CA 2026-04-05 09-35-42 1.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Post_Office_front_Amboy_CA_2026-04-05_09-35-42_1.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "hero candidate — community building",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/AM-005/01-post-office-front-amboy-ca-2026-04-05-09-35-42-1.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Peace Car Route 66 Amboy CA 2026-04-05 09-37-54 1.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Peace_Car_Route_66_Amboy_CA_2026-04-05_09-37-54_1.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "gallery — roadside oddity",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/AM-005/02-peace-car-route-66-amboy-ca-2026-04-05-09-37-54-1.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "U.S. Post Office in Amboy California.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:U.S._Post_Office_in_Amboy_California.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "gallery",
+        "creator": "Tony Webster",
+        "date": "2016-08-07",
+        "verified": true,
+        "local_path": "route66/media/AM-005/03-us-post-office-in-amboy-california.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "CH-001": [
+      {
+        "title": "Road Runners Retreat and gas station Chambless CA 2026-04-05 10-50-30.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Road_Runners_Retreat_and_gas_station_Chambless_CA_2026-04-05_10-50-30.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "hero candidate",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/CH-001/01-road-runners-retreat-and-gas-station-chambless-ca-2026-04-05-10-50-30.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Road Runners Retreat restaurant sign Chambless CA 2026-04-05 10-50-10.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Road_Runners_Retreat_restaurant_sign_Chambless_CA_2026-04-05_10-50-10.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "gallery — sign detail",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/CH-001/02-road-runners-retreat-restaurant-sign-chambless-ca-2026-04-05-10-50-10.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Road Runners Retreat - Route 66 east of Amboy CA.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Road_Runners_Retreat_-_Route_66_east_of_Amboy_CA.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "gallery",
+        "creator": "Bruce Fingerhood",
+        "date": "2010-04-20",
+        "verified": true,
+        "local_path": "route66/media/CH-001/03-road-runners-retreat-route-66-east-of-amboy-ca.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "CH-002": [
+      {
+        "title": "Road Runners Retreat restaurant sign Chambless CA 2026-04-05 10-50-10.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Road_Runners_Retreat_restaurant_sign_Chambless_CA_2026-04-05_10-50-10.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "hero candidate — shares CH-001's sign",
+        "creator": "G. Edward Johnson",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/CH-002/01-road-runners-retreat-restaurant-sign-chambless-ca-2026-04-05-10-50-10.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "LU-003": [
+      {
+        "title": "Chevron Gas Station Sign and Sunset - Ludlow, California (28788098472).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Chevron_Gas_Station_Sign_and_Sunset_-_Ludlow%2C_California_%2828788098472%29.jpg",
+        "license": "CC BY-SA 2.0 — MISMATCH: image confirmed to show only the station sign/sunset, no van or firetruck visible. Do not use as LU-003 candidate.",
+        "role_suggestion": "hero candidate — needs visual confirmation it shows the van/firetruck",
+        "creator": "Tony Webster",
+        "date": "2016-08-07",
+        "verified": true
+      }
+    ],
+    "NB-002": [
+      {
+        "title": "Whiting Brothers Dry Creek Service Station - Newberry Springs, California (April 2008).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Whiting_Brothers_Dry_Creek_Service_Station_-_Newberry_Springs%2C_California_%28April_2008%29.jpg",
+        "license": "CC BY-SA 4.0",
+        "role_suggestion": "hero candidate — only confirmed image, filename exact",
+        "creator": "Amin Eshaiker",
+        "date": "2008-04",
+        "verified": true,
+        "local_path": "route66/media/NB-002/01-whiting-brothers-dry-creek-service-station-newberry-springs-california-april-200.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "VV-002": [
+      {
+        "title": "Emma Jeans Holland Burger Cafe - Route 66, Victorville, CA.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Emma_Jeans_Holland_Burger_Cafe_-_Route_66%2C_Victorville%2C_CA.jpg",
+        "license": "CC BY-SA 2.0",
+        "role_suggestion": "hero candidate — only confirmed image, filename exact",
+        "creator": "Gabriel Millos",
+        "date": "2009-09-26",
+        "verified": true,
+        "local_path": "route66/media/VV-002/01-emma-jeans-holland-burger-cafe-route-66-victorville-ca.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "ND-002": [
+      {
+        "title": "Museum Needles CA.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File:Museum_Needles_CA.JPG",
+        "license": "CC BY 3.0",
+        "role_suggestion": "hero",
+        "creator": "Renjishino",
+        "date": "2007-12-07",
+        "verified": true,
+        "local_path": "route66/media/ND-002/01-museum-needles-ca.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Museum Needles Closed.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File:Museum_Needles_Closed.JPG",
+        "license": "CC BY 3.0",
+        "role_suggestion": "gallery",
+        "creator": "Renjishino",
+        "date": "2007-12-07",
+        "verified": true,
+        "local_path": "route66/media/ND-002/02-museum-needles-closed.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "AM-002": [
+      {
+        "title": "AmboySchool.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:AmboySchool.jpg",
+        "license": "CC BY-SA 3.0 / GFDL (dual-licensed)",
+        "role_suggestion": "hero",
+        "creator": "Chris Walker",
+        "date": "2007-07-01",
+        "verified": true,
+        "local_path": "route66/media/AM-002/01-amboy-school.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "CH-004": [
+      {
+        "title": "Road Runners Retreat and gas station Chambless CA 2026-04-05 10-50-30.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Road_Runners_Retreat_and_gas_station_Chambless_CA_2026-04-05_10-50-30.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "hero",
+        "creator": "G. Edward Johnson (Lorax)",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/CH-004/01-road-runners-retreat-and-gas-station-chambless-ca.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Chambless Store Chambless CA 2026-04-05 10-42-28 1.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Chambless_Store_Chambless_CA_2026-04-05_10-42-28_1.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "gallery",
+        "creator": "G. Edward Johnson (Lorax)",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/CH-004/02-chambless-store-chambless-ca.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Cabins at Chambless CA 2026-04-05 10-43-24 1.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Cabins_at_Chambless_CA_2026-04-05_10-43-24_1.jpg",
+        "license": "CC BY 4.0",
+        "role_suggestion": "gallery",
+        "creator": "G. Edward Johnson (Lorax)",
+        "date": "2026-04-05",
+        "verified": true,
+        "local_path": "route66/media/CH-004/03-cabins-at-chambless-ca.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "VV-005": [
+      {
+        "title": "Old Town Victorville-Veteran's Memorial-Seventh St-Forrest Ave.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Old_Town_Victorville-Veteran%27s_Memorial-Seventh_St-Forrest_Ave.jpg",
+        "license": "CC BY-SA 3.0",
+        "role_suggestion": "hero",
+        "creator": "Mlpearc",
+        "date": "2013-07-25",
+        "verified": true,
+        "local_path": "route66/media/VV-005/01-old-town-victorville-veterans-memorial-seventh-st-forrest-ave.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "OR-005": [
+      {
+        "title": "The Bank of Oro Grande boarded up in 2013.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:The_Bank_of_Oro_Grande_boarded_up_in_2013.jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "hero",
+        "creator": "Randy Heinitz",
+        "date": "2013-07-27",
+        "verified": true,
+        "local_path": "route66/media/OR-005/01-the-bank-of-oro-grande-boarded-up-in-2013.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "BA-008": [
+      {
+        "title": "Sign for El Rancho motel in Barstow, California LCCN2013633209.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Sign_for_El_Rancho_motel_in_Barstow,_California_LCCN2013633209.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "hero",
+        "creator": "Carol M. Highsmith",
+        "date": "2012-07-31",
+        "verified": true,
+        "local_path": "route66/media/BA-008/01-sign-for-el-rancho-motel-in-barstow-california-lccn2013633209.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Sign for El Rancho motel in Barstow, California LCCN2013633210.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Sign_for_El_Rancho_motel_in_Barstow,_California_LCCN2013633210.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "gallery",
+        "creator": "Carol M. Highsmith",
+        "date": "2012-07-31",
+        "verified": true,
+        "local_path": "route66/media/BA-008/02-sign-for-el-rancho-motel-in-barstow-california-lccn2013633210.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Motel in Barstow, California LCCN2013633211.tif",
+        "url": "https://commons.wikimedia.org/wiki/File:Motel_in_Barstow,_California_LCCN2013633211.tif",
+        "license": "Public domain — PD-Highsmith, LOC, no known restrictions",
+        "role_suggestion": "gallery",
+        "creator": "Carol M. Highsmith",
+        "date": "2012-07-31",
+        "verified": true,
+        "local_path": "route66/media/BA-008/03-motel-in-barstow-california-lccn2013633211.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "LU-001": [
+      {
+        "title": "Ludlow, California.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Ludlow,_California.jpg",
+        "license": "Public domain",
+        "role_suggestion": "hero candidate",
+        "creator": "Unknown author (NYPL postcard collection via archive.org)",
+        "date": "1927",
+        "verified": true,
+        "local_path": "route66/media/LU-001/01-main-street-ludlow-california.jpg",
+        "download_status": "downloaded"
+      }
+    ],
+    "BA-015": [
+      {
+        "title": "Barstow Station (1354169990).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Barstow_Station_(1354169990).jpg",
+        "license": "CC BY 2.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Joe Wu",
+        "date": "2007-08-29",
+        "verified": true,
+        "local_path": "route66/media/BA-015/01-barstow-station-water-tower.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Barstow Station - panoramio.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Barstow_Station_-_panoramio.jpg",
+        "license": "CC BY-SA 3.0",
+        "role_suggestion": "gallery",
+        "creator": "hakkun",
+        "date": "2007-08-14",
+        "verified": true,
+        "local_path": "route66/media/BA-015/02-barstow-station-mcdonalds-sign.jpg",
+        "download_status": "downloaded"
+      }
+    ]
+  },
+  "meta": {
+    "generated": "2026-09-22",
+    "coverage_tally": {
+      "rich": 28,
+      "moderate": 13,
+      "thin": 5,
+      "none": 54
+    },
+    "sources_checked": [
+      "Wikimedia Commons (primary)",
+      "Calisphere (secondary — targeted on gaps)",
+      "NPS.gov (secondary — targeted, federal sites)",
+      "Library of Congress direct — blocked by Cloudflare bot protection, not usable directly"
+    ],
+    "note": "detailed_candidates_by_site has confirmed titles/URLs only for the 29 sites with rich or moderate coverage where specific filenames were identified. status_by_site covers all 100 with a coverage tier. No files downloaded. Most licenses marked unverified — confirmed only where an individual file page was actually opened and read. Batch 2 (2026-09-22): re-searched the 54 Route 66 Historic tier sites with no photo; resolved 9 with verified downloads, 45 remain genuine gaps after good-faith search across Commons/Calisphere/NPS/BLM/Flickr. Batch 3 (2026-09-22): re-searched the 45 remaining Route 66 Historic tier sites; resolved 2 (LU-001, BA-015) with verified downloads, 43 remain genuine gaps after a good-faith search across Commons (including a newly-found systematic Needles/Topock photo survey), Calisphere, NPS, BLM, and FHWA America's Byways."
+  }
+}

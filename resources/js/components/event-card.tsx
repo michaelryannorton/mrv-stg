@@ -1,5 +1,3 @@
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatEventTime, formatWhen } from '@/lib/event-formatting';
 import { type EventItem } from '@/types/event';
 
@@ -9,59 +7,58 @@ interface EventCardProps {
     layout?: 'list' | 'day';
 }
 
+/** One event in a list, built from the public site's card (resources/css/mrv.css `.card`) with the few additions in mrv-port.css. */
 export default function EventCard({ event, layout = 'list' }: EventCardProps) {
     const place = event.venue && `${event.venue.name}${event.venue.city ? `, ${event.venue.city}` : ''}`;
 
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        {layout === 'day' && <p className="mb-1 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">{formatEventTime(event)}</p>}
-                        <CardTitle>{event.title}</CardTitle>
-                        {layout === 'list' ? (
-                            <p className="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                {formatWhen(event)}
-                                {place && ` · ${place}`}
-                            </p>
-                        ) : (
-                            place && <p className="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]">{place}</p>
-                        )}
-                    </div>
-                    <div className="flex shrink-0 flex-wrap justify-end gap-2">
-                        {event.is_pick && <Badge variant="outline">Curator's pick</Badge>}
-                        {event.is_free && <Badge>Free</Badge>}
-                    </div>
+        <article className="card event-card">
+            <div className="event-card-head">
+                <div>
+                    {layout === 'day' && <p className="event-time">{formatEventTime(event)}</p>}
+                    <h3>{event.title}</h3>
+                    {layout === 'list' ? (
+                        <p className="card-note">
+                            {formatWhen(event)}
+                            {place && ` · ${place}`}
+                        </p>
+                    ) : (
+                        place && <p className="card-note">{place}</p>
+                    )}
                 </div>
-            </CardHeader>
+                <div className="event-badges">
+                    {event.is_pick && <span className="event-badge pick">Curator's pick</span>}
+                    {event.is_free && <span className="event-badge free">Free</span>}
+                </div>
+            </div>
             {(event.short_description || event.categories.length > 0 || event.details_url) && (
-                <CardContent>
-                    {event.short_description && <p className="mb-3 text-sm">{event.short_description}</p>}
-                    <div className="flex flex-wrap items-center gap-2">
+                <>
+                    {event.short_description && <p className="event-body">{event.short_description}</p>}
+                    <div className="event-meta">
                         {event.categories.map((c) => (
-                            <Badge key={c.id} variant="secondary">
+                            <span key={c.id} className="market-tag">
                                 {c.name}
-                            </Badge>
+                            </span>
                         ))}
                         {event.tags.map((t) => (
-                            <Badge key={t.id} variant="outline">
+                            <span key={t.id} className="market-tag">
                                 {t.name}
-                            </Badge>
+                            </span>
                         ))}
                         {event.details_url && (
                             <a
                                 href={event.details_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="ml-auto text-sm underline underline-offset-4"
+                                className="event-details-link"
                                 aria-label={`Details for ${event.title} (opens the organizer's page in a new tab)`}
                             >
                                 Details
                             </a>
                         )}
                     </div>
-                </CardContent>
+                </>
             )}
-        </Card>
+        </article>
     );
 }

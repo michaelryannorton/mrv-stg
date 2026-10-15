@@ -1,7 +1,7 @@
 // A recording stand-in for Leaflet's `L`, shared by the golden generator (legacy map.js runs against it) and by
 // region-map tests (the port's leaflet-map.ts runs against it through vi.mock): every call is logged with its
 // arguments, so two implementations that make the same calls in the same order build the same map.
-export function makeLeaflet(log) {
+export function makeLeaflet(log, extra = {}) {
     const rec = (name, args) => log.push([name, JSON.parse(JSON.stringify(args, (k, v) => (typeof v === 'function' ? '[function]' : v)))]);
     const chain = (prefix, methods) => {
         const o = {};
@@ -12,7 +12,7 @@ export function makeLeaflet(log) {
             };
         return o;
     };
-    const map = () => chain('map', ['setView', 'fitBounds', 'remove']);
+    const map = () => chain('map', extra.invalidateSize ? ['setView', 'fitBounds', 'remove', 'invalidateSize'] : ['setView', 'fitBounds', 'remove']);
     const layerGroup = () => chain('layerGroup', ['addTo', 'clearLayers']);
     return {
         map: (container, opts) => {

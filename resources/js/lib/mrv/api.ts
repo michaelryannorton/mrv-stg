@@ -12,8 +12,13 @@ export const MRV_API_BASE: string = (import.meta.env.VITE_MRV_API_BASE as string
 export type FetchLike = (input: string, init?: { cache?: RequestCache }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;
 
 /** GET one address and parse the JSON body; a non-2xx answer is an error naming the status and the address (as production's data.js). */
-export async function fetchJson<T = unknown>(url: string, fetchImpl: FetchLike = (u, i) => fetch(u, i)): Promise<T> {
+export async function fetchJson<T = unknown>(
+    url: string,
+    fetchImpl: FetchLike = (u, i) => fetch(u, i),
+    /** The page's own wording for a failed request, where production's page has one ("Market fetch failed: HTTP 503"). */
+    failureMessage: (status: number) => string = (status) => `API fetch failed: HTTP ${status} (${url})`,
+): Promise<T> {
     const res = await fetchImpl(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`API fetch failed: HTTP ${res.status} (${url})`);
+    if (!res.ok) throw new Error(failureMessage(res.status));
     return (await res.json()) as T;
 }

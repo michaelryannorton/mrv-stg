@@ -10,7 +10,7 @@
 | resources/views/app.blade.php), so the login page does not list the /admin and /curate addresses.
 |
 | Each name here is one a signed-out page's components call route() with: the public header and
-| welcome page, the auth layouts and pages, and the events, channels and submit pages. When a
+| front page, the auth layouts and pages, and the events, channels and submit pages. When a
 | component reachable while signed out starts using another route, add its name here.
 |
 */
@@ -35,6 +35,11 @@ return [
             'channels.show',
             'submit.create',
             'submit.store',
+            'route66.index',
+            'route66.show',
+            'markets.index',
+            'data.index',
+            'art.index',
         ],
     ],
 ];

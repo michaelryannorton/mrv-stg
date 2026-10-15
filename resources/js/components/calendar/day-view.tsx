@@ -8,14 +8,14 @@ interface DayViewProps {
 export default function DayView({ events }: DayViewProps) {
     if (events.length === 0) {
         return (
-            <p className="rounded-md border border-dashed border-[#e3e3e0] p-8 text-center text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
-                No events on this day.
-            </p>
+            <div className="card empty-card">
+                <p className="card-note">No events on this day.</p>
+            </div>
         );
     }
 
     return (
-        <div className="grid gap-4">
+        <div className="event-list">
             {events.map((event) => (
                 <EventCard key={event.id} event={event} layout="day" />
             ))}

@@ -1,0 +1,13 @@
+/* ==========================================================================
+   Leaflet overrides that production's stylesheet makes.
+
+   Leaflet's own stylesheet (imported by js/components/mrv/map.tsx) is not in a cascade layer, so it beats every rule in
+   the layered design system (mrv.css). Production loads Leaflet's CSS first and styles.css after it, so styles.css wins
+   there. This file is unlayered too and restores that order for the one rule styles.css has for a Leaflet class (copied
+   unchanged from mrv.css); the extra `.mrv-site` makes it more specific than Leaflet's own rule.
+   ========================================================================== */
+
+.mrv-site .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  font-family: var(--font-body);
+}

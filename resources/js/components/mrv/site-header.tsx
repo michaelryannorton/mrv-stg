@@ -1,7 +1,7 @@
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { isGroup, SITE_NAV, type NavItem, type NavPage } from './navigation';
+import { isGroup, navGroupClass, SITE_NAV, type NavItem, type NavPage } from './navigation';
 
 /** The address of a ready page: its Ziggy route, or a literal href (previews only). */
 export const pageHref = (page: NavPage): string => (page.route ? route(page.route) : (page.href ?? '#'));
@@ -65,7 +65,7 @@ export default function SiteHeader({ pages = SITE_NAV, activeId, account = true 
                         const hasActiveChild = children.some((child) => child.id === activeId);
 
                         return (
-                            <div key={item.id} className={`nav-group${hasActiveChild ? 'active' : ''}${open ? 'open' : ''}`}>
+                            <div key={item.id} className={navGroupClass(hasActiveChild, open)}>
                                 <button
                                     type="button"
                                     className="nav-group-toggle"

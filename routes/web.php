@@ -11,14 +11,19 @@ use App\Http\Controllers\ChannelPageController;
 use App\Http\Controllers\CurateController;
 use App\Http\Controllers\CuratorProfileController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicSubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+// The public pages ported from the production weather site (port phase 3). Each loads its own data in the browser.
+Route::get('/', [PublicPageController::class, 'home'])->name('home');
+Route::get('route-66', [PublicPageController::class, 'route66Index'])->name('route66.index');
+Route::get('route-66/{site}', [PublicPageController::class, 'route66Show'])->where('site', '[A-Za-z0-9._~-]{1,64}')->name('route66.show');
+Route::get('farmers-markets', [PublicPageController::class, 'markets'])->name('markets.index');
+Route::get('data-explorer', [PublicPageController::class, 'dataExplorer'])->name('data.index');
+Route::get('public-art', [PublicPageController::class, 'publicArt'])->name('art.index');
 
 // Local environment only: the port's component sheet (port/phase-1), compared with production's look. Never
 // registered on staging, on production or under test.

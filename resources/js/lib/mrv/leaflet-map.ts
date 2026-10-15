@@ -81,3 +81,82 @@ export function initMiniMap(container: string | HTMLElement, lat: number | null,
 export function destroyMap(map: L.Map | null | undefined): void {
     if (map) map.remove();
 }
+
+// ---- marker maps for the directory pages (Data Explorer, Farmers Markets, Public Art; port phase 3) --------------------
+// The three pages build the same kind of map: the region view, the tile layer, a layer group, one tooltip-and-popup
+// circle marker per item, fitted to the points. The pieces are separate functions because the legacy pages call them
+// in different orders (the Data Explorer fits before it draws; the others draw first).
+
+export interface PointMarker {
+    lat: number;
+    lon: number;
+    radius: number;
+    fillColor: string;
+    fillOpacity: number;
+    /** HTML string (Leaflet reads tooltips and popups as HTML): escape any text that came from data. */
+    tooltip: string;
+    popup: string;
+}
+
+export interface FitOptions {
+    padding: number;
+    maxZoom: number;
+}
+
+export function createMarkerMap(container: string | HTMLElement): RegionMapHandle {
+    const map = L.map(container).setView([34.55, -117.0], 8);
+    L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 14 }).addTo(map);
+    const markers = L.layerGroup().addTo(map);
+    return { map, markers };
+}
+
+export function drawMarkers(layer: L.LayerGroup, markers: PointMarker[], { clear = true }: { clear?: boolean } = {}): void {
+    if (clear) layer.clearLayers();
+    for (const m of markers) {
+        L.circleMarker([m.lat, m.lon], { radius: m.radius, color: '#2E2A26', weight: 1, fillColor: m.fillColor, fillOpacity: m.fillOpacity })
+            .bindTooltip(m.tooltip, { direction: 'top', offset: [0, -m.radius] })
+            .bindPopup(m.popup)
+            .addTo(layer);
+    }
+}
+
+export function fitToPoints(map: L.Map, points: Array<[number, number]>, { padding, maxZoom }: FitOptions): void {
+    if (!points.length) return;
+    map.fitBounds(L.latLngBounds(points), { padding: [padding, padding], maxZoom });
+}
+
+export interface MarkerMapSpec {
+    markers: PointMarker[];
+    /** The points the map is fitted to (the Data Explorer fits to every station, drawn or not). */
+    fitPoints: Array<[number, number]>;
+    fit: FitOptions;
+    /** The Data Explorer fits before it draws; the other pages draw first (kept so the calls match production's). */
+    fitFirst?: boolean;
+    /** Draw without clearing the layer first (Farmers Markets draws once). */
+    appendOnly?: boolean;
+}
+
+/** Make the map and put the markers on it, in the order the page's legacy script did. */
+export function mountMarkerMap(container: string | HTMLElement, spec: MarkerMapSpec): RegionMapHandle {
+    const handle = createMarkerMap(container);
+    if (spec.fitFirst) {
+        fitToPoints(handle.map, spec.fitPoints, spec.fit);
+        drawMarkers(handle.markers, spec.markers, { clear: !spec.appendOnly });
+    } else {
+        drawMarkers(handle.markers, spec.markers, { clear: !spec.appendOnly });
+        fitToPoints(handle.map, spec.fitPoints, spec.fit);
+    }
+    return handle;
+}
+
+/** Public Art: the map was hidden (display: none) and is shown again. Redraw, refit, and let Leaflet measure its box again. */
+export function reshowMarkerMap(handle: RegionMapHandle, spec: MarkerMapSpec): void {
+    drawMarkers(handle.markers, spec.markers, { clear: true });
+    fitToPoints(handle.map, spec.fitPoints, spec.fit);
+    invalidateSoon(handle.map);
+}
+
+/** Leaflet measures its container once; after the container is shown (or just made) it needs this nudge, a tick later. */
+export function invalidateSoon(map: L.Map): ReturnType<typeof setTimeout> {
+    return setTimeout(() => map.invalidateSize(), 0);
+}

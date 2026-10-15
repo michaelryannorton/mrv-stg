@@ -54,9 +54,9 @@ export const SITE_NAV: NavItem[] = [
         id: 'attractions',
         label: 'Attractions',
         children: [
-            { id: 'art', label: 'Public Art', ready: false },
-            { id: 'route66', label: 'Route 66', ready: false },
-            { id: 'markets', label: 'Farmers Markets', ready: false },
+            { id: 'art', label: 'Public Art', ready: true, route: 'art.index' },
+            { id: 'route66', label: 'Route 66', ready: true, route: 'route66.index' },
+            { id: 'markets', label: 'Farmers Markets', ready: true, route: 'markets.index' },
         ],
     },
     // Not on production's navigation: the Community section lives here (decision to confirm with Michael).
@@ -70,7 +70,7 @@ export const SITE_NAV: NavItem[] = [
         ],
     },
     { id: 'recreation', label: 'Recreation', ready: false },
-    { id: 'data', label: 'Data Explorer', ready: false, footerOnly: true },
+    { id: 'data', label: 'Data Explorer', ready: true, route: 'data.index', footerOnly: true },
 ];
 
 /**
@@ -109,3 +109,17 @@ export const PRODUCTION_PREVIEW_NAV: NavItem[] = [
 
 /** Every page, groups expanded and group headers dropped (the footer's Explore list). */
 export const flatPages = (items: NavItem[]): NavPage[] => items.flatMap((item) => (isGroup(item) ? item.children : [item]));
+
+/** The page with this id, wherever it sits in the navigation. */
+export const pageById = (items: NavItem[], id: string): NavPage | undefined => flatPages(items).find((page) => page.id === id);
+
+/**
+ * The navigation a public page uses. `preview` (only ever true in the local environment, set by the route) is
+ * production's navigation with every page linked and no account link: the arrangement the port's comparison
+ * with production needs (port/phase-3/tools/compare_pages.mjs).
+ */
+export const resolveNav = (preview: boolean): { pages: NavItem[]; account: boolean } =>
+    preview ? { pages: PRODUCTION_PREVIEW_NAV, account: false } : { pages: SITE_NAV, account: true };
+
+/** The class list of a dropdown group in the header: `nav-group`, plus `active` when a page inside is current and `open` while its menu is shown. */
+export const navGroupClass = (hasActiveChild: boolean, open: boolean): string => `nav-group${hasActiveChild ? ' active' : ''}${open ? ' open' : ''}`;

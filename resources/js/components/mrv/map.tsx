@@ -1,6 +1,20 @@
-import { destroyMap, initMiniMap, initRegionMap, renderMarkers, type MapPoint, type MarkerValues, type RegionMapHandle } from '@/lib/mrv/leaflet-map';
+import {
+    destroyMap,
+    drawMarkers,
+    initMiniMap,
+    initRegionMap,
+    invalidateSoon,
+    mountMarkerMap,
+    renderMarkers,
+    reshowMarkerMap,
+    type MapPoint,
+    type MarkerMapSpec,
+    type MarkerValues,
+    type PointMarker,
+    type RegionMapHandle,
+} from '@/lib/mrv/leaflet-map';
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 
 interface RegionMapViewProps {
     /** The element id production's CSS styles (`map` for the region map). */
@@ -70,4 +84,63 @@ export function MiniMapView({ id, className, lat, lon, label }: MiniMapViewProps
     }, [lat, lon, label]);
 
     return <div ref={element} id={id} className={className} />;
+}
+
+interface MarkerMapViewProps extends MarkerMapSpec {
+    id?: string;
+    className?: string;
+    style?: CSSProperties;
+    /** Redraw, refit and `invalidateSize` each time `active` turns true (Public Art hides its map with display:none). */
+    refitOnShow?: boolean;
+    active?: boolean;
+}
+
+/**
+ * The map of a directory page (production: stations.js, markets.js, art.js). Created once on mount; the markers are
+ * redrawn when `markers` changes (the Data Explorer's legend switches), and with `refitOnShow` the map is redrawn
+ * and refitted whenever it becomes visible again. Pages should memoize `markers` and `fitPoints`.
+ */
+export function MarkerMapView({ id, className, style, refitOnShow = false, active = true, ...spec }: MarkerMapViewProps) {
+    const element = useRef<HTMLDivElement>(null);
+    const handle = useRef<RegionMapHandle | null>(null);
+    const latest = useRef<MarkerMapSpec>(spec);
+    latest.current = spec;
+    const drawn = useRef<PointMarker[] | null>(null);
+    const wasActive = useRef(active);
+
+    useEffect(() => {
+        if (!element.current) return;
+        handle.current = mountMarkerMap(element.current, latest.current);
+        drawn.current = latest.current.markers;
+        const map = handle.current.map;
+        const timer = refitOnShow ? invalidateSoon(map) : undefined;
+
+        return () => {
+            if (timer) clearTimeout(timer);
+            destroyMap(map);
+            handle.current = null;
+            drawn.current = null;
+        };
+        // The map is made once; later changes arrive through the effects below.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // New markers (the Data Explorer's legend switches): redraw them; the view does not move.
+    useEffect(() => {
+        if (handle.current && !refitOnShow && drawn.current !== spec.markers) {
+            drawMarkers(handle.current.markers, spec.markers, { clear: true });
+            drawn.current = spec.markers;
+        }
+    }, [spec.markers, refitOnShow]);
+
+    // Public Art: the map is shown again after being hidden.
+    useEffect(() => {
+        if (refitOnShow && active && !wasActive.current && handle.current) {
+            reshowMarkerMap(handle.current, latest.current);
+            drawn.current = latest.current.markers;
+        }
+        wasActive.current = active;
+    }, [active, refitOnShow]);
+
+    return <div ref={element} id={id} className={className} style={style} />;
 }
