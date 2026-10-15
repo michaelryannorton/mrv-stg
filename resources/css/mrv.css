@@ -23,27 +23,30 @@
    ========================================================================== */
 
 /* Browser defaults, as on production (which has no CSS reset): undo Tailwind's preflight for everything
-   inside the wrapper, then apply production's own rules below. SVG is left out of the `all: revert` on
-   purpose: `revert` also throws away presentation attributes (a path's `d`, `fill`, `stroke`, which Leaflet
-   and the icons rely on), so the svg element gets only the two values preflight changed. `:where()` keeps
-   the specificity of the reset at (0,1,0). */
+   inside the wrapper, then apply production's own rules below. SVG and canvas are left out of the
+   `all: revert` on purpose: `revert` also throws away presentation attributes and hints (a path's `d`, `fill`,
+   `stroke`, which Leaflet and the icons rely on; a canvas's size hint, `aspect-ratio: auto W / H`, which Chart.js
+   relies on), so those elements get only the values preflight changed. `:where()` keeps the specificity of the
+   reset at (0,1,0). */
 .mrv-site,
-.mrv-site :where(*:not(svg, svg *)),
-.mrv-site :where(*:not(svg, svg *))::before,
-.mrv-site :where(*:not(svg, svg *))::after {
+.mrv-site :where(*:not(svg, svg *, canvas)),
+.mrv-site :where(*:not(svg, svg *, canvas))::before,
+.mrv-site :where(*:not(svg, svg *, canvas))::after {
   all: revert;
   box-sizing: border-box;
 }
 
-.mrv-site svg {
+.mrv-site svg,
+.mrv-site canvas {
   display: inline;
   vertical-align: baseline;
 }
 
-/* Preflight's `border: 0 solid` and shadcn's border and outline colors on every element: invisible on SVG
-   (zero width) but they change the computed style, so put the browser values back. */
+/* Preflight's `border: 0 solid` and shadcn's border and outline colors on every element: invisible on SVG and
+   canvas (zero width) but they change the computed style, so put the browser values back. */
 .mrv-site svg,
-.mrv-site svg * {
+.mrv-site svg *,
+.mrv-site canvas {
   border: revert;
   outline: revert;
 }

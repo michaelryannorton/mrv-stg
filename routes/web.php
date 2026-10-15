@@ -36,6 +36,11 @@ if (app()->environment('local')) {
             'season' => in_array($season, ['winter', 'spring', 'summer', 'fall'], true) ? $season : null,
         ]);
     })->name('port.components');
+
+    // The map and chart wrappers (port phase 2), compared with production's own map.js and CDN libraries.
+    Route::get('port/maps-charts', fn () => Inertia::render('port/maps-charts', [
+        'inputs' => json_decode(file_get_contents(base_path('../port/phase-2/reference/inputs.json')), true),
+    ]))->name('port.maps-charts');
 }
 
 Route::get('events', [EventController::class, 'index'])->name('events.index');

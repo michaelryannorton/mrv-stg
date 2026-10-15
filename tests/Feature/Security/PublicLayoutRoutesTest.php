@@ -65,5 +65,6 @@ class PublicLayoutRoutesTest extends TestCase
         // Registered in routes/web.php only when app()->environment('local'); the suite runs as 'testing'.
         $this->assertSame('testing', app()->environment());
         $this->assertFalse(Route::has('port.components'));
+        $this->assertFalse(Route::has('port.maps-charts'));
     }
 }
