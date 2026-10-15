@@ -43,11 +43,11 @@ export const SITE_NAV: NavItem[] = [
             // Not built on production either (greyed out there): later work items.
             { id: 'compare', label: 'Compare Cities', ready: false },
             { id: 'trends', label: 'Climate Trends', ready: false },
-            { id: 'garden', label: 'Garden & Grow', ready: false },
-            { id: 'airquality', label: 'Air Quality', ready: false },
+            { id: 'garden', label: 'Garden & Grow', ready: true, route: 'garden.index' },
+            { id: 'airquality', label: 'Air Quality', ready: true, route: 'airquality.index' },
             { id: 'earthquakes', label: 'Earthquakes', ready: true, route: 'earthquakes.index' },
             { id: 'groundwater', label: 'Groundwater', ready: true, route: 'groundwater.index' },
-            { id: 'climate', label: 'Climate Projections', ready: false },
+            { id: 'climate', label: 'Climate Projections', ready: true, route: 'climate.index' },
         ],
     },
     {

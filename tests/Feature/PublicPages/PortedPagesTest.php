@@ -30,6 +30,9 @@ class PortedPagesTest extends TestCase
             'Overview' => ['/overview', 'overview.index', 'overview/index'],
             'Earthquakes' => ['/earthquakes', 'earthquakes.index', 'earthquakes/index'],
             'Groundwater' => ['/groundwater', 'groundwater.index', 'groundwater/index'],
+            'Air Quality' => ['/air-quality', 'airquality.index', 'airquality/index'],
+            'Garden and Grow' => ['/garden-and-grow', 'garden.index', 'garden/index'],
+            'Climate Projections' => ['/climate-projections', 'climate.index', 'climate/index'],
         ];
     }
 
@@ -81,7 +84,7 @@ class PortedPagesTest extends TestCase
         config(['app.invite_only' => false]);
         $this->assertSame('testing', app()->environment());
 
-        foreach (['/', '/route-66', '/farmers-markets', '/data-explorer', '/public-art', '/overview', '/earthquakes', '/groundwater', '/route-66/AM-004'] as $path) {
+        foreach (['/', '/route-66', '/farmers-markets', '/data-explorer', '/public-art', '/overview', '/earthquakes', '/groundwater', '/air-quality', '/garden-and-grow', '/climate-projections', '/route-66/AM-004'] as $path) {
             $this->get($path.'?preview=1')->assertOk()->assertInertia(fn (Assert $page) => $page->missing('preview'));
         }
     }
@@ -96,7 +99,7 @@ class PortedPagesTest extends TestCase
         $reachable = array_merge(config('ziggy.groups.sign_in'), config('ziggy.groups.public'));
         $called = [];
 
-        foreach (['home.tsx', 'route66', 'markets', 'data', 'art', 'overview', 'earthquakes', 'groundwater'] as $entry) {
+        foreach (['home.tsx', 'route66', 'markets', 'data', 'art', 'overview', 'earthquakes', 'groundwater', 'airquality', 'garden', 'climate'] as $entry) {
             $path = resource_path('js/pages/'.$entry);
             $files = is_dir($path) ? glob($path.'/*.tsx') : [$path];
 
@@ -119,7 +122,7 @@ class PortedPagesTest extends TestCase
     {
         preg_match_all("/ready: true, route: '([A-Za-z0-9._-]+)'/", file_get_contents(resource_path('js/components/mrv/navigation.ts')), $m);
 
-        foreach (['home', 'route66.index', 'markets.index', 'data.index', 'art.index', 'overview.index', 'earthquakes.index', 'groundwater.index'] as $expected) {
+        foreach (['home', 'route66.index', 'markets.index', 'data.index', 'art.index', 'overview.index', 'earthquakes.index', 'groundwater.index', 'airquality.index', 'garden.index', 'climate.index'] as $expected) {
             $this->assertContains($expected, $m[1]);
         }
         foreach ($m[1] as $name) {

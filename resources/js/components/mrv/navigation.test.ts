@@ -15,11 +15,14 @@ describe('navigation', () => {
             .map((p) => p.id)
             .sort();
         expect(ready).toEqual([
+            'airquality',
             'art',
             'channels',
+            'climate',
             'data',
             'earthquakes',
             'events',
+            'garden',
             'groundwater',
             'home',
             'markets',

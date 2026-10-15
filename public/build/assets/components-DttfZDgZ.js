@@ -1,1 +1,0 @@
-import{j as e,L as o}from"./app-_4JnwQhQ.js";import{P as n,b as a}from"./public-layout-CXwL9cLT.js";/* empty css            */function p({html:t,season:s}){return e.jsxs(n,{activeId:"home",season:s,pages:a,account:!1,children:[e.jsx(o,{title:"Component sheet"}),e.jsx("div",{id:"sheet",dangerouslySetInnerHTML:{__html:t}})]})}export{p as default};

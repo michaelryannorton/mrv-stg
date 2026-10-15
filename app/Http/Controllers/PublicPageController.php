@@ -53,6 +53,21 @@ class PublicPageController extends Controller
         return $this->page($request, 'groundwater/index');
     }
 
+    public function airQuality(Request $request): Response
+    {
+        return $this->page($request, 'airquality/index');
+    }
+
+    public function garden(Request $request): Response
+    {
+        return $this->page($request, 'garden/index');
+    }
+
+    public function climate(Request $request): Response
+    {
+        return $this->page($request, 'climate/index');
+    }
+
     public function publicArt(Request $request): Response
     {
         return $this->page($request, 'art/index');

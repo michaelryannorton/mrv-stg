@@ -43,6 +43,9 @@ return [
             'overview.index',
             'earthquakes.index',
             'groundwater.index',
+            'airquality.index',
+            'garden.index',
+            'climate.index',
         ],
     ],
 ];

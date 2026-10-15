@@ -22,7 +22,7 @@ export interface DayRow {
 /** A row exactly as the API returns it (all columns by name, values mostly strings). */
 export type ApiRow = { date: string } & Record<string, unknown>;
 
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function dateParts(dateStr: string): { year: number; month: number; day: number } {
     const [y, m, d] = dateStr.split('-').map(Number);

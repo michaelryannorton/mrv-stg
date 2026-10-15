@@ -1,1 +1,0 @@
-import{j as e}from"./app-_4JnwQhQ.js";import{c as o}from"./classes-eG4m7NsW.js";function m({options:s,active:a,attribute:n,onChange:r,typed:l=!0}){return e.jsx(e.Fragment,{children:s.map(t=>e.jsx("button",{...l?{type:"button"}:{},className:o("btn-toggle",t.key===a&&"active"),[`data-${n}`]:t.key,onClick:()=>r(t.key),children:t.label},t.key))})}export{m as T};
