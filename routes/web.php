@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ChannelPageController;
 use App\Http\Controllers\CurateController;
 use App\Http\Controllers\CuratorProfileController;
+use App\Http\Controllers\Data\QueryController;
+use App\Http\Controllers\Data\SummaryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicSubmissionController;
@@ -31,6 +33,15 @@ Route::get('air-quality', [PublicPageController::class, 'airQuality'])->name('ai
 Route::get('garden-and-grow', [PublicPageController::class, 'garden'])->name('garden.index');
 Route::get('climate-projections', [PublicPageController::class, 'climate'])->name('climate.index');
 Route::get('public-art', [PublicPageController::class, 'publicArt'])->name('art.index');
+
+// The weather data the ported pages read (port phase 7): the legacy API's request shapes, served by this app from the weather
+// database, read only. Behind the invite-only gate like every page (on staging only a signed-in visitor gets data; public at launch).
+Route::prefix('data/v1')->middleware('throttle:weather-data')->group(function () {
+    Route::get('query.php', QueryController::class)->name('data.query');
+    Route::get('climate_summary.php', [SummaryController::class, 'climate'])->name('data.climate');
+    Route::get('groundwater_summary.php', [SummaryController::class, 'groundwater'])->name('data.groundwater');
+    Route::get('snow_summary.php', [SummaryController::class, 'snow'])->name('data.snow');
+});
 
 // Local environment only: the port's component sheet (port/phase-1), compared with production's look. Never
 // registered on staging, on production or under test.

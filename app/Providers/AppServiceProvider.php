@@ -44,6 +44,9 @@ class AppServiceProvider extends ServiceProvider
 
         $notice = 'The limit keeps spam out of the review queue and applies to everyone.';
 
+        // The data the pages read: a page view makes a handful of requests; this is far above that and below a scraper.
+        RateLimiter::for('weather-data', fn (Request $request) => Limit::perMinute(240)->by($request->ip()));
+
         RateLimiter::for('submissions', fn (Request $request) => [
             Limit::perHour(10)->by('hour:'.$request->ip())
                 ->response($tooMany("You've reached the limit for event submissions from your connection for now. What you entered is still in the form. Please try again in about %s. {$notice}")),

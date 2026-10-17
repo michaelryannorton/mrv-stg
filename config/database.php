@@ -42,6 +42,28 @@ return [
             'synchronous' => null,
         ],
 
+        // The weather database the legacy API (api/v1) reads, read-only (port phase 7). Locally and in tests this is a SQLite
+        // file or memory database; on staging WEATHER_DB_DRIVER=mysql with a SELECT-only user.
+        'weather' => [
+            'driver' => env('WEATHER_DB_DRIVER', 'sqlite'),
+            'database' => env('WEATHER_DB_DATABASE', database_path('weather.sqlite')),
+            'host' => env('WEATHER_DB_HOST', '127.0.0.1'),
+            'port' => env('WEATHER_DB_PORT', '3306'),
+            'username' => env('WEATHER_DB_USERNAME', ''),
+            'password' => env('WEATHER_DB_PASSWORD', ''),
+            'unix_socket' => env('WEATHER_DB_SOCKET', ''),
+            'charset' => env('WEATHER_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('WEATHER_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'foreign_key_constraints' => false,
+            'strict' => true,
+            'engine' => null,
+            // Rows are streamed to the browser one at a time (the bulk weather request is 34 MB): MySQL's result is not buffered in PHP.
+            'options' => env('WEATHER_DB_DRIVER', 'sqlite') === 'mysql' && extension_loaded('pdo_mysql')
+                ? [(defined('Pdo\Mysql::ATTR_USE_BUFFERED_QUERY') ? \Pdo\Mysql::ATTR_USE_BUFFERED_QUERY : PDO::MYSQL_ATTR_USE_BUFFERED_QUERY) => false]
+                : [],
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
