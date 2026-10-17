@@ -1,12 +1,13 @@
 /**
  * Where the browser reads weather data from, in one place.
  *
- * Today this is the legacy API (https://data.mojaverivervalley.org/v1), exactly as production's pages call it
- * (port decision D1, step a). Public access to that API will be shut down before launch (Michael, 2026-10-14), so
- * before launch the same request shapes must be served by the Laravel app itself and this default changes to its
- * address (or VITE_MRV_API_BASE is set at build time). No other file should contain the address.
+ * The Laravel app's own data endpoints, on the same origin as the page (port phase 7, switched on 2026-10-16 after
+ * `php artisan weather:compare` printed ALL EQUAL on staging, bulk request included). Until then this was the legacy API,
+ * https://data.mojaverivervalley.org/v1, exactly as production's pages call it (port decision D1, step a); `VITE_MRV_API_BASE`
+ * at build time still overrides it (the tests set the legacy address, because the saved responses they replay were recorded
+ * from it). No other file should contain an address.
  */
-export const MRV_API_BASE: string = (import.meta.env.VITE_MRV_API_BASE as string | undefined) ?? 'https://data.mojaverivervalley.org/v1';
+export const MRV_API_BASE: string = (import.meta.env.VITE_MRV_API_BASE as string | undefined) ?? '/data/v1';
 
 /** A minimal view of `fetch`, so tests can supply a fake. */
 export type FetchLike = (input: string, init?: { cache?: RequestCache }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;

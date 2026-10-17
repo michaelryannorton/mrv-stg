@@ -9,5 +9,8 @@ export default defineConfig({
     test: {
         environment: 'node',
         include: ['resources/js/**/*.test.{ts,tsx}'],
+        // The goldens and saved responses were recorded from the legacy API, so the tests read the data from its address;
+        // api.test.ts checks the real default.
+        env: { VITE_MRV_API_BASE: 'https://data.mojaverivervalley.org/v1' },
     },
 });

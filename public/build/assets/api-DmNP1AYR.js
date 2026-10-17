@@ -1,0 +1,1 @@
+const n="/data/v1";async function c(a,o=(t,e)=>fetch(t,e),s=t=>`API fetch failed: HTTP ${t} (${a})`){const t=await o(a,{cache:"no-store"});if(!t.ok)throw new Error(s(t.status));return await t.json()}export{n as M,c as f};
