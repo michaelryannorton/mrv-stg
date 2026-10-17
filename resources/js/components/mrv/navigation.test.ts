@@ -18,6 +18,7 @@ describe('navigation', () => {
             'airquality',
             'art',
             'channels',
+            'city',
             'climate',
             'data',
             'earthquakes',

@@ -7,6 +7,9 @@
 @import './mrv-route66.css' layer(mrv);
 @import './mrv-port.css' layer(mrv);
 @import './mrv-leaflet.css';
+/* The date-range picker: its own stylesheet, then the site's theme for it, both unlayered (see mrv-flatpickr.css). */
+@import 'flatpickr/dist/flatpickr.min.css';
+@import './mrv-flatpickr.css';
 @import './mrv-fonts.css';
 
 @plugin 'tailwindcss-animate';

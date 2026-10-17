@@ -17,12 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// The public pages ported from the production weather site (port phases 3 to 5). Each loads its own data in the browser.
+// The public pages ported from the production weather site (port phases 3 to 6). Each loads its own data in the browser.
 Route::get('/', [PublicPageController::class, 'home'])->name('home');
 Route::get('route-66', [PublicPageController::class, 'route66Index'])->name('route66.index');
 Route::get('route-66/{site}', [PublicPageController::class, 'route66Show'])->where('site', '[A-Za-z0-9._~-]{1,64}')->name('route66.show');
 Route::get('farmers-markets', [PublicPageController::class, 'markets'])->name('markets.index');
 Route::get('data-explorer', [PublicPageController::class, 'dataExplorer'])->name('data.index');
+Route::get('city-explorer', [PublicPageController::class, 'city'])->name('city.index');
 Route::get('overview', [PublicPageController::class, 'overview'])->name('overview.index');
 Route::get('earthquakes', [PublicPageController::class, 'earthquakes'])->name('earthquakes.index');
 Route::get('groundwater', [PublicPageController::class, 'groundwater'])->name('groundwater.index');

@@ -41,6 +41,7 @@ return [
             'data.index',
             'art.index',
             'overview.index',
+            'city.index',
             'earthquakes.index',
             'groundwater.index',
             'airquality.index',

@@ -1,0 +1,91 @@
+/* ==========================================================================
+   The date-range picker's theme (production: the "Flatpickr theme" section of styles.css, copied unchanged from mrv.css
+   where it used to be).
+
+   Unlayered, like mrv-leaflet.css, and for the same reason: mrv.css opens with an `all: revert` reset for everything inside
+   `.mrv-site`, and a third-party stylesheet imported into the same cascade layer BEFORE it (flatpickr's own, which production
+   loads first) would be reverted by it. flatpickr's stylesheet and this file are both unlayered, in production's order
+   (flatpickr first, the site's rules after), and the calendar is appended inside `.mrv-site` (components/mrv/city.tsx) so
+   these rules and the inherited type reach it. The wrapper is written `:where(.mrv-site)` so the rules keep the specificity they have
+   on production (one class), which decides which of them beat flatpickr's own.
+   ========================================================================== */
+
+:where(.mrv-site) {
+  .flatpickr-calendar {
+    font-family: var(--font-body);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-sand-200);
+  }
+
+  .flatpickr-calendar.arrowTop::before,
+  .flatpickr-calendar.arrowTop::after {
+    border-bottom-color: var(--color-sand-100);
+  }
+
+  .flatpickr-months {
+    background: var(--color-sand-100);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    padding-top: 4px;
+  }
+
+  .flatpickr-current-month {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--color-dusk);
+  }
+
+  .flatpickr-current-month input.cur-year,
+  .flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-family: var(--font-body);
+    color: var(--color-dusk);
+  }
+
+  .flatpickr-prev-month, .flatpickr-next-month { color: var(--color-dusk-soft); }
+  .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: var(--color-terracotta); }
+  .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: var(--color-dusk-soft); }
+
+  .flatpickr-weekdays { background: var(--color-sand-100); }
+  span.flatpickr-weekday {
+    background: var(--color-sand-100);
+    color: var(--color-dusk-soft);
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .flatpickr-day {
+    color: var(--color-dusk);
+    border-radius: 6px;
+  }
+
+  .flatpickr-day.today { border-color: var(--color-sky); }
+  .flatpickr-day.today:hover { border-color: var(--color-sky); color: var(--color-white); background: var(--color-sky); }
+
+  .flatpickr-day:hover, .flatpickr-day:focus {
+    background: var(--color-sand-200);
+    border-color: var(--color-sand-200);
+  }
+
+  .flatpickr-day.selected,
+  .flatpickr-day.startRange,
+  .flatpickr-day.endRange,
+  .flatpickr-day.selected:hover,
+  .flatpickr-day.startRange:hover,
+  .flatpickr-day.endRange:hover {
+    background: var(--color-terracotta);
+    border-color: var(--color-terracotta);
+    color: var(--color-white);
+  }
+
+  .flatpickr-day.inRange {
+    background: var(--color-terracotta-light);
+    border-color: var(--color-terracotta-light);
+    box-shadow: -5px 0 0 var(--color-terracotta-light), 5px 0 0 var(--color-terracotta-light);
+  }
+
+  .flatpickr-day.flatpickr-disabled,
+  .flatpickr-day.prevMonthDay,
+  .flatpickr-day.nextMonthDay {
+    color: var(--color-sand-300);
+  }
+}

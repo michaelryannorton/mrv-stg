@@ -23,6 +23,8 @@ const FLEX_OR_GRID = new Set([
     'grid',
     'magnitude-legend',
     'quake-row',
+    'live-conditions-header',
+    'live-conditions-main',
 ]);
 const INLINE = new Set([
     'a',

@@ -39,7 +39,7 @@ export const SITE_NAV: NavItem[] = [
         label: 'Geography',
         children: [
             { id: 'overview', label: 'Overview', ready: true, route: 'overview.index' },
-            { id: 'city', label: 'City Explorer', ready: false },
+            { id: 'city', label: 'City Explorer', ready: true, route: 'city.index' },
             // Not built on production either (greyed out there): later work items.
             { id: 'compare', label: 'Compare Cities', ready: false },
             { id: 'trends', label: 'Climate Trends', ready: false },

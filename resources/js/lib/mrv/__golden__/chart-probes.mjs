@@ -9,7 +9,11 @@ export function probeGroundwater(config) {
         xTicks: [1995.2, 2010.5, 2026.49, 2026.5].map((v) => o.scales.x.ticks.callback(v)),
         titles: [cb.title([item(1, '', '', '', '2015-03-02')])],
         labels: [cb.label(item(12.34)), cb.label(item(-5.5)), cb.label(item(0)), cb.label(item(1234.567))],
-        afters: [cb.afterLabel(item(1, 'Static,Dry', 'Approved', 'Steel tape')), cb.afterLabel(item(1, '', null, null)), cb.afterLabel(item(1, null, 'Provisional', 'Sonic'))],
+        afters: [
+            cb.afterLabel(item(1, 'Static,Dry', 'Approved', 'Steel tape')),
+            cb.afterLabel(item(1, '', null, null)),
+            cb.afterLabel(item(1, null, 'Provisional', 'Sonic')),
+        ],
     };
 }
 
@@ -24,7 +28,11 @@ export function probeDrought(config) {
         yTicks: [0, 25, 100].map((v) => o.scales.y.ticks.callback(v)),
         titles: [cb.title([{ label: '2021-05-04' }])],
         labels: [0, 0.3, 0.99, 1, 45.5, 99.5, 100].map(label),
-        sorts: [o.plugins.tooltip.itemSort({ datasetIndex: 1 }, { datasetIndex: 3 }), o.plugins.tooltip.itemSort({ datasetIndex: 4 }, { datasetIndex: 0 }), o.plugins.tooltip.itemSort({ datasetIndex: 2 }, { datasetIndex: 2 })],
+        sorts: [
+            o.plugins.tooltip.itemSort({ datasetIndex: 1 }, { datasetIndex: 3 }),
+            o.plugins.tooltip.itemSort({ datasetIndex: 4 }, { datasetIndex: 0 }),
+            o.plugins.tooltip.itemSort({ datasetIndex: 2 }, { datasetIndex: 2 }),
+        ],
     };
 }
 
@@ -121,5 +129,30 @@ export function probeClimate(config) {
         out.labels = [0, 1, 11].flatMap((i) => [0, 1].map((d) => cb.label({ datasetIndex: d, dataIndex: i, parsed: { y: -0.04 + i } })));
     }
     out.last = last;
+    return out;
+}
+
+// City Explorer (phase 6): the tick labels and tooltip text the page's charts compute (sky groups, wind rose, snowfall by winter).
+export function probeCity(config) {
+    const o = config.options || {};
+    const safe = (fn) => {
+        try {
+            return fn();
+        } catch {
+            return 'ERROR';
+        }
+    };
+    const out = {};
+    const xt = o.scales?.x?.ticks;
+    if (xt && typeof xt.callback === 'function') out.xTicks = [0, 25, 50, 100].map((v) => xt.callback(v));
+    const rt = o.scales?.r?.ticks;
+    if (rt && typeof rt.callback === 'function') out.rTicks = [0, 5, 12.5].map((v) => rt.callback(v));
+    const cb = o.plugins?.tooltip?.callbacks;
+    if (cb) {
+        if (cb.title) out.titles = [cb.title([{ label: '2019-20' }])];
+        if (cb.label) out.labels = [0, 3, 15].map((i) => safe(() => cb.label({ dataIndex: i, parsed: { x: i * 1.5, y: i * 1.5 } })));
+        if (cb.afterLabel) out.afters = [0, 1, 2, 30, 65, 66, 200].map((i) => safe(() => cb.afterLabel({ dataIndex: i })));
+    }
+
     return out;
 }

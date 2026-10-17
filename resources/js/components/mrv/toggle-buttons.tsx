@@ -11,7 +11,7 @@ export function ToggleButtons({
     onChange,
     typed = true,
 }: {
-    options: Array<{ key: string; label: string }>;
+    options: Array<{ key: string; label: string; disabled?: boolean }>;
     /** The chosen key, or several (the year comparison lets up to six be on at once). */
     active: string | string[];
     /** The data attribute's name without `data-` (`window` gives `data-window`). */
@@ -27,6 +27,7 @@ export function ToggleButtons({
                     {...(typed ? { type: 'button' as const } : {})}
                     className={classes('btn-toggle', (Array.isArray(active) ? active.includes(o.key) : o.key === active) && 'active')}
                     {...{ [`data-${attribute}`]: o.key }}
+                    {...(o.disabled !== undefined ? { disabled: o.disabled } : {})}
                     onClick={() => onChange(o.key)}
                 >
                     {o.label}
