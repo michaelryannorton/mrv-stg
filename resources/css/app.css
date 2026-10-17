@@ -7,6 +7,7 @@
 @import './mrv-route66.css' layer(mrv);
 @import './mrv-port.css' layer(mrv);
 @import './mrv-leaflet.css';
+@import './mrv-fonts.css';
 
 @plugin 'tailwindcss-animate';
 
