@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Data;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Data\Concerns\CompressesJson;
 use App\Services\Weather\ClimateSummary;
 use App\Services\Weather\GroundwaterSummary;
 use App\Services\Weather\SnowSummary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -16,30 +18,32 @@ use Illuminate\Support\Facades\DB;
  */
 class SummaryController extends Controller
 {
+    use CompressesJson;
+
     private const SNOW_STATION = 'USC00040741'; // Big Bear Lake, CA
 
     private const HEADERS = ['Cache-Control' => 'max-age=3600, private'];
 
-    public function climate(Request $request): JsonResponse
+    public function climate(Request $request): JsonResponse|Response
     {
         $cityId = (int) $request->query('city_id', 0);
         if ($cityId < 1) {
             return response()->json(['error' => 'city_id is required'], 400);
         }
 
-        return response()->json((new ClimateSummary(DB::connection('weather')))->forCity($cityId), 200, self::HEADERS);
+        return $this->jsonAnswer($request, (new ClimateSummary(DB::connection('weather')))->forCity($cityId), self::HEADERS);
     }
 
-    public function groundwater(): JsonResponse
+    public function groundwater(Request $request): Response
     {
-        return response()->json((new GroundwaterSummary(DB::connection('weather')))->all(), 200, self::HEADERS);
+        return $this->jsonAnswer($request, (new GroundwaterSummary(DB::connection('weather')))->all(), self::HEADERS);
     }
 
-    public function snow(Request $request): JsonResponse
+    public function snow(Request $request): Response
     {
         $fromYear = (int) $request->query('from_year', 2017);
         $fromYear = max(1961, min($fromYear, (int) date('Y')));
 
-        return response()->json((new SnowSummary(DB::connection('weather')))->forStation(self::SNOW_STATION, $fromYear), 200, self::HEADERS);
+        return $this->jsonAnswer($request, (new SnowSummary(DB::connection('weather')))->forStation(self::SNOW_STATION, $fromYear), self::HEADERS);
     }
 }

@@ -355,6 +355,33 @@ class WeatherEndpointsTest extends TestCase
         $this->assertCount(17, WeatherTables::SCHEMAS);
     }
 
+    public function test_answers_are_gzipped_for_a_browser_that_accepts_it_and_plain_for_one_that_does_not(): void
+    {
+        $this->weather($this->rows());
+        $plain = $this->get('/data/v1/query.php?table=weather_daily')->assertOk();
+        $this->assertNull($plain->headers->get('Content-Encoding'));
+        $expected = $this->body($plain);
+
+        $zipped = $this->get('/data/v1/query.php?table=weather_daily', ['Accept-Encoding' => 'gzip, deflate, br'])->assertOk()->assertHeader('Content-Encoding', 'gzip')->assertHeader('Vary', 'Accept-Encoding');
+        $this->assertSame($expected, gzdecode($this->body($zipped)));
+
+        // an empty answer and a large one (more rows than one flush) survive compression
+        $this->assertSame('[]', gzdecode($this->body($this->get('/data/v1/query.php?table=stations', ['Accept-Encoding' => 'gzip']))));
+        $many = array_map(fn ($i) => ['id' => $i, 'city_id' => 1, 'date' => sprintf('2020-%02d-%02d', ($i % 12) + 1, ($i % 28) + 1), 'temp_max_f' => (string) $i], range(1, 4500));
+        $this->insertWeatherRows('weather_daily', $many);
+        $big = json_decode(gzdecode($this->body($this->get('/data/v1/query.php?table=weather_daily&limit=100000', ['Accept-Encoding' => 'gzip']))), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertCount(4500, $big);
+    }
+
+    public function test_the_summaries_are_gzipped_too_when_they_are_large_enough_to_matter(): void
+    {
+        $this->loadRawFor('snow');
+        $plain = $this->get('/data/v1/snow_summary.php');
+        $zipped = $this->get('/data/v1/snow_summary.php', ['Accept-Encoding' => 'gzip'])->assertHeader('Content-Encoding', 'gzip');
+        $this->assertNull($plain->headers->get('Content-Encoding'));
+        $this->assertSame($plain->getContent(), gzdecode($zipped->getContent()));
+    }
+
     // ---- who can ask, and how --------------------------------------------------------------------------------------------------
 
     public function test_only_get_requests_reach_the_data_routes_and_all_of_them_are_throttled(): void

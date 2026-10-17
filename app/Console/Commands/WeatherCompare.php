@@ -132,7 +132,7 @@ class WeatherCompare extends Command
         $response = match ($path) {
             'query.php' => app(QueryController::class)($request),
             'climate_summary.php' => app(SummaryController::class)->climate($request),
-            'groundwater_summary.php' => app(SummaryController::class)->groundwater(),
+            'groundwater_summary.php' => app(SummaryController::class)->groundwater($request),
             'snow_summary.php' => app(SummaryController::class)->snow($request),
             default => throw new \InvalidArgumentException("no endpoint for $path"),
         };

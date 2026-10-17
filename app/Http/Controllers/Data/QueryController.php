@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Data;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Data\Concerns\CompressesJson;
 use App\Support\Weather\WeatherTables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class QueryController extends Controller
 {
+    use CompressesJson;
+
     private const AUDIT_COLUMNS = ['created_at', 'updated_at'];
 
     private const IDENTITY_COLUMNS = ['city_id', 'date', 'reading_date', 'event_time', 'observed_at'];
@@ -100,24 +103,6 @@ class QueryController extends Controller
         $limit = max(0, min((int) ($input['limit'] ?? 5000), self::MAX_LIMIT));
         $query->limit($limit);
 
-        return $this->stream($query->cursor());
-    }
-
-    /** Writes the rows as one JSON array, one row at a time, so the bulk requests never build a 34 MB string in memory. */
-    private function stream(iterable $rows): StreamedResponse
-    {
-        return response()->stream(function () use ($rows) {
-            echo '[';
-            $first = true;
-            $count = 0;
-            foreach ($rows as $row) {
-                echo ($first ? '' : ',').json_encode($row, JSON_INVALID_UTF8_SUBSTITUTE);
-                $first = false;
-                if (++$count % 2000 === 0) {
-                    flush();
-                }
-            }
-            echo ']';
-        }, 200, ['Content-Type' => 'application/json', 'X-Accel-Buffering' => 'no']);
+        return $this->streamRows($request, $query->cursor());
     }
 }

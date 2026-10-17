@@ -15,6 +15,8 @@ use App\Http\Controllers\Data\SummaryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicSubmissionController;
+use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,7 +38,8 @@ Route::get('public-art', [PublicPageController::class, 'publicArt'])->name('art.
 
 // The weather data the ported pages read (port phase 7): the legacy API's request shapes, served by this app from the weather
 // database, read only. Behind the invite-only gate like every page (on staging only a signed-in visitor gets data; public at launch).
-Route::prefix('data/v1')->middleware('throttle:weather-data')->group(function () {
+// No Inertia and no preload headers on data: Inertia sets `Vary: X-Inertia`, which would replace the `Vary: Accept-Encoding` the compressed answers need.
+Route::prefix('data/v1')->middleware('throttle:weather-data')->withoutMiddleware([HandleInertiaRequests::class, AddLinkHeadersForPreloadedAssets::class])->group(function () {
     Route::get('query.php', QueryController::class)->name('data.query');
     Route::get('climate_summary.php', [SummaryController::class, 'climate'])->name('data.climate');
     Route::get('groundwater_summary.php', [SummaryController::class, 'groundwater'])->name('data.groundwater');
