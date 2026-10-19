@@ -488,4 +488,118 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->assertSame('Check failed to run', $check['message']);
         $this->assertSame('weather_freshness_climate_snapshot', $check['key']);
     }
+
+    // --- throttling counts (daily counters written by the cron scripts) -------------------------------------------------
+
+    private function writeCounterFile(string $file, array|string $data): void
+    {
+        file_put_contents("{$this->statusDir}/{$file}", is_array($data) ? json_encode($data) : $data);
+    }
+
+    private function clockAt(string $utc): MrvChecks
+    {
+        return new MrvChecks(CarbonImmutable::parse($utc, 'UTC'));
+    }
+
+    public function test_quota_stops_read_the_counter_file_for_todays_utc_date(): void
+    {
+        $this->writeCounterFile('counter_quota_stops.json', ['counter' => 'quota_stops', 'date' => '2026-10-18', 'count' => 3, 'updated_at' => '2026-10-18T14:05:09Z', 'by_job' => ['daily_update' => 2, 'backfill_worker' => 1]]);
+
+        $metric = $this->mrv()->quotaStopsMetric();
+
+        $this->assertSame('quota_stops_today', $metric['key']);
+        $this->assertSame('Open-Meteo runs stopped by the daily quota today', $metric['label']);
+        $this->assertSame(3, $metric['value']);
+        $this->assertSame('count', $metric['unit']);
+        $this->assertSame('2026-10-18T14:05:09Z', $metric['observed_at'], 'the time of the last update to the counter');
+    }
+
+    public function test_a_missing_counter_file_reads_zero_observed_now(): void
+    {
+        $metric = $this->mrv()->quotaStopsMetric();
+
+        $this->assertSame(0, $metric['value']);
+        $this->assertSame('2026-10-18T20:00:00Z', $metric['observed_at'], 'the report time when it reads 0');
+        $this->assertSame(0, $this->mrv()->usgsThrottledMetric()['value'], 'no groundwater status file at all');
+    }
+
+    public function test_a_counter_left_from_an_earlier_utc_day_reads_zero(): void
+    {
+        $this->writeCounterFile('counter_quota_stops.json', ['date' => '2026-10-17', 'count' => 5, 'updated_at' => '2026-10-17T23:30:00Z']);
+
+        $metric = $this->mrv()->quotaStopsMetric();
+
+        $this->assertSame(0, $metric['value']);
+        $this->assertSame('2026-10-18T20:00:00Z', $metric['observed_at'], 'not the stale file time');
+    }
+
+    public function test_the_counter_rolls_over_at_midnight_utc_not_pacific_midnight(): void
+    {
+        $this->writeCounterFile('counter_quota_stops.json', ['date' => '2026-10-18', 'count' => 4, 'updated_at' => '2026-10-18T22:00:00Z']);
+
+        $this->assertSame(4, $this->clockAt('2026-10-18 23:59:59')->quotaStopsMetric()['value']);
+        $this->assertSame(0, $this->clockAt('2026-10-19 00:00:00')->quotaStopsMetric()['value'], 'the next UTC day, 17:00 Pacific on the 18th');
+        $this->assertSame(4, $this->clockAt('2026-10-18 07:00:00')->quotaStopsMetric()['value'], 'midnight Pacific (07:00 UTC) changes nothing: the day is the UTC day');
+        $this->assertSame(0, $this->clockAt('2026-10-17 23:59:59')->quotaStopsMetric()['value'], 'a file dated after the report (clock moved back) is not today either');
+    }
+
+    public function test_a_negative_or_missing_count_never_reads_below_zero(): void
+    {
+        $this->writeCounterFile('counter_quota_stops.json', ['date' => '2026-10-18', 'count' => -2, 'updated_at' => '2026-10-18T10:00:00Z']);
+        $this->assertSame(0, $this->mrv()->quotaStopsMetric()['value']);
+
+        $this->writeCounterFile('counter_quota_stops.json', ['date' => '2026-10-18', 'updated_at' => '2026-10-18T10:00:00Z']);
+        $this->assertSame(0, $this->mrv()->quotaStopsMetric()['value']);
+    }
+
+    public function test_an_unreadable_counter_or_folder_leaves_the_metric_out(): void
+    {
+        $this->writeCounterFile('counter_quota_stops.json', '{not json');
+        $this->assertNull($this->mrv()->quotaStopsMetric(), 'damaged file');
+
+        config(['services.status_health.status_dir' => null]);
+        $this->assertNull($this->mrv()->quotaStopsMetric(), 'folder not configured');
+        $this->assertNull($this->mrv()->usgsThrottledMetric());
+
+        config(['services.status_health.status_dir' => $this->statusDir.'/nowhere']);
+        $this->assertNull($this->mrv()->quotaStopsMetric(), 'folder does not exist');
+    }
+
+    public function test_usgs_throttling_reads_the_counts_object_of_the_groundwater_status_file(): void
+    {
+        $this->writeJobStatus('groundwater', [
+            'last_status' => 'failure', 'last_success_at' => '2026-10-17T06:10:03Z', 'consecutive_failures' => 1, 'interval_seconds' => 86400,
+            'counts' => ['usgs_throttled' => ['date' => '2026-10-18', 'count' => 1, 'updated_at' => '2026-10-18T06:10:04Z']],
+        ]);
+
+        $metric = $this->mrv()->usgsThrottledMetric();
+
+        $this->assertSame('usgs_throttled_today', $metric['key']);
+        $this->assertSame('Groundwater runs stopped by the USGS rate limit today', $metric['label']);
+        $this->assertSame(1, $metric['value']);
+        $this->assertSame('count', $metric['unit']);
+        $this->assertSame('2026-10-18T06:10:04Z', $metric['observed_at']);
+    }
+
+    public function test_usgs_throttling_reads_zero_for_an_old_day_an_empty_counts_object_or_an_older_status_file(): void
+    {
+        $this->writeJobStatus('groundwater', ['last_status' => 'success', 'counts' => ['usgs_throttled' => ['date' => '2026-10-17', 'count' => 1, 'updated_at' => '2026-10-17T06:10:04Z']]]);
+        $this->assertSame(0, $this->mrv()->usgsThrottledMetric()['value'], 'yesterday');
+
+        $this->writeJobStatus('groundwater', ['last_status' => 'success', 'counts' => (object) []]);
+        $this->assertSame(0, $this->mrv()->usgsThrottledMetric()['value'], 'counts is {}');
+        $this->assertSame('2026-10-18T20:00:00Z', $this->mrv()->usgsThrottledMetric()['observed_at']);
+
+        $this->writeJobStatus('groundwater', ['last_status' => 'success']);
+        $this->assertSame(0, $this->mrv()->usgsThrottledMetric()['value'], 'a file written before counts existed');
+    }
+
+    public function test_a_damaged_groundwater_status_file_leaves_the_usgs_metric_out(): void
+    {
+        $this->writeCounterFile('groundwater.json', '{not json');
+        $this->assertNull($this->mrv()->usgsThrottledMetric());
+
+        $this->writeJobStatus('groundwater', ['counts' => ['usgs_throttled' => 'twice']]);
+        $this->assertNull($this->mrv()->usgsThrottledMetric(), 'a counter that is not an object');
+    }
 }

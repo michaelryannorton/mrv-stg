@@ -412,4 +412,47 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
 
         $this->assertSame('healthy', $this->checks()['ingest_ics_age']['status']);
     }
+
+    // --- throttling counts ----------------------------------------------------------------------------------------------
+
+    public function test_the_throttling_counts_are_weather_metrics_with_no_thresholds(): void
+    {
+        $today = gmdate('Y-m-d');
+        file_put_contents("{$this->statusDir}/counter_quota_stops.json", json_encode(['date' => $today, 'count' => 2, 'updated_at' => gmdate('Y-m-d\TH:i:s\Z', time() - 600)]));
+        $this->writeJobStatus('groundwater', ['last_status' => 'failure', 'counts' => ['usgs_throttled' => ['date' => $today, 'count' => 1, 'updated_at' => static::ago(300)]]]);
+
+        $metrics = collect($this->report()->json('metrics'))->keyBy('key');
+
+        $this->assertSame(2, $metrics['quota_stops_today']['value']);
+        $this->assertSame(1, $metrics['usgs_throttled_today']['value']);
+        $this->assertSame('count', $metrics['quota_stops_today']['unit']);
+        $this->assertSame(static::ago(600), $metrics['quota_stops_today']['observed_at']);
+        $this->assertSame(static::ago(300), $metrics['usgs_throttled_today']['observed_at']);
+        $this->assertArrayNotHasKey('status', $metrics['quota_stops_today'], 'a metric, not a check');
+        $this->assertNotContains('quota_stops_today', collect($this->report()->json('checks'))->pluck('key')->all());
+    }
+
+    public function test_the_throttling_counts_read_zero_when_nothing_was_recorded_or_the_day_is_old(): void
+    {
+        $metrics = collect($this->report()->json('metrics'))->keyBy('key');
+        $this->assertSame(0, $metrics['quota_stops_today']['value'], 'no counter file');
+        $this->assertSame(0, $metrics['usgs_throttled_today']['value'], 'no groundwater status file');
+
+        $yesterday = gmdate('Y-m-d', time() - 86400 * 2);
+        file_put_contents("{$this->statusDir}/counter_quota_stops.json", json_encode(['date' => $yesterday, 'count' => 9, 'updated_at' => static::ago(86400 * 2)]));
+        $this->assertSame(0, collect($this->report()->json('metrics'))->keyBy('key')['quota_stops_today']['value']);
+    }
+
+    public function test_the_throttling_counts_are_left_out_when_the_weather_group_is_off_or_the_folder_is_not_set(): void
+    {
+        config(['services.status_health.disabled_groups' => 'weather']);
+        $keys = collect($this->report()->json('metrics'))->pluck('key')->all();
+        $this->assertNotContains('quota_stops_today', $keys);
+        $this->assertNotContains('usgs_throttled_today', $keys);
+
+        config(['services.status_health.disabled_groups' => '', 'services.status_health.status_dir' => null]);
+        $keys = collect($this->report()->json('metrics'))->pluck('key')->all();
+        $this->assertNotContains('quota_stops_today', $keys);
+        $this->assertContains('open_meteo_calls_today', $keys, 'the other weather metrics are unaffected');
+    }
 }

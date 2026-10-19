@@ -1014,6 +1014,8 @@ class StatusHealthController
                 ],
                 'metrics' => fn () => array_values(array_filter([
                     $metric('open_meteo_calls_today', 'Open-Meteo calls today (tracked jobs)', fn () => $mrv->openMeteoCallsToday(), 'calls'),
+                    $mrv->quotaStopsMetric(),
+                    $mrv->usgsThrottledMetric(),
                 ])),
             ],
             'ingestion' => [

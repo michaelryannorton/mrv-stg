@@ -43,6 +43,7 @@ final class MrvChecks
     public function __construct(
         private readonly CarbonImmutable $now,
         private readonly ?string $logDir = null,
+        private readonly ?string $statusDir = null,
     ) {}
 
     // ---------------------------------------------------------------------------------------------
@@ -294,6 +295,74 @@ final class MrvChecks
         }
 
         return $found ? $calls : null;
+    }
+
+    /**
+     * Open-Meteo runs the daily quota stopped today (UTC date), across the four scripts that can stop on it. The scripts add to
+     * <status folder>/counter_quota_stops.json (api/cron/job_status_lib.php, job_counter_increment()). A metric with no threshold.
+     */
+    public function quotaStopsMetric(): ?array
+    {
+        return $this->dailyCounterMetric('quota_stops_today', 'Open-Meteo runs stopped by the daily quota today', 'counter_quota_stops.json', null);
+    }
+
+    /**
+     * Groundwater runs the USGS rate limit stopped today (UTC date). groundwater_update.php keeps the counter in the "counts"
+     * object of its own status file, groundwater.json. A metric with no threshold.
+     */
+    public function usgsThrottledMetric(): ?array
+    {
+        return $this->dailyCounterMetric('usgs_throttled_today', 'Groundwater runs stopped by the USGS rate limit today', 'groundwater.json', 'usgs_throttled');
+    }
+
+    /**
+     * Today's value of a daily counter written by a cron script: {"date":"Y-m-d","count":n,"updated_at":"...Z"}, with the date in
+     * UTC. A counter whose date is not today's UTC date reads 0 (nothing resets it at midnight; a new day's first event starts it at
+     * 1), and so does a missing file. observed_at is the time of the counter's last update, or the report time when it reads 0.
+     * Returns null, so the metric is left out, when the status folder is not configured or the file cannot be read.
+     *
+     * @param  string|null  $inside  the counter's name inside a status file's "counts" object, or null when the file is the counter
+     */
+    private function dailyCounterMetric(string $key, string $label, string $file, ?string $inside): ?array
+    {
+        try {
+            $dir = rtrim($this->statusDir ?? (string) config('services.status_health.status_dir'), '/');
+            if ($dir === '' || ! is_dir($dir)) {
+                return null;
+            }
+            $counter = null;
+            if (is_file("{$dir}/{$file}")) {
+                $raw = @file_get_contents("{$dir}/{$file}");
+                $data = $raw === false ? null : json_decode($raw, true);
+                if (! is_array($data)) {
+                    return null;
+                }
+                $counter = $inside === null ? $data : ($data['counts'][$inside] ?? null);
+                if ($counter !== null && ! is_array($counter)) {
+                    return null;
+                }
+            }
+
+            $now = $this->now->utc();
+            $today = is_array($counter) && ($counter['date'] ?? null) === $now->format('Y-m-d');
+            $observed = $now;
+            if ($today && isset($counter['updated_at'])) {
+                try {
+                    $observed = CarbonImmutable::parse((string) $counter['updated_at'], 'UTC')->utc();
+                } catch (Throwable $e) {
+                }
+            }
+
+            return [
+                'key' => $key,
+                'label' => $label,
+                'value' => $today ? max(0, (int) ($counter['count'] ?? 0)) : 0,
+                'unit' => 'count',
+                'observed_at' => $observed->format('Y-m-d\TH:i:s\Z'),
+            ];
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
