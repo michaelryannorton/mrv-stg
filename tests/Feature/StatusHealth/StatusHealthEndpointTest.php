@@ -72,15 +72,26 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
     }
 
     /**
-     * README step 2 says the route "answers 404" without a token hash, and the contract's table of responses says the same. The
-     * controller (2.0.0) does not: it answers 401, "missing" or "invalid". Pinned here so the difference shows up when it is fixed.
+     * With no token hash the endpoint is switched off and answers like an unknown path (contract section 4; controller 2.0.1). Controller
+     * 2.0.0 answered 401 here, which made a missing hash look like a wrong one.
      */
-    public function test_without_a_configured_hash_nothing_is_accepted(): void
+    public function test_without_a_configured_hash_the_endpoint_answers_404(): void
     {
-        config(['services.status_health.token_hash' => null]);
+        foreach ([null, '', '   '] as $hash) {
+            config(['services.status_health.token_hash' => $hash]);
 
-        $this->getJson('/_status/health')->assertStatus(401)->assertJsonPath('reason', 'missing');
-        $this->withHeaders(['X-Status-Token' => self::TOKEN])->getJson('/_status/health')->assertStatus(401)->assertJsonPath('reason', 'invalid');
+            $this->getJson('/_status/health')->assertNotFound();
+            $this->withHeaders(['X-Status-Token' => self::TOKEN])->getJson('/_status/health')->assertNotFound();
+            $this->withHeaders(['Authorization' => 'Bearer '.self::TOKEN])->getJson('/_status/health')->assertNotFound();
+        }
+    }
+
+    public function test_a_hash_only_in_the_next_slot_does_not_switch_the_endpoint_on(): void
+    {
+        // The main hash is what enables the endpoint (as in the WordPress and static implementations).
+        config(['services.status_health.token_hash' => null, 'services.status_health.token_hash_next' => hash('sha256', self::TOKEN)]);
+
+        $this->report()->assertNotFound();
     }
 
     // --- the gate and the web group -------------------------------------------------------------------------------------

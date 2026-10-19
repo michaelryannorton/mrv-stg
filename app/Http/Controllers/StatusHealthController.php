@@ -16,7 +16,7 @@ use Throwable;
 
 /**
  * Read-only health report for status.michael.computer. Contract: status-health/1, revision 7.
- * Version 2.0.0. No Composer dependencies. Supports Laravel 10 and later, PHP 8.1 and later.
+ * Version 2.0.1. No Composer dependencies. Supports Laravel 10 and later, PHP 8.1 and later.
  *
  * Copy to app/Http/Controllers/StatusHealthController.php. Setup steps are in README.md, which
  * accompanies this file.
@@ -70,6 +70,11 @@ class StatusHealthController
 
     public function __invoke(Request $request): JsonResponse
     {
+        // No hash configured: the endpoint is disabled and answers like any unknown path (contract
+        // section 4). Outside the try block, so the 404 is not turned into a 500.
+        if (!$this->enabled()) {
+            abort(404);
+        }
         try {
             $token = $this->presentedToken($request);
             if ($token === null) {
@@ -99,6 +104,12 @@ class StatusHealthController
             $token = trim((string) $request->header('X-Status-Token'));
         }
         return $token === '' ? null : $token;
+    }
+
+    private function enabled(): bool
+    {
+        // As in the WordPress and static implementations: the main hash switches the endpoint on.
+        return trim((string) config('services.status_health.token_hash')) !== '';
     }
 
     private function tokenValid(string $token): bool
