@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StatusHealthController;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\InviteOnlyGate;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
@@ -8,6 +9,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -17,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        // The status dashboard's health endpoint. Registered here, outside the `web` group, so polling starts no session,
+        // sets no cookie and never meets InviteOnlyGate (which is appended to that group). The token is its protection.
+        then: function () {
+            Route::get('/_status/health', StatusHealthController::class);
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
