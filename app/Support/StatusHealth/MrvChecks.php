@@ -162,6 +162,66 @@ final class MrvChecks
         return $this->dailyLag('weather_daily', 'weather_freshness_daily_weather', 'Daily weather data', 3, 5);
     }
 
+    /** The window of Pacific days the coverage check looks at: from 30 days back to 3 days back (the archive lags about two days). */
+    public const COVERAGE_FIRST_DAYS_BACK = 30;
+
+    public const COVERAGE_LAST_DAYS_BACK = 3;
+
+    /** The daily job re-fetches a window of 5 days; a missing day older than this many days is not refilled by it. */
+    public const DAILY_JOB_REFILL_DAYS = 4;
+
+    /**
+     * Cities (named and grid) with no weather_daily row for a day that should be complete. The freshness check above looks only at
+     * the 36 named cities' newest date, so a grid city that missed days (the daily job stops for the whole list when the quota is
+     * spent) went unnoticed. Warning for any missing city-day; critical when a missing day is too old for the daily job to refill.
+     */
+    public function dailyCoverage(): array
+    {
+        $base = ['key' => 'weather_daily_coverage', 'label' => 'Daily weather coverage'];
+        $today = $this->pacificNow();
+        $first = $today->subDays(self::COVERAGE_FIRST_DAYS_BACK)->format('Y-m-d');
+        $last = $today->subDays(self::COVERAGE_LAST_DAYS_BACK)->format('Y-m-d');
+        $oldestRefillable = $today->subDays(self::DAILY_JOB_REFILL_DAYS)->format('Y-m-d');
+
+        $cityIds = $this->weather()->table('cities')->whereIn('place_type', ['city', 'grid'])->pluck('id');
+        if ($cityIds->isEmpty()) {
+            return $base + ['status' => 'critical', 'message' => 'No cities are stored'];
+        }
+
+        $perDay = $this->weather()->table('weather_daily')
+            ->whereIn('city_id', $cityIds)
+            ->whereBetween('date', [$first, $last])
+            ->selectRaw('date, COUNT(*) as n')
+            ->groupBy('date')
+            ->pluck('n', 'date');
+
+        $missingByDay = [];
+        for ($day = CarbonImmutable::parse($first); $day->format('Y-m-d') <= $last; $day = $day->addDay()) {
+            $missing = $cityIds->count() - (int) ($perDay[$day->format('Y-m-d')] ?? 0);
+            if ($missing > 0) {
+                $missingByDay[$day->format('Y-m-d')] = $missing;
+            }
+        }
+        $total = array_sum($missingByDay);
+        if ($total === 0) {
+            return $base + ['status' => 'healthy', 'value' => 0, 'unit' => 'count'];
+        }
+
+        $tooOld = array_filter($missingByDay, fn ($n, $date) => $date < $oldestRefillable, ARRAY_FILTER_USE_BOTH);
+        $listed = [];
+        foreach (array_slice($missingByDay, 0, 6, true) as $date => $n) {
+            $listed[] = "{$date} ({$n})";
+        }
+
+        return $base + [
+            'status' => $tooOld === [] ? 'warning' : 'critical',
+            'value' => $total,
+            'unit' => 'count',
+            'message' => "{$total} city-days have no daily weather row: ".implode(', ', $listed).(count($missingByDay) > 6 ? ', ...' : '')
+                .($tooOld === [] ? '' : '; the daily job no longer refills days before '.$oldestRefillable),
+        ];
+    }
+
     public function airQuality(): array
     {
         return $this->dailyLag('air_quality_daily', 'weather_freshness_air_quality', 'Air quality data', 2, 4);

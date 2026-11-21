@@ -182,6 +182,91 @@ class MrvChecksTest extends StatusHealthTestCase
         }
     }
 
+    /** Rows for every day from $from to $to (inclusive), for each city given, except the (city, date) pairs in $skip. */
+    private function dailyRows(array $cities, string $from, string $to, array $skip = []): void
+    {
+        $db = DB::connection('weather')->table('weather_daily');
+        for ($day = CarbonImmutable::parse($from); $day->format('Y-m-d') <= $to; $day = $day->addDay()) {
+            foreach ($cities as $city) {
+                if (! in_array([$city, $day->format('Y-m-d')], $skip, true)) {
+                    $db->insert(['city_id' => $city, 'date' => $day->format('Y-m-d')]);
+                }
+            }
+        }
+    }
+
+    // Today in Pacific is 2026-10-18, so the coverage window is 2026-09-18 to 2026-10-15 and days before 2026-10-14 are too old to refill.
+
+    public function test_daily_coverage_is_healthy_when_every_city_has_every_day_in_the_window(): void
+    {
+        $this->city(1);
+        $this->city(500, 'Grid point', 'grid');
+        $this->city(900, 'Soil point', 'soil_grid');   // never gets weather rows, must not count
+        $this->dailyRows([1, 500], '2026-09-18', '2026-10-15');
+
+        $check = $this->mrv()->dailyCoverage();
+
+        $this->assertSame('healthy', $check['status']);
+        $this->assertSame(0, $check['value']);
+        $this->assertSame('weather_daily_coverage', $check['key']);
+    }
+
+    public function test_daily_coverage_warns_about_a_recent_gap_the_daily_job_can_still_refill(): void
+    {
+        $this->city(1);
+        $this->city(500, 'Grid point', 'grid');
+        $this->dailyRows([1, 500], '2026-09-18', '2026-10-15', [[500, '2026-10-15'], [500, '2026-10-14']]);
+
+        $check = $this->mrv()->dailyCoverage();
+
+        $this->assertSame('warning', $check['status']);
+        $this->assertSame(2, $check['value']);
+        $this->assertSame('count', $check['unit']);
+        $this->assertSame('2 city-days have no daily weather row: 2026-10-14 (1), 2026-10-15 (1)', $check['message']);
+    }
+
+    public function test_daily_coverage_is_critical_when_a_missing_day_is_too_old_for_the_daily_job(): void
+    {
+        $this->city(1);
+        $this->city(500, 'Grid point', 'grid');
+        $this->city(501, 'Grid point 2', 'grid');
+        $this->dailyRows([1, 500, 501], '2026-09-18', '2026-10-15', [[500, '2026-10-10'], [501, '2026-10-10'], [500, '2026-10-15']]);
+
+        $check = $this->mrv()->dailyCoverage();
+
+        $this->assertSame('critical', $check['status']);
+        $this->assertSame(3, $check['value']);
+        $this->assertSame('3 city-days have no daily weather row: 2026-10-10 (2), 2026-10-15 (1); the daily job no longer refills days before 2026-10-14', $check['message']);
+    }
+
+    public function test_daily_coverage_ignores_days_outside_the_window(): void
+    {
+        $this->city(1);
+        $this->city(500, 'Grid point', 'grid');
+        // Complete from 18 September to 15 October; the days before and the 16th and 17th (the archive's lag) are empty and must not count.
+        $this->dailyRows([1, 500], '2026-09-18', '2026-10-15');
+
+        $this->assertSame('healthy', $this->mrv()->dailyCoverage()['status']);
+    }
+
+    public function test_daily_coverage_lists_at_most_six_days(): void
+    {
+        $this->city(1);
+        $this->city(500, 'Grid point', 'grid');
+        $this->dailyRows([1], '2026-09-18', '2026-10-15');
+
+        $check = $this->mrv()->dailyCoverage();
+
+        $this->assertSame(28, $check['value']);
+        $this->assertStringEndsWith(', ...; the daily job no longer refills days before 2026-10-14', $check['message']);
+        $this->assertSame(6, substr_count($check['message'], ' ('));
+    }
+
+    public function test_daily_coverage_is_critical_with_no_cities(): void
+    {
+        $this->assertSame('critical', $this->mrv()->dailyCoverage()['status']);
+    }
+
     public function test_a_daily_table_with_no_named_city_rows_is_critical(): void
     {
         $this->assertSame('critical', $this->mrv()->dailyWeather()['status']);
