@@ -3,6 +3,7 @@
 namespace Tests\Feature\Submissions;
 
 use App\Models\PublicSubmission;
+use App\Support\SubmissionFormGuard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -31,8 +32,10 @@ class SubmissionRateLimitTest extends TestCase
     {
         return $this->withServerVariables($server)->post(route('submit.store'), [
             'title' => 'Block party',
-            'start_at' => '2026-11-14 11:00:00',
+            'start_at' => now()->addMonth()->format('Y-m-d 11:00:00'),
             'timezone' => 'America/Los_Angeles',
+            // A form opened a minute ago, as a person would send it.
+            'form_token' => SubmissionFormGuard::issue(now()->subMinute()),
         ]);
     }
 

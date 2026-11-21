@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PublicSubmission;
 use App\Services\EventExtractor;
+use App\Support\SubmissionFormGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,21 +25,38 @@ class PublicSubmissionController extends Controller
         return Inertia::render('submit/create', [
             'prefilled' => $prefilled,
             'sourceUrl' => $sourceUrl,
+            'formToken' => SubmissionFormGuard::issue(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        // Before validation, so a script gets no hints about which field it got wrong.
+        switch (SubmissionFormGuard::check($request->input('homepage_url'), $request->input('form_token'))) {
+            case SubmissionFormGuard::BOT:
+                // Looks like a success and stores nothing.
+                return redirect()->route('submit.create')->with('success', 'Thanks — your event has been submitted for review.');
+            case SubmissionFormGuard::INVALID:
+                return redirect()->route('submit.create')->with('error', 'The form could not be checked. What you entered is still in the form. Please reload the page and send it again.');
+            case SubmissionFormGuard::TOO_FAST:
+                return redirect()->route('submit.create')->with('error', 'That was sent very quickly. What you entered is still in the form. Please wait a few seconds and send it again.');
+        }
+
+        // Events from one year back to three years ahead: wide enough for any real listing, narrow
+        // enough to catch a mistyped year.
+        $earliest = now()->subYear()->toDateString();
+        $latest = now()->addYears(3)->toDateString().' 23:59:59';
+
         $data = $request->validate([
             'title' => 'required|string|max:500',
-            'description' => 'nullable|string',
-            'start_at' => 'required|date',
-            'end_at' => 'nullable|date|after_or_equal:start_at',
-            'timezone' => 'required|string|max:64',
+            'description' => 'nullable|string|max:10000',
+            'start_at' => ['required', 'date', 'after_or_equal:'.$earliest, 'before_or_equal:'.$latest],
+            'end_at' => ['nullable', 'date', 'after_or_equal:start_at', 'after_or_equal:'.$earliest, 'before_or_equal:'.$latest],
+            'timezone' => 'required|string|timezone',
             'all_day' => 'boolean',
             'location_name_override' => 'nullable|string|max:255',
-            'address_override' => 'nullable|string',
-            'canonical_url' => 'nullable|url|max:2048',
+            'address_override' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url:http,https|max:2048',
             'is_free' => 'boolean',
             'price_min' => 'nullable|numeric|min:0',
             'price_max' => 'nullable|numeric|min:0',

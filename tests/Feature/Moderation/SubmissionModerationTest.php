@@ -3,6 +3,7 @@
 namespace Tests\Feature\Moderation;
 
 use App\Models\Event;
+use App\Models\EventSource;
 use App\Models\PublicSubmission;
 use App\Models\Source;
 use App\Models\User;
@@ -115,8 +116,72 @@ class SubmissionModerationTest extends TestCase
         $this->get(route('admin.submissions.index'))->assertInertia(fn (Assert $page) => $page
             ->where('status', 'pending')
             ->has('submissions', 1)
-            ->where('counts', ['pending' => 1, 'approved' => 1, 'rejected' => 0]));
+            ->where('counts', ['pending' => 1, 'approved' => 1, 'rejected' => 0, 'spam' => 0]));
         $this->get(route('admin.submissions.index', ['status' => 'approved']))->assertInertia(fn (Assert $page) => $page->has('submissions', 1));
+    }
+
+    public function test_marking_as_spam_keeps_the_submission_apart_from_rejections_and_creates_no_event(): void
+    {
+        $spam = $this->submission('Buy pills');
+        $rejected = $this->submission('Not for us');
+        $this->actingAs($this->admin());
+
+        $this->post(route('admin.submissions.bulk'), ['action' => 'spam', 'ids' => [$spam->id]])
+            ->assertSessionHas('success', '1 submission marked as spam.');
+        $this->post(route('admin.submissions.bulk'), ['action' => 'reject', 'ids' => [$rejected->id]]);
+
+        $this->assertSame('spam', $spam->fresh()->status);
+        $this->assertNotNull($spam->fresh()->reviewed_at);
+        $this->assertSame(0, Event::count());
+        $this->get(route('admin.submissions.index', ['status' => 'spam']))->assertInertia(fn (Assert $page) => $page
+            ->has('submissions', 1)
+            ->where('counts.spam', 1)
+            ->where('counts.rejected', 1));
+    }
+
+    public function test_approving_a_submission_twice_publishes_it_once(): void
+    {
+        $submission = $this->submission();
+        $this->actingAs($this->admin());
+
+        $this->post(route('admin.submissions.bulk'), ['action' => 'approve', 'ids' => [$submission->id]]);
+        $this->post(route('admin.submissions.bulk'), ['action' => 'approve', 'ids' => [$submission->id]])
+            ->assertSessionHas('success', '0 submissions approved and published.');
+
+        $this->assertSame(1, Event::count());
+        $this->assertSame(1, EventSource::count());
+    }
+
+    public function test_a_submission_that_cannot_be_approved_is_left_untouched_and_the_rest_go_through(): void
+    {
+        $good = $this->submission('Good one');
+        $bad = $this->submission('Bad zone', ['timezone' => 'Not/AZone']);
+        $also = $this->submission('Also good');
+        $this->actingAs($this->admin());
+
+        $this->post(route('admin.submissions.bulk'), ['action' => 'approve', 'ids' => [$good->id, $bad->id, $also->id]])
+            ->assertSessionHas('error', '2 submissions approved and published. 1 could not be processed and were left as they were (see the log).');
+
+        $this->assertSame('approved', $good->fresh()->status);
+        $this->assertSame('pending', $bad->fresh()->status);
+        $this->assertNull($bad->fresh()->event_id);
+        $this->assertSame('approved', $also->fresh()->status);
+        $this->assertSame(2, Event::count());
+        $this->assertSame(2, EventSource::count());
+    }
+
+    public function test_a_failure_part_way_through_an_approval_saves_nothing_of_it(): void
+    {
+        $submission = $this->submission();
+        $this->actingAs($this->admin());
+        // The event is created first; make the source link fail after it.
+        EventSource::creating(fn () => throw new \RuntimeException('link failed'));
+
+        $this->post(route('admin.submissions.bulk'), ['action' => 'approve', 'ids' => [$submission->id]])
+            ->assertSessionHas('error');
+
+        $this->assertSame(0, Event::count());
+        $this->assertSame('pending', $submission->fresh()->status);
     }
 
     public function test_only_administrators_can_review_submissions(): void

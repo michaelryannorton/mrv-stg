@@ -34,9 +34,10 @@ interface Counts {
     pending: number;
     approved: number;
     rejected: number;
+    spam: number;
 }
 
-type StatusTab = 'pending' | 'approved' | 'rejected';
+type StatusTab = 'pending' | 'approved' | 'rejected' | 'spam';
 
 interface SubmissionsIndexProps {
     submissions: Submission[];
@@ -50,6 +51,7 @@ const TABS: { value: StatusTab; label: string }[] = [
     { value: 'pending', label: 'Pending' },
     { value: 'approved', label: 'Approved' },
     { value: 'rejected', label: 'Rejected' },
+    { value: 'spam', label: 'Spam' },
 ];
 
 function formatWhen(fields: SubmittedData): string {
@@ -83,7 +85,7 @@ export default function SubmissionsIndex({ submissions, status, counts }: Submis
         });
     }
 
-    function act(action: 'approve' | 'reject', ids: number[]) {
+    function act(action: 'approve' | 'reject' | 'spam', ids: number[]) {
         if (ids.length === 0) return;
         router.post(route('admin.submissions.bulk'), { action, ids }, { preserveScroll: true, onSuccess: () => setSelected(new Set()) });
     }
@@ -96,6 +98,12 @@ export default function SubmissionsIndex({ submissions, status, counts }: Submis
                 {flash?.success && (
                     <div className="rounded-md border border-green-600/30 bg-green-600/10 px-4 py-2 text-sm text-green-700 dark:text-green-400">
                         {flash.success}
+                    </div>
+                )}
+
+                {flash?.error && (
+                    <div className="rounded-md border border-red-600/30 bg-red-600/10 px-4 py-2 text-sm text-red-700 dark:text-red-400">
+                        {flash.error}
                     </div>
                 )}
 
@@ -126,6 +134,11 @@ export default function SubmissionsIndex({ submissions, status, counts }: Submis
                         {status !== 'rejected' && (
                             <Button size="sm" variant="destructive" onClick={() => act('reject', Array.from(selected))}>
                                 Reject
+                            </Button>
+                        )}
+                        {status !== 'spam' && (
+                            <Button size="sm" variant="outline" onClick={() => act('spam', Array.from(selected))}>
+                                Mark as spam
                             </Button>
                         )}
                         <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
@@ -205,6 +218,11 @@ export default function SubmissionsIndex({ submissions, status, counts }: Submis
                                                 {status !== 'rejected' && (
                                                     <Button size="sm" variant="destructive" onClick={() => act('reject', [submission.id])}>
                                                         Reject
+                                                    </Button>
+                                                )}
+                                                {status !== 'spam' && (
+                                                    <Button size="sm" variant="outline" onClick={() => act('spam', [submission.id])}>
+                                                        Spam
                                                     </Button>
                                                 )}
                                             </div>

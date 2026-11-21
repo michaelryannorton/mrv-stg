@@ -22,9 +22,20 @@ interface Prefilled {
 interface SubmitCreateProps {
     prefilled: Prefilled;
     sourceUrl: string | null;
+    formToken: string;
 }
 
-export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps) {
+/** The "Reading from" address is shown as a link only when it is a web address. */
+function isWebAddress(value: string): boolean {
+    try {
+        const protocol = new URL(value).protocol;
+        return protocol === 'http:' || protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+export default function SubmitCreate({ prefilled, sourceUrl, formToken }: SubmitCreateProps) {
     const { flash } = usePage<SharedData>().props;
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -42,6 +53,10 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
         price_max: '',
         name: '',
         email: '',
+        // Checks that keep scripts out (App\Support\SubmissionFormGuard): a field people never see, and the
+        // server's timestamp from when the form was opened.
+        homepage_url: '',
+        form_token: formToken,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -50,7 +65,11 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
         // and must not throw away what the visitor typed.
         post(route('submit.store'), {
             onSuccess: (page) => {
-                if ((page.props as unknown as SharedData).flash?.success) reset();
+                if ((page.props as unknown as SharedData).flash?.success) {
+                    reset();
+                    // A fresh timestamp for the next submission from this page.
+                    setData('form_token', (page.props as unknown as SubmitCreateProps).formToken);
+                }
             },
         });
     };
@@ -75,9 +94,18 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
                     {sourceUrl && (
                         <p className="card-note" style={{ marginBottom: '18px' }}>
                             Reading from{' '}
-                            <a href={sourceUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>
-                                {sourceUrl}
-                            </a>
+                            {isWebAddress(sourceUrl) ? (
+                                <a
+                                    href={sourceUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}
+                                >
+                                    {sourceUrl}
+                                </a>
+                            ) : (
+                                sourceUrl
+                            )}
                             {foundNothing && ' — nothing usable was found there, so the form below is blank. Fill it in by hand.'}
                         </p>
                     )}
@@ -191,7 +219,11 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
                         </section>
 
                         <section className="card form-section">
-                            <p className="card-note">Your name and email are optional — especially useful if you'd like to help curate this list.</p>
+                            <p className="card-note">
+                                Your name and email are optional — especially useful if you'd like to help curate this list. We use them only to
+                                contact you about this submission or about helping curate the list, and we never show them publicly. Contact details
+                                are deleted about 12 months after a submission is reviewed.
+                            </p>
 
                             <div className="form-pair">
                                 <div className="form-field">
@@ -205,6 +237,20 @@ export default function SubmitCreate({ prefilled, sourceUrl }: SubmitCreateProps
                                 </div>
                             </div>
                         </section>
+
+                        {/* Hidden from people; a script that fills in every field fills this one too. */}
+                        <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}>
+                            <label htmlFor="homepage_url">Leave this field empty</label>
+                            <input
+                                id="homepage_url"
+                                name="homepage_url"
+                                type="text"
+                                tabIndex={-1}
+                                autoComplete="off"
+                                value={data.homepage_url}
+                                onChange={(e) => setData('homepage_url', e.target.value)}
+                            />
+                        </div>
 
                         <div className="form-actions">
                             <button type="submit" className="btn-primary" disabled={processing}>

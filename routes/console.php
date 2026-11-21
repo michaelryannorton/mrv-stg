@@ -22,6 +22,10 @@ Schedule::command('ingest:ics')->everyThirtyMinutes()->withoutOverlapping()
     ->onSuccess(StatusHealthController::heartbeat('ingest_ics'))
     ->onFailure(StatusHealthController::heartbeat('ingest_ics', failed: true));
 
+// Once a day, at 08:00 Pacific whatever the app's own time zone is, an email to the administrators if
+// public event submissions are waiting for review; nothing is sent when none are (Michael, 2026-11-20).
+Schedule::command('submissions:notify-pending')->dailyAt('08:00')->timezone('America/Los_Angeles')->withoutOverlapping();
+
 // The status dashboard's scheduler marker: the health endpoint reports how long ago this last ran.
 Schedule::call(fn () => StatusHealthController::recordSchedulerRun())
     ->everyMinute()

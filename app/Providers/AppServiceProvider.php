@@ -56,9 +56,17 @@ class AppServiceProvider extends ServiceProvider
 
         // Looking up a link makes the server fetch that page, which is the costly part, so it has its
         // own limit; opening the empty form is never limited.
+        // The per-minute limit stops a burst; the hourly and daily ones stop a steady trickle, which is
+        // what would otherwise send thousands of requests a day from this server to someone else's site.
         RateLimiter::for('submission-lookups', fn (Request $request) => $request->filled('url')
-            ? Limit::perMinute(6)->by('lookup:'.$request->ip())
-                ->response($tooMany('Too many link lookups in a short time. You can fill in the form by hand now, or try the link again in about %s. The limit applies to everyone.'))
+            ? [
+                Limit::perMinute(6)->by('lookup:'.$request->ip())
+                    ->response($tooMany('Too many link lookups in a short time. You can fill in the form by hand now, or try the link again in about %s. The limit applies to everyone.')),
+                Limit::perHour(30)->by('lookup-hour:'.$request->ip())
+                    ->response($tooMany('You have used the link lookups available from your connection for now. You can fill in the form by hand, or try the link again in about %s. The limit applies to everyone.')),
+                Limit::perDay(100)->by('lookup-day:'.$request->ip())
+                    ->response($tooMany('You have used today\'s link lookups from your connection. You can fill in the form by hand, or try the link again in about %s. The limit applies to everyone.')),
+            ]
             : Limit::none());
     }
 }
