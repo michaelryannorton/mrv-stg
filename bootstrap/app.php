@@ -3,11 +3,13 @@
 use App\Http\Controllers\StatusHealthController;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\InviteOnlyGate;
+use App\Support\CloudflareProxies;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\PermissionMiddleware;
@@ -26,6 +28,13 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Behind Cloudflare (production), take the visitor's address and scheme from Cloudflare's headers, so rate limits
+        // count each visitor separately. Only Cloudflare's own ranges are trusted; see App\Support\CloudflareProxies.
+        $middleware->trustProxies(
+            at: CloudflareProxies::RANGES,
+            headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO,
+        );
+
         $middleware->web(append: [
             InviteOnlyGate::class,
             HandleInertiaRequests::class,
