@@ -150,7 +150,7 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
         $this->assertIsArray($response->json('metrics'));
 
         foreach ($response->json('checks') as $check) {
-            $this->assertEqualsCanonicalizing(['key', 'label', 'status', 'observed_at', 'stale_after', 'value', 'unit', 'message'], array_keys($check), $check['key']);
+            $this->assertEqualsCanonicalizing(['key', 'label', 'status', 'observed_at', 'stale_after', 'value', 'unit', 'message'], array_values(array_diff(array_keys($check), ['impact', 'action'])), $check['key']);
             $this->assertContains($check['status'], ['healthy', 'warning', 'critical', 'unknown', 'inactive'], $check['key']);
             $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $check['observed_at'], $check['key']);
         }
@@ -454,5 +454,35 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
         $keys = collect($this->report()->json('metrics'))->pluck('key')->all();
         $this->assertNotContains('quota_stops_today', $keys);
         $this->assertContains('open_meteo_calls_today', $keys, 'the other weather metrics are unaffected');
+    }
+
+    public function test_normalize_keeps_a_valid_impact_and_action_and_drops_the_rest(): void
+    {
+        $normalize = new \ReflectionMethod(StatusHealthController::class, 'normalize');
+        $controller = app(StatusHealthController::class);
+        $base = ['key' => 'k', 'label' => 'K', 'status' => 'warning'];
+
+        $kept = $normalize->invoke($controller, $base + ['impact' => 'visible', 'action' => '  Do this (Michael).  ']);
+        $this->assertSame('visible', $kept['impact']);
+        $this->assertSame('Do this (Michael).', $kept['action']);
+
+        $dropped = $normalize->invoke($controller, $base + ['impact' => 'urgent', 'action' => '   ']);
+        $this->assertArrayNotHasKey('impact', $dropped);
+        $this->assertArrayNotHasKey('action', $dropped);
+
+        $plain = $normalize->invoke($controller, $base);
+        $this->assertArrayNotHasKey('impact', $plain, 'a standard check never sets the fields');
+        $this->assertArrayNotHasKey('action', $plain);
+    }
+
+    public function test_a_report_check_that_is_not_healthy_carries_the_fields_and_a_healthy_one_does_not(): void
+    {
+        $checks = collect($this->report()->json('checks'));
+        foreach ($checks as $check) {
+            if (in_array($check['status'], ['healthy', 'inactive'], true)) {
+                $this->assertArrayNotHasKey('impact', $check, $check['key']);
+                $this->assertArrayNotHasKey('action', $check, $check['key']);
+            }
+        }
     }
 }

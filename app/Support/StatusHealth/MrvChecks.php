@@ -98,10 +98,49 @@ final class MrvChecks
     public function guard(string $key, string $label, callable $check): array
     {
         try {
-            return $check();
+            $result = $check();
         } catch (Throwable $e) {
-            return ['key' => $key, 'label' => $label, 'status' => 'unknown', 'message' => 'Check failed to run'];
+            $result = ['key' => $key, 'label' => $label, 'status' => 'unknown', 'message' => 'Check failed to run'];
         }
+
+        return self::withMeaning($result);
+    }
+
+    /**
+     * What a visitor sees and what to do, per own check (contract revision 10, section 5.2). Each entry is the impact at warning,
+     * the impact at critical, and one sentence of action (at most 160 characters: what to do and who does it). The dashboard shows
+     * these only next to a check that is not healthy, so they are added only for warning, critical and unknown.
+     *
+     * @var array<string, array{0: string, 1: string, 2: string}>
+     */
+    public const MEANING = [
+        'weather_freshness_live_conditions' => ['risk', 'visible', 'Check live_update.php\'s last run and the Open-Meteo quota; Michael runs any server step.'],
+        'weather_live_cities_stale' => ['visible', 'visible', 'Check the live-conditions source for the cities named (MRV\'s team).'],
+        'weather_freshness_daily_weather' => ['risk', 'visible', 'Check daily_update.php\'s last run and quota_stops_today, then rerun it over the missing days (Michael, on the server).'],
+        'weather_daily_coverage' => ['risk', 'visible', 'Rerun daily_update.php over the dates named (Michael, on the server); if gaps recur, change its city order (Claude).'],
+        'weather_freshness_air_quality' => ['risk', 'visible', 'Check air_quality_update.php\'s last run and the Open-Meteo quota (Michael); the job refills recent days.'],
+        'weather_freshness_climate_snapshot' => ['monitoring', 'risk', 'Check climate_snapshot.php\'s last run and the Open-Meteo quota (Michael); it continues the open snapshot every hour.'],
+        'weather_completeness' => ['risk', 'visible', 'Read live_update.php\'s output for the cities with no temperature or no report (MRV\'s team).'],
+        'ingest_ics_age' => ['risk', 'visible', 'Check the ingest:ics run and the dispatcher on the server (Michael); calendar feeds are fetched every 30 minutes.'],
+        'sources_failing' => ['risk', 'risk', 'Read the last error of each failing source in the admin and fix it or switch it off (Michael).'],
+        'events_upcoming_published' => ['risk', 'risk', 'Approve candidate events in the moderation queue (Michael or a curator).'],
+        'mail_failures' => ['visible', 'visible', 'Read the Mailer exception in laravel.log; check the Postmark server and token (Michael).'],
+        'data_compression_enabled' => ['risk', 'risk', 'Restore the zlib extension or the CompressesJson trait on the data endpoints (Claude; Michael for the PHP extension).'],
+    ];
+
+    /** Adds `impact` and `action` to a check result that is not healthy or inactive, when the check has an entry in MEANING. */
+    public static function withMeaning(array $result): array
+    {
+        $status = $result['status'] ?? null;
+        $entry = self::MEANING[$result['key'] ?? ''] ?? null;
+        if ($entry === null || ! in_array($status, ['warning', 'critical', 'unknown'], true)) {
+            return $result;
+        }
+        if ($status === 'unknown') {
+            return $result + ['impact' => 'monitoring', 'action' => 'The check failed to run; read storage/logs/laravel.log and fix the check (Claude).'];
+        }
+
+        return $result + ['impact' => $status === 'critical' ? $entry[1] : $entry[0], 'action' => $entry[2]];
     }
 
     private function weather(): Connection

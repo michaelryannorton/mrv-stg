@@ -15,8 +15,8 @@ use PDO;
 use Throwable;
 
 /**
- * Read-only health report for status.michael.computer. Contract: status-health/1, revision 7.
- * Version 2.0.1. No Composer dependencies. Supports Laravel 10 and later, PHP 8.1 and later.
+ * Read-only health report for status.michael.computer. Contract: status-health/1, revision 10.
+ * Version 2.1.0. No Composer dependencies. Supports Laravel 10 and later, PHP 8.1 and later.
  *
  * Copy to app/Http/Controllers/StatusHealthController.php. Setup steps are in README.md, which
  * accompanies this file.
@@ -885,7 +885,20 @@ class StatusHealthController
             'value' => $check['value'] ?? null,
             'unit' => $check['unit'] ?? null,
             'message' => $check['message'] ?? null,
-        ];
+        ] + $this->meaning($check);
+    }
+
+    /** The optional impact and action of a property-specific check (contract section 5.2, revision 10), kept only when valid. */
+    private function meaning(array $check): array
+    {
+        $out = [];
+        if (in_array($check['impact'] ?? null, ['visible', 'risk', 'monitoring'], true)) {
+            $out['impact'] = $check['impact'];
+        }
+        if (is_string($check['action'] ?? null) && trim($check['action']) !== '') {
+            $out['action'] = trim($check['action']);
+        }
+        return $out;
     }
 
     private function metric(string $key, string $label, int|float|null $value, ?string $unit, ?string $observedAt = null, ?int $staleAfter = null): array

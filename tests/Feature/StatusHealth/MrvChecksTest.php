@@ -687,4 +687,50 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->writeJobStatus('groundwater', ['counts' => ['usgs_throttled' => 'twice']]);
         $this->assertNull($this->mrv()->usgsThrottledMetric(), 'a counter that is not an object');
     }
+
+    // --- impact and action (contract revision 10) -------------------------------------------------------------------------
+
+    public function test_a_check_that_is_not_healthy_carries_its_impact_and_action(): void
+    {
+        $warning = MrvChecks::withMeaning(['key' => 'weather_daily_coverage', 'label' => 'x', 'status' => 'warning']);
+        $this->assertSame('risk', $warning['impact']);
+        $critical = MrvChecks::withMeaning(['key' => 'weather_daily_coverage', 'label' => 'x', 'status' => 'critical']);
+        $this->assertSame('visible', $critical['impact']);
+        $this->assertSame($warning['action'], $critical['action']);
+
+        $unknown = MrvChecks::withMeaning(['key' => 'weather_completeness', 'label' => 'x', 'status' => 'unknown']);
+        $this->assertSame('monitoring', $unknown['impact']);
+        $this->assertStringContainsString('laravel.log', $unknown['action']);
+    }
+
+    public function test_a_healthy_or_inactive_check_and_a_check_without_an_entry_are_unchanged(): void
+    {
+        foreach (['healthy', 'inactive'] as $status) {
+            $result = ['key' => 'weather_daily_coverage', 'label' => 'x', 'status' => $status];
+            $this->assertSame($result, MrvChecks::withMeaning($result));
+        }
+        $other = ['key' => 'exposure_invite_gate', 'label' => 'x', 'status' => 'critical'];
+        $this->assertSame($other, MrvChecks::withMeaning($other), 'the dashboard has its own text for exposure_ checks');
+    }
+
+    public function test_every_own_check_entry_is_valid_and_the_action_fits_the_dashboard(): void
+    {
+        foreach (MrvChecks::MEANING as $key => [$atWarning, $atCritical, $action]) {
+            $this->assertContains($atWarning, ['visible', 'risk', 'monitoring'], $key);
+            $this->assertContains($atCritical, ['visible', 'risk', 'monitoring'], $key);
+            $this->assertLessThanOrEqual(160, mb_strlen($action), "$key: the dashboard shows up to 160 characters");
+            $this->assertNotSame('', trim($action), $key);
+        }
+    }
+
+    public function test_guard_adds_the_fields_to_a_check_that_throws_and_to_one_that_returns_a_warning(): void
+    {
+        $thrown = $this->mrv()->guard('weather_completeness', 'Live data completeness', fn () => throw new \RuntimeException('x'));
+        $this->assertSame('unknown', $thrown['status']);
+        $this->assertSame('monitoring', $thrown['impact']);
+
+        $warned = $this->mrv()->guard('sources_failing', 'Calendar sources failing', fn () => ['key' => 'sources_failing', 'label' => 'x', 'status' => 'warning']);
+        $this->assertSame('risk', $warned['impact']);
+        $this->assertArrayHasKey('action', $warned);
+    }
 }
