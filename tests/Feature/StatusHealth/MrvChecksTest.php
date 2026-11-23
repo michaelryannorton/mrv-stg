@@ -733,4 +733,158 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->assertSame('risk', $warned['impact']);
         $this->assertArrayHasKey('action', $warned);
     }
+
+    // --- backfill checks (plan C) ---------------------------------------------------------------------------------------------
+
+    /** Three backfill targets (two named, one grid) and one of the original 11, which the backfill skips. The clock gives 2026, so 11 years. */
+    private function backfillTargets(): void
+    {
+        $this->city(1, 'Victorville');
+        $this->city(101, 'Wrightwood');
+        $this->city(102, 'Lake Arrowhead');
+        $this->city(500, 'Grid point', 'grid');
+    }
+
+    private function chunk(int $city, int $year, string $completedEastern, int $rows = 0, string $kind = 'backfill'): void
+    {
+        DB::connection('weather')->table('backfill_progress')->insert(['city_id' => $city, 'year' => $year, 'kind' => $kind, 'rows_sent' => $rows, 'completed_at' => $completedEastern]);
+    }
+
+    public function test_the_backfill_checks_are_inactive_with_no_targets(): void
+    {
+        $this->city(1, 'Victorville');
+
+        $this->assertSame('inactive', $this->mrv()->backfillProgress()['status']);
+        $this->assertSame('inactive', $this->mrv()->backfillIntegrity()['status']);
+        $this->assertSame(0.0, $this->mrv()->backfillChunksRemaining());
+    }
+
+    public function test_backfill_progress_is_healthy_just_after_a_chunk_and_counts_what_is_left(): void
+    {
+        $this->backfillTargets();
+        // 2026-10-18 20:00 UTC is 16:00 EDT. 15:30 EDT is 19:30 UTC: half an hour ago (read as UTC it would be 4.5 hours).
+        $this->chunk(101, 2026, '2026-10-18 15:30:00');
+        $this->chunk(101, 2025, '2026-10-15 12:00:00');
+        $this->chunk(500, 2016, '2026-09-01 12:00:00');
+        $this->chunk(1, 2026, '2026-10-18 15:45:00'); // an original city: not a target, not counted
+        $this->chunk(101, 2024, '2026-10-18 15:45:00', 0, 'correction'); // another kind: not counted
+
+        $check = $this->mrv()->backfillProgress();
+        $this->assertSame('healthy', $check['status']);
+        $this->assertSame(0.5, $check['value']);
+        $this->assertNull($check['message']);
+        $this->assertSame(3.0, $this->mrv()->backfillChunksDone());
+        $this->assertSame(30.0, $this->mrv()->backfillChunksRemaining(), '3 targets x 11 years = 33 chunks, 3 done');
+        $this->assertSame(0.3, $this->mrv()->backfillRate7d(), '2 chunks in the last 7 days, over 7 days: 0.2857, to one decimal');
+    }
+
+    public function test_backfill_progress_warns_and_goes_critical_with_the_remaining_count_in_the_message(): void
+    {
+        $this->backfillTargets();
+        $this->chunk(101, 2026, '2026-10-16 04:00:00'); // 2026-10-16 08:00 UTC: 60 hours before the clock
+        $warning = $this->mrv()->backfillProgress();
+        $this->assertSame('warning', $warning['status']);
+        $this->assertSame(60.0, $warning['value']);
+        $this->assertStringContainsString('32 of 33 chunks remain', $warning['message']);
+
+        DB::connection('weather')->table('backfill_progress')->delete();
+        $this->chunk(101, 2026, '2026-10-14 04:00:00'); // 2026-10-14 08:00 UTC: 108 hours
+        $this->assertSame('critical', $this->mrv()->backfillProgress()['status']);
+    }
+
+    public function test_backfill_progress_with_no_chunk_done_warns_and_a_finished_backfill_is_inactive(): void
+    {
+        $this->backfillTargets();
+        $none = $this->mrv()->backfillProgress();
+        $this->assertSame('warning', $none['status']);
+        $this->assertStringContainsString('No backfill chunk has been completed', $none['message']);
+
+        foreach ([101, 102, 500] as $city) {
+            for ($year = 2016; $year <= 2026; $year++) {
+                $this->chunk($city, $year, '2026-10-18 15:00:00');
+            }
+        }
+        $done = $this->mrv()->backfillProgress();
+        $this->assertSame('inactive', $done['status']);
+        $this->assertSame('Backfill complete', $done['message']);
+        $this->assertNull($this->mrv()->backfillEtaDays());
+    }
+
+    public function test_backfill_eta_follows_the_seven_day_rate(): void
+    {
+        $this->backfillTargets();
+        for ($i = 0; $i < 7; $i++) {
+            $this->chunk(101, 2016 + $i, '2026-10-17 12:00:00'); // 7 chunks in the last 7 days: 1 a day
+        }
+        $this->assertSame(1.0, $this->mrv()->backfillRate7d());
+        $this->assertSame(26.0, $this->mrv()->backfillEtaDays(), '33 - 7 = 26 chunks at 1 a day');
+
+        DB::connection('weather')->table('backfill_progress')->delete();
+        $this->chunk(101, 2016, '2026-09-01 12:00:00');
+        $this->assertNull($this->mrv()->backfillEtaDays(), 'nothing in the last 7 days');
+    }
+
+    public function test_the_backfill_clock_is_read_as_eastern_time_in_winter_too(): void
+    {
+        $this->backfillTargets();
+        $winter = new MrvChecks(CarbonImmutable::parse('2026-11-02 12:00:00', 'UTC')); // 07:00 EST
+        $this->chunk(101, 2026, '2026-11-02 05:00:00'); // 10:00 UTC
+        $this->assertSame(2.0, $winter->backfillProgress()['value']);
+    }
+
+    public function test_backfill_integrity_is_healthy_when_every_chunk_holds_its_rows_or_more(): void
+    {
+        $this->backfillTargets();
+        $this->dailyRows([101], '2020-01-01', '2020-01-10');
+        $this->chunk(101, 2020, '2026-09-01 12:00:00', 10);
+        $this->chunk(101, 2021, '2026-09-01 12:00:00', 0);
+        $this->chunk(101, 2022, '2026-09-01 12:00:00', 0);
+        $this->dailyRows([500], '2026-01-01', '2026-01-12');
+        $this->chunk(500, 2026, '2026-09-01 12:00:00', 8); // 12 stored, 8 sent: the daily job added days
+
+        $check = $this->mrv()->backfillIntegrity();
+        $this->assertSame('healthy', $check['status']);
+        $this->assertSame(0, $check['value']);
+    }
+
+    public function test_backfill_integrity_warns_on_one_short_chunk_among_many_and_is_critical_above_one_percent(): void
+    {
+        $this->backfillTargets();
+        for ($year = 2016; $year <= 2026; $year++) {
+            foreach ([101, 102, 500] as $city) {
+                $this->chunk($city, $year, '2026-09-01 12:00:00', 0);
+            }
+        }
+        for ($i = 0; $i < 9; $i++) {
+            for ($year = 2016; $year <= 2026; $year++) {
+                // pad to 132 chunks (above 100) with other cities' rows (not targets, still kind backfill)
+                $this->chunk(900 + $i, $year, '2026-09-01 12:00:00', 0);
+            }
+        }
+        $this->dailyRows([101], '2020-01-01', '2020-01-03');
+        DB::connection('weather')->table('backfill_progress')->where('city_id', 101)->where('year', 2020)->update(['rows_sent' => 5]);
+
+        $warning = $this->mrv()->backfillIntegrity();
+        $this->assertSame('warning', $warning['status'], '1 short chunk of 132 is 0.76%, under the 1% limit');
+        $this->assertSame(1, $warning['value']);
+        $this->assertStringContainsString('city 101 2020 (3 of 5)', $warning['message']);
+
+        DB::connection('weather')->table('backfill_progress')->where('city_id', 102)->where('year', 2021)->update(['rows_sent' => 4]);
+        $critical = $this->mrv()->backfillIntegrity();
+        $this->assertSame('critical', $critical['status'], '2 short chunks of 132 is 1.5%');
+        $this->assertSame(2, $critical['value']);
+    }
+
+    public function test_the_original_cities_list_matches_the_worker_script(): void
+    {
+        $worker = base_path('../api/cron/backfill_worker.php');
+        if (! is_file($worker)) {
+            $this->markTestSkipped('api/cron/backfill_worker.php is outside this repository.');
+        }
+        $this->assertSame(1, preg_match("/const ORIGINAL_11 = \[(.*?)\];/s", (string) file_get_contents($worker), $m));
+        preg_match_all("/'([^']+)'/", $m[1], $names);
+        $this->assertEqualsCanonicalizing($names[1], MrvChecks::BACKFILL_ORIGINAL_CITIES);
+        $this->assertSame((int) 2016, MrvChecks::BACKFILL_START_YEAR);
+        $this->assertStringContainsString('const START_YEAR = 2016;', (string) file_get_contents($worker));
+    }
 }

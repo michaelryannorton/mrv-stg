@@ -32,6 +32,7 @@ abstract class StatusHealthTestCase extends TestCase
         $weather->statement('DROP TABLE "climate_fetch_progress"');
         $weather->statement('CREATE TABLE "climate_fetch_progress" ("snapshot", "city_id", "model", "completed_at")');
         $weather->statement('CREATE TABLE "backfill_budget" ("budget_date", "equivalent_calls_spent")');
+        $weather->statement('CREATE TABLE "backfill_progress" ("city_id", "year", "kind", "rows_sent", "completed_at")');
         $weather->statement('CREATE TABLE "airquality_budget" ("budget_date", "equivalent_calls_spent")');
 
         $this->statusDir = sys_get_temp_dir().'/status-health-test-'.bin2hex(random_bytes(4));

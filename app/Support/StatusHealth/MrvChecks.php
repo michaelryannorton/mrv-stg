@@ -120,6 +120,8 @@ final class MrvChecks
         'weather_daily_coverage' => ['risk', 'visible', 'Rerun daily_update.php over the dates named (Michael, on the server); if gaps recur, change its city order (Claude).'],
         'weather_freshness_air_quality' => ['risk', 'visible', 'Check air_quality_update.php\'s last run and the Open-Meteo quota (Michael); the job refills recent days.'],
         'weather_freshness_climate_snapshot' => ['monitoring', 'risk', 'Check climate_snapshot.php\'s last run and the Open-Meteo quota (Michael); it continues the open snapshot every hour.'],
+        'weather_backfill_progress' => ['monitoring', 'monitoring', 'Check backfill_worker.php\'s last run and the Open-Meteo quota (Michael); the backfill resumes by itself when the allowance allows.'],
+        'weather_backfill_integrity' => ['monitoring', 'risk', 'Rerun the backfill for the chunks named, or load the missing days with daily_update.php (Claude plans it; Michael runs it).'],
         'weather_completeness' => ['risk', 'visible', 'Read live_update.php\'s output for the cities with no temperature or no report (MRV\'s team).'],
         'ingest_ics_age' => ['risk', 'visible', 'Check the ingest:ics run and the dispatcher on the server (Michael); calendar feeds are fetched every 30 minutes.'],
         'sources_failing' => ['risk', 'risk', 'Read the last error of each failing source in the admin and fix it or switch it off (Michael).'],
@@ -258,6 +260,169 @@ final class MrvChecks
             'unit' => 'count',
             'message' => "{$total} city-days have no daily weather row: ".implode(', ', $listed).(count($missingByDay) > 6 ? ', ...' : '')
                 .($tooOld === [] ? '' : '; the daily job no longer refills days before '.$oldestRefillable),
+        ];
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Backfill (api/cron/backfill_worker.php): the 25 newer named cities and 441 grid points, one chunk per location and year
+
+    /** The cities the backfill skips. Same list as ORIGINAL_11 in api/cron/backfill_worker.php; a test compares the two. */
+    public const BACKFILL_ORIGINAL_CITIES = [
+        'Victorville', 'Hesperia', 'Apple Valley', 'Adelanto', 'Barstow',
+        'Phelan', 'Big Bear City', 'Joshua Tree', 'Mojave', 'Lucerne Valley', 'Oak Hills',
+    ];
+
+    /** First year of a backfill (START_YEAR in the worker). */
+    public const BACKFILL_START_YEAR = 2016;
+
+    /**
+     * backfill_progress.completed_at is MySQL NOW() on the host, which runs on Eastern time (checked 2026-11-22: NOW() read
+     * 19:12 EST while UTC was 00:12).
+     */
+    public const BACKFILL_CLOCK = 'America/New_York';
+
+    /** Hours since the last completed chunk before the progress check warns, and before it is critical. Starting values, set from the history replay. */
+    public const BACKFILL_WARN_HOURS = 48;
+
+    public const BACKFILL_CRITICAL_HOURS = 96;
+
+    /** Share of completed chunks that may have lost rows before the integrity check is critical. */
+    public const BACKFILL_INTEGRITY_CRITICAL_SHARE = 0.01;
+
+    /** @var array<string, mixed>|null */
+    private ?array $backfillState = null;
+
+    /**
+     * The worker's queue as numbers: the target locations, the chunks expected (targets times years), the chunks done, the newest
+     * completion and the completions in the last 7 days.
+     *
+     * @return array<string, mixed>
+     */
+    private function backfillState(): array
+    {
+        if ($this->backfillState !== null) {
+            return $this->backfillState;
+        }
+        $clock = new DateTimeZone(self::BACKFILL_CLOCK);
+        $targets = $this->weather()->table('cities')
+            ->whereIn('place_type', ['city', 'grid'])
+            ->whereNotIn('name', self::BACKFILL_ORIGINAL_CITIES)
+            ->pluck('id')->all();
+        $year = (int) $this->now->setTimezone($clock)->format('Y');
+        $years = max(0, $year - self::BACKFILL_START_YEAR + 1);
+        $done = 0;
+        $last = null;
+        $recent = 0;
+        if ($targets !== []) {
+            $chunks = $this->weather()->table('backfill_progress')
+                ->where('kind', 'backfill')
+                ->whereIn('city_id', $targets)
+                ->whereBetween('year', [self::BACKFILL_START_YEAR, $year]);
+            $done = (clone $chunks)->select('city_id', 'year')->groupBy('city_id', 'year')->get()->count();
+            $newest = (clone $chunks)->max('completed_at');
+            $last = $newest !== null ? CarbonImmutable::createFromFormat('Y-m-d H:i:s', (string) $newest, $clock) : null;
+            $since = $this->now->subDays(7)->setTimezone($clock)->format('Y-m-d H:i:s');
+            $recent = (clone $chunks)->where('completed_at', '>=', $since)->count();
+        }
+        $expected = count($targets) * $years;
+
+        return $this->backfillState = [
+            'targets' => count($targets),
+            'expected' => $expected,
+            'done' => min($done, $expected),
+            'remaining' => max(0, $expected - $done),
+            'last' => $last,
+            'rate_7d' => $recent / 7,
+        ];
+    }
+
+    public function backfillChunksDone(): float
+    {
+        return (float) $this->backfillState()['done'];
+    }
+
+    public function backfillChunksRemaining(): float
+    {
+        return (float) $this->backfillState()['remaining'];
+    }
+
+    /** Chunks completed a day, as the average of the last 7 days. */
+    public function backfillRate7d(): float
+    {
+        return round($this->backfillState()['rate_7d'], 1);
+    }
+
+    /** Days to finish at the 7-day rate; null when nothing was completed in the last 7 days or nothing is left. */
+    public function backfillEtaDays(): ?float
+    {
+        $state = $this->backfillState();
+
+        return $state['rate_7d'] > 0 && $state['remaining'] > 0 ? round($state['remaining'] / $state['rate_7d']) : null;
+    }
+
+    /**
+     * Time since the backfill last completed a chunk. The worker runs hourly and a day's budget caps it near 31 chunks, so days
+     * with none do happen (2026-11-12, 11-14 and 11-18 had none); the limits are above one such day. Inactive when no chunk is left.
+     */
+    public function backfillProgress(): array
+    {
+        $base = ['key' => 'weather_backfill_progress', 'label' => 'Backfill progress'];
+        $state = $this->backfillState();
+        if ($state['targets'] === 0) {
+            return $base + ['status' => 'inactive', 'message' => 'No backfill targets'];
+        }
+        if ($state['remaining'] === 0) {
+            return $base + ['status' => 'inactive', 'message' => 'Backfill complete'];
+        }
+        $detail = number_format($state['remaining']).' of '.number_format($state['expected']).' chunks remain, '.number_format($state['rate_7d'], 1).' a day over the last 7 days';
+        if ($state['last'] === null) {
+            return $base + ['status' => 'warning', 'message' => 'No backfill chunk has been completed; '.$detail];
+        }
+        $hours = $this->hoursSince($state['last']);
+        $status = $hours > self::BACKFILL_CRITICAL_HOURS ? 'critical' : ($hours > self::BACKFILL_WARN_HOURS ? 'warning' : 'healthy');
+
+        return $base + [
+            'status' => $status,
+            'value' => round($hours, 1),
+            'unit' => 'hours',
+            'message' => $status === 'healthy' ? null : 'The last chunk finished '.$this->ago($hours).' ago; '.$detail,
+        ];
+    }
+
+    /**
+     * Completed chunks whose year holds fewer stored daily rows than the chunk sent. More stored rows are normal: the daily job adds
+     * the days after the chunk (2026 chunks sent 240 rows and now hold 324). Read 2026-11-22: 0 of 1,384 chunks had lost rows.
+     */
+    public function backfillIntegrity(): array
+    {
+        $base = ['key' => 'weather_backfill_integrity', 'label' => 'Backfill integrity'];
+        $state = $this->backfillState();
+        if ($state['targets'] === 0 || $state['done'] === 0) {
+            return $base + ['status' => 'inactive', 'message' => 'No completed chunks'];
+        }
+        $weather = $this->weather();
+        $year = $weather->getDriverName() === 'sqlite' ? "cast(strftime('%Y', date) as integer)" : 'year(date)';
+        $stored = [];
+        foreach ($weather->select("select city_id, {$year} as y, count(*) as c from weather_daily group by city_id, y") as $row) {
+            $stored[$row->city_id.':'.$row->y] = (int) $row->c;
+        }
+        $total = 0;
+        $short = [];
+        foreach ($weather->table('backfill_progress')->where('kind', 'backfill')->get(['city_id', 'year', 'rows_sent']) as $chunk) {
+            $total++;
+            $have = $stored[$chunk->city_id.':'.$chunk->year] ?? 0;
+            if ($have < (int) $chunk->rows_sent) {
+                $short[] = "city {$chunk->city_id} {$chunk->year} ({$have} of {$chunk->rows_sent})";
+            }
+        }
+        $count = count($short);
+        $status = $count === 0 ? 'healthy' : ($count / max(1, $total) > self::BACKFILL_INTEGRITY_CRITICAL_SHARE ? 'critical' : 'warning');
+
+        return $base + [
+            'status' => $status,
+            'value' => $count,
+            'unit' => 'count',
+            'message' => $count === 0 ? null : $count.' of '.$total.' completed chunks hold fewer rows than they sent: '.implode(', ', array_slice($short, 0, 3)).($count > 3 ? ', ...' : ''),
         ];
     }
 

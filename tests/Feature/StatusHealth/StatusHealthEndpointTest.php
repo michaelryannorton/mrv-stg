@@ -27,6 +27,7 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
     private const WEATHER_KEYS = [
         'weather_freshness_live_conditions', 'weather_live_cities_stale', 'weather_freshness_daily_weather', 'weather_daily_coverage',
         'weather_freshness_air_quality', 'weather_freshness_climate_snapshot', 'weather_completeness',
+        'weather_backfill_progress', 'weather_backfill_integrity',
         'job_earthquakes', 'job_groundwater', 'job_snow', 'job_drought',
     ];
 
