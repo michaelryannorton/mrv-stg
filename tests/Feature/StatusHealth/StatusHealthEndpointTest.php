@@ -255,6 +255,29 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
         $this->assertSame('calls', $metrics['open_meteo_calls_today']['unit']);
     }
 
+    public function test_the_open_meteo_counter_metrics_reach_the_report_only_when_the_counter_exists(): void
+    {
+        $without = collect($this->report()->json('metrics'))->pluck('key')->all();
+        $this->assertContains('open_meteo_calls_today', $without, 'the estimate still reports');
+        foreach (['open_meteo_requests_today', 'open_meteo_refusals_today', 'open_meteo_observed_ceiling'] as $key) {
+            $metric = collect($this->report()->json('metrics'))->firstWhere('key', $key);
+            $this->assertNull($metric['value'] ?? null, "$key has no value without a counter");
+        }
+
+        file_put_contents("{$this->statusDir}/counter_openmeteo.json", json_encode([
+            'date' => gmdate('Y-m-d'), 'requests' => 40, 'equivalent_calls' => 301.5, 'outcomes' => ['ok' => 38, 'daily' => 0, 'hourly' => 0, 'minutely' => 2, 'other' => 0],
+            'last_daily_refusal' => ['date' => '2026-11-01', 'equivalent_calls_before' => 2800.0],
+        ]));
+        $metrics = collect($this->report()->json('metrics'))->keyBy('key');
+
+        $this->assertEqualsWithDelta(301.5, $metrics['open_meteo_calls_today']['value'], 0.001);
+        $this->assertSame(40, $metrics['open_meteo_requests_today']['value']);
+        $this->assertSame(2, $metrics['open_meteo_refusals_today']['value']);
+        $this->assertEqualsWithDelta(2800.0, $metrics['open_meteo_observed_ceiling']['value'], 0.001);
+        $this->assertSame('requests', $metrics['open_meteo_requests_today']['unit']);
+        $this->assertSame('calls', $metrics['open_meteo_observed_ceiling']['unit']);
+    }
+
     // --- footprint metrics ----------------------------------------------------------------------------------------------
 
     public function test_the_footprint_metrics_are_reported_as_metrics_with_the_time_they_were_measured(): void

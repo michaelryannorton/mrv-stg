@@ -368,6 +368,61 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->assertEqualsWithDelta(1200.5 + 300 + 2 * 480, $this->mrv()->openMeteoCallsToday(), 0.001);
     }
 
+    private function writeOpenMeteoCounter(array $overrides = []): void
+    {
+        file_put_contents("{$this->statusDir}/counter_openmeteo.json", json_encode($overrides + [
+            'counter' => 'openmeteo', 'date' => '2026-10-18', 'requests' => 514, 'equivalent_calls' => 3012.44, 'updated_at' => '2026-10-18T19:55:00Z',
+            'outcomes' => ['ok' => 508, 'daily' => 1, 'hourly' => 2, 'minutely' => 3, 'other' => 0],
+            'by_job' => ['daily_update' => ['requests' => 477, 'equivalent_calls' => 1717.2]],
+            'first_daily_refusal' => ['at' => '2026-10-18T14:00:00Z', 'job' => 'backfill_worker', 'requests_before' => 498, 'equivalent_calls_before' => 2511.3],
+            'last_daily_refusal' => ['date' => '2026-10-18', 'at' => '2026-10-18T14:00:00Z', 'job' => 'backfill_worker', 'requests_before' => 498, 'equivalent_calls_before' => 2511.3],
+        ]));
+    }
+
+    public function test_open_meteo_counter_file_replaces_the_estimate_when_it_exists(): void
+    {
+        // The budget tables say 1500.5 calls; the counter, which sees every request, says 3012.4.
+        DB::connection('weather')->table('backfill_budget')->insert(['budget_date' => '2026-10-18', 'equivalent_calls_spent' => 1500.5]);
+        $this->writeOpenMeteoCounter();
+
+        $this->assertEqualsWithDelta(3012.4, $this->mrv()->openMeteoCallsToday(), 0.001);
+        $this->assertSame(514, $this->mrv()->openMeteoRequestsToday());
+        $this->assertSame(6, $this->mrv()->openMeteoRefusalsToday(), 'daily, hourly and per-minute refusals; not other errors');
+        $this->assertEqualsWithDelta(2511.3, $this->mrv()->openMeteoObservedCeiling(), 0.001);
+    }
+
+    public function test_open_meteo_counter_from_an_earlier_day_reads_zero_but_keeps_the_ceiling(): void
+    {
+        $this->writeOpenMeteoCounter(['date' => '2026-10-17']);
+
+        $this->assertEqualsWithDelta(0.0, $this->mrv()->openMeteoCallsToday(), 0.001);
+        $this->assertSame(0, $this->mrv()->openMeteoRequestsToday());
+        $this->assertSame(0, $this->mrv()->openMeteoRefusalsToday());
+        $this->assertEqualsWithDelta(2511.3, $this->mrv()->openMeteoObservedCeiling(), 0.001, 'the latest daily refusal is carried across days');
+    }
+
+    public function test_open_meteo_counter_missing_or_damaged_falls_back_to_the_estimate_and_leaves_the_new_metrics_out(): void
+    {
+        DB::connection('weather')->table('backfill_budget')->insert(['budget_date' => '2026-10-18', 'equivalent_calls_spent' => 1500.5]);
+
+        $this->assertEqualsWithDelta(1500.5, $this->mrv()->openMeteoCallsToday(), 0.001, 'no counter file');
+        $this->assertNull($this->mrv()->openMeteoRequestsToday());
+        $this->assertNull($this->mrv()->openMeteoRefusalsToday());
+        $this->assertNull($this->mrv()->openMeteoObservedCeiling());
+
+        file_put_contents("{$this->statusDir}/counter_openmeteo.json", '{not json');
+        $this->assertEqualsWithDelta(1500.5, $this->mrv()->openMeteoCallsToday(), 0.001, 'a damaged file');
+        $this->assertNull($this->mrv()->openMeteoRequestsToday());
+    }
+
+    public function test_open_meteo_counter_without_a_refusal_has_no_ceiling(): void
+    {
+        $this->writeOpenMeteoCounter(['first_daily_refusal' => null, 'last_daily_refusal' => null, 'outcomes' => ['ok' => 514, 'daily' => 0, 'hourly' => 0, 'minutely' => 0, 'other' => 0]]);
+
+        $this->assertNull($this->mrv()->openMeteoObservedCeiling());
+        $this->assertSame(0, $this->mrv()->openMeteoRefusalsToday());
+    }
+
     // --- ingestion ------------------------------------------------------------------------------------------------------
 
     private function source(array $attributes = []): Source

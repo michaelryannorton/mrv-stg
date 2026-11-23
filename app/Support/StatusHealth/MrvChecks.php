@@ -540,9 +540,19 @@ final class MrvChecks
         ];
     }
 
-    /** Open-Meteo calls the tracked jobs spent today (UTC day): the backfill and air quality budgets, and climate pairs. */
+    /**
+     * Equivalent Open-Meteo calls sent today (UTC day). The cron scripts add every request they send, whichever script sends it, to
+     * <status folder>/counter_openmeteo.json (api/cron/openmeteo_limits.php, openmeteo_record_request()); that is the figure when the
+     * file exists. Without it (before the first request was recorded, or no status folder) the figure falls back to the earlier
+     * estimate: the backfill and air quality budgets plus 480 calls for each climate pair, which misses daily_update.
+     */
     public function openMeteoCallsToday(): ?float
     {
+        $counter = $this->openMeteoCounter();
+        if ($counter !== null) {
+            return $this->counterIsToday($counter) ? round(max(0.0, (float) ($counter['equivalent_calls'] ?? 0)), 1) : 0.0;
+        }
+
         $today = $this->now->format('Y-m-d');
         $calls = 0.0;
         $found = false;
@@ -565,6 +575,64 @@ final class MrvChecks
         }
 
         return $found ? $calls : null;
+    }
+
+    /** Requests sent to Open-Meteo today (UTC day), from the same counter. Null when the counter file does not exist. */
+    public function openMeteoRequestsToday(): ?int
+    {
+        $counter = $this->openMeteoCounter();
+
+        return $counter === null ? null : ($this->counterIsToday($counter) ? max(0, (int) ($counter['requests'] ?? 0)) : 0);
+    }
+
+    /** Requests Open-Meteo refused today for a limit (daily, hourly or per-minute), from the same counter. Null when there is no counter. */
+    public function openMeteoRefusalsToday(): ?int
+    {
+        $counter = $this->openMeteoCounter();
+        if ($counter === null) {
+            return null;
+        }
+        if (! $this->counterIsToday($counter)) {
+            return 0;
+        }
+        $outcomes = is_array($counter['outcomes'] ?? null) ? $counter['outcomes'] : [];
+
+        return max(0, (int) ($outcomes['daily'] ?? 0)) + max(0, (int) ($outcomes['hourly'] ?? 0)) + max(0, (int) ($outcomes['minutely'] ?? 0));
+    }
+
+    /**
+     * The observed ceiling: equivalent calls this project had sent before the most recent daily refusal, on whatever day it
+     * happened (the counter carries it across days). It measures where the wall was, not the allowance left. Null when no daily
+     * refusal has been recorded.
+     */
+    public function openMeteoObservedCeiling(): ?float
+    {
+        $last = $this->openMeteoCounter()['last_daily_refusal'] ?? null;
+
+        return is_array($last) && isset($last['equivalent_calls_before']) ? round((float) $last['equivalent_calls_before'], 1) : null;
+    }
+
+    /** The request counter as stored, or null when the status folder is not configured or the file is missing or unreadable. */
+    private function openMeteoCounter(): ?array
+    {
+        try {
+            $dir = rtrim($this->statusDir ?? (string) config('services.status_health.status_dir'), '/');
+            if ($dir === '' || ! is_file("{$dir}/counter_openmeteo.json")) {
+                return null;
+            }
+            $raw = @file_get_contents("{$dir}/counter_openmeteo.json");
+            $data = $raw === false ? null : json_decode($raw, true);
+
+            return is_array($data) ? $data : null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    /** Whether the counter's UTC date is today's; a counter from an earlier day reads as 0 (nothing resets it at midnight). */
+    private function counterIsToday(array $counter): bool
+    {
+        return ($counter['date'] ?? null) === $this->now->utc()->format('Y-m-d');
     }
 
     /**
