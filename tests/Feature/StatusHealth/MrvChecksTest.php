@@ -781,15 +781,19 @@ class MrvChecksTest extends StatusHealthTestCase
     public function test_backfill_progress_warns_and_goes_critical_with_the_remaining_count_in_the_message(): void
     {
         $this->backfillTargets();
-        $this->chunk(101, 2026, '2026-10-16 04:00:00'); // 2026-10-16 08:00 UTC: 60 hours before the clock
+        $this->chunk(101, 2026, '2026-10-16 02:00:00'); // 2026-10-16 06:00 UTC: 62 hours before the clock
         $warning = $this->mrv()->backfillProgress();
         $this->assertSame('warning', $warning['status']);
-        $this->assertSame(60.0, $warning['value']);
+        $this->assertSame(62.0, $warning['value']);
         $this->assertStringContainsString('32 of 33 chunks remain', $warning['message']);
 
         DB::connection('weather')->table('backfill_progress')->delete();
-        $this->chunk(101, 2026, '2026-10-14 04:00:00'); // 2026-10-14 08:00 UTC: 108 hours
+        $this->chunk(101, 2026, '2026-10-13 04:00:00'); // 2026-10-13 08:00 UTC: 132 hours
         $this->assertSame('critical', $this->mrv()->backfillProgress()['status']);
+
+        DB::connection('weather')->table('backfill_progress')->delete();
+        $this->chunk(101, 2026, '2026-10-16 08:00:00'); // 2026-10-16 12:00 UTC: 56 hours, a normal gap after a day with no chunk
+        $this->assertSame('healthy', $this->mrv()->backfillProgress()['status']);
     }
 
     public function test_backfill_progress_with_no_chunk_done_warns_and_a_finished_backfill_is_inactive(): void

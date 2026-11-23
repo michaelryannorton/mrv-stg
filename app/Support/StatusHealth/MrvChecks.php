@@ -281,10 +281,14 @@ final class MrvChecks
      */
     public const BACKFILL_CLOCK = 'America/New_York';
 
-    /** Hours since the last completed chunk before the progress check warns, and before it is critical. Starting values, set from the history replay. */
-    public const BACKFILL_WARN_HOURS = 48;
+    /**
+     * Hours since the last completed chunk before the progress check warns, and before it is critical. Set from a replay of the 1,384
+     * chunks of 2026-07-30 to 2026-11-21 (scripts/server-checks/output/2026-11-22 backfill gap replay production.txt): since
+     * 2026-09-17 the longest gap between two chunks was 48 hours; the only longer ones (68 and 96 hours) were in August.
+     */
+    public const BACKFILL_WARN_HOURS = 60;
 
-    public const BACKFILL_CRITICAL_HOURS = 96;
+    public const BACKFILL_CRITICAL_HOURS = 120;
 
     /** Share of completed chunks that may have lost rows before the integrity check is critical. */
     public const BACKFILL_INTEGRITY_CRITICAL_SHARE = 0.01;
