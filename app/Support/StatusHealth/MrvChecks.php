@@ -44,6 +44,8 @@ final class MrvChecks
         private readonly CarbonImmutable $now,
         private readonly ?string $logDir = null,
         private readonly ?string $statusDir = null,
+        private readonly ?string $basePath = null,
+        private readonly ?string $sessionsDir = null,
     ) {}
 
     // ---------------------------------------------------------------------------------------------
@@ -811,6 +813,122 @@ final class MrvChecks
         }
 
         return $base + ['status' => 'healthy'];
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Footprint: how much this copy and its data occupy (metrics with no thresholds; the account's own inode and disk totals are
+    // tracked at the dashboard, not here)
+
+    /** Files and links under this copy's folder (vendor included), the figure the account's inode limit is spent on. */
+    public function ownFileCount(): ?int
+    {
+        return $this->countFiles($this->basePath ?? base_path());
+    }
+
+    /** Files in the sessions folder, the likeliest place for the count to grow unnoticed. */
+    public function sessionsFileCount(): ?int
+    {
+        return $this->countFiles($this->sessionsDir ?? storage_path('framework/sessions'));
+    }
+
+    /** Files in the status folder (/home/nortonah/mrv-status), one per cron job plus the daily counters. */
+    public function statusFolderFileCount(): ?int
+    {
+        $dir = rtrim($this->statusDir ?? (string) config('services.status_health.status_dir'), '/');
+
+        return $dir === '' ? null : $this->countFiles($dir);
+    }
+
+    /** Megabytes the log files in storage/logs occupy. */
+    public function storageLogsMb(): ?float
+    {
+        $dir = rtrim($this->logDir ?? storage_path('logs'), '/');
+        if (! is_dir($dir)) {
+            return null;
+        }
+        $bytes = 0;
+        foreach (glob($dir.'/*') ?: [] as $file) {
+            if (is_file($file)) {
+                $bytes += (int) filesize($file);
+            }
+        }
+
+        return round($bytes / 1048576, 1);
+    }
+
+    /** Megabytes (data and indexes) the weather database occupies; null where the database is not MySQL. */
+    public function weatherDbSizeMb(): ?float
+    {
+        return $this->databaseSizeMb($this->weather());
+    }
+
+    /** Megabytes (data and indexes) this copy's own application database occupies; null where the database is not MySQL. */
+    public function appDbSizeMb(): ?float
+    {
+        return $this->databaseSizeMb(DB::connection());
+    }
+
+    /** Rows in weather_daily, the table the backfill grows. */
+    public function weatherDailyRows(): ?int
+    {
+        return (int) $this->weather()->table('weather_daily')->count();
+    }
+
+    /**
+     * Scheduled commands that failed in the last 24 hours, counted from the end of the newest log file: Laravel logs
+     * 'The command "..." failed.' when a scheduled background command exits non-zero or its process cannot start (a fork failure on
+     * the shared host leaves one of these). Counts only; no log text leaves here.
+     */
+    public function schedulerCommandFailures24h(): ?int
+    {
+        $tail = $this->logTail();
+        if ($tail === null) {
+            return 0;
+        }
+        $zone = new DateTimeZone((string) config('app.timezone', 'UTC'));
+        $count = 0;
+        foreach (preg_split('/^(?=\[\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2})/m', $tail, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $entry) {
+            if (! preg_match('/^\[(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2})[^\]]*\] \w+\.(ERROR|CRITICAL|ALERT|EMERGENCY): The command /', $entry, $m)) {
+                continue;
+            }
+            $time = CarbonImmutable::createFromFormat('Y-m-d H:i:s', str_replace('T', ' ', $m[1]), $zone);
+            if ($time !== false && $this->now->getTimestamp() - $time->getTimestamp() <= 86400) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /** Every entry below a folder that is not a folder: files, links and special files. Null when the folder does not exist. */
+    private function countFiles(string $dir): ?int
+    {
+        if (! is_dir($dir)) {
+            return null;
+        }
+        $count = 0;
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY,
+            \RecursiveIteratorIterator::CATCH_GET_CHILD,
+        );
+        foreach ($iterator as $unused) {
+            $count++;
+        }
+
+        return $count;
+    }
+
+    private function databaseSizeMb(Connection $connection): ?float
+    {
+        if (! in_array($connection->getDriverName(), ['mysql', 'mariadb'], true)) {
+            return null;
+        }
+        $bytes = $connection->selectOne(
+            'select sum(data_length + index_length) as bytes from information_schema.tables where table_schema = database()'
+        )->bytes ?? null;
+
+        return $bytes === null ? null : round((float) $bytes / 1048576, 1);
     }
 
     // ---------------------------------------------------------------------------------------------

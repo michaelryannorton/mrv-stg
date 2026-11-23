@@ -255,6 +255,55 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
         $this->assertSame('calls', $metrics['open_meteo_calls_today']['unit']);
     }
 
+    // --- footprint metrics ----------------------------------------------------------------------------------------------
+
+    public function test_the_footprint_metrics_are_reported_as_metrics_with_the_time_they_were_measured(): void
+    {
+        file_put_contents("{$this->statusDir}/earthquakes.json", '{}');
+
+        $metrics = collect($this->report()->json('metrics'))->keyBy('key');
+
+        foreach (['own_file_count' => 'files', 'sessions_file_count' => 'files', 'storage_logs_mb' => 'MB', 'scheduler_command_failures_24h' => 'count', 'weather_daily_rows' => 'rows', 'status_folder_file_count' => 'files'] as $key => $unit) {
+            $this->assertArrayHasKey($key, $metrics, $key);
+            $this->assertSame($unit, $metrics[$key]['unit'], $key);
+            $this->assertArrayNotHasKey('status', $metrics[$key], 'a metric, not a check');
+        }
+        $this->assertGreaterThan(1000, $metrics['own_file_count']['value'], 'the app folder holds thousands of files');
+        $this->assertSame(0, $metrics['weather_daily_rows']['value']);
+        $this->assertSame(1, $metrics['status_folder_file_count']['value']);
+        $this->assertSame(7200, $metrics['own_file_count']['stale_after'], 'measured hourly, stale after two hours');
+        $this->assertSame(600, $metrics['scheduler_command_failures_24h']['stale_after']);
+        // SQLite has no information_schema: the size metrics are present with no value, not a failed report.
+        $this->assertNull($metrics['weather_db_size_mb']['value']);
+        $this->assertNull($metrics['app_db_size_mb']['value']);
+    }
+
+    public function test_a_footprint_metric_is_measured_once_an_hour_not_on_every_report(): void
+    {
+        file_put_contents("{$this->statusDir}/a.json", '{}');
+        $first = collect($this->report()->json('metrics'))->keyBy('key');
+        file_put_contents("{$this->statusDir}/b.json", '{}');
+        $second = collect($this->report()->json('metrics'))->keyBy('key');
+
+        $this->assertSame(1, $first['status_folder_file_count']['value']);
+        $this->assertSame(1, $second['status_folder_file_count']['value'], 'the second report reads the cached measurement');
+        $this->assertSame($first['status_folder_file_count']['observed_at'], $second['status_folder_file_count']['observed_at']);
+    }
+
+    public function test_a_disabled_weather_group_drops_the_weather_footprint_metrics_but_keeps_the_copys_own(): void
+    {
+        config(['services.status_health.disabled_groups' => 'weather']);
+
+        $keys = collect($this->report()->json('metrics'))->pluck('key')->all();
+
+        foreach (['weather_db_size_mb', 'weather_daily_rows', 'status_folder_file_count'] as $key) {
+            $this->assertNotContains($key, $keys, $key);
+        }
+        foreach (['own_file_count', 'sessions_file_count', 'storage_logs_mb', 'app_db_size_mb', 'scheduler_command_failures_24h'] as $key) {
+            $this->assertContains($key, $keys, $key);
+        }
+    }
+
     // --- the feed checks (job status files) -----------------------------------------------------------------------------
 
     public function test_a_missing_job_status_file_is_unknown(): void

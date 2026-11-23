@@ -994,6 +994,18 @@ class StatusHealthController
             }
         };
 
+        // Footprint metrics are measured at most once an hour (the file count walks every file) and report the time of that
+        // measurement; a metric that cannot be read is left out.
+        $measured = function (string $key, string $label, callable $value, ?string $unit, int $seconds = 3600) {
+            try {
+                $cached = $this->cached('metric_'.$key, $seconds, fn () => ['value' => $value()], $seconds * 2);
+
+                return ['key' => $key, 'label' => $label, 'value' => $cached['value'], 'unit' => $unit, 'observed_at' => $cached['observed_at'], 'stale_after' => $cached['stale_after']];
+            } catch (\Throwable $e) {
+                return null;
+            }
+        };
+
         $community = ['exposure_invite_gate' => 'Invite-only gate'];
         if ($production) {
             $community['events_upcoming_published'] = 'Upcoming published events';
@@ -1038,6 +1050,9 @@ class StatusHealthController
                     $metric('backfill_rate_7d', 'Backfill chunks a day (7-day average)', fn () => $mrv->backfillRate7d(), 'chunks'),
                     $metric('backfill_eta_days', 'Days to finish the backfill at the 7-day rate', fn () => $mrv->backfillEtaDays(), 'days'),
                     $metric('open_meteo_calls_today', 'Open-Meteo calls today (tracked jobs)', fn () => $mrv->openMeteoCallsToday(), 'calls'),
+                    $measured('weather_db_size_mb', 'Weather database size', fn () => $mrv->weatherDbSizeMb(), 'MB'),
+                    $measured('weather_daily_rows', 'Rows in weather_daily', fn () => $mrv->weatherDailyRows(), 'rows'),
+                    $measured('status_folder_file_count', 'Files in the status folder', fn () => $mrv->statusFolderFileCount(), 'files'),
                     $mrv->quotaStopsMetric(),
                     $mrv->usgsThrottledMetric(),
                 ])),
@@ -1055,6 +1070,18 @@ class StatusHealthController
                     $metric('sources_deactivated', 'Ingestion sources switched off', fn () => $mrv->sourcesDeactivated(), 'count'),
                     $metric('ingest_tribe_events_age', 'Hours since the last Tribe Events fetch', fn () => $mrv->collectorAge('tribe_events'), 'hours'),
                     $metric('ingest_squarespace_events_age', 'Hours since the last Squarespace fetch', fn () => $mrv->collectorAge('squarespace_events'), 'hours'),
+                ])),
+            ],
+            // This copy's own size and scheduler health. Metrics only, no thresholds yet (the account's inodes and disk are the dashboard's).
+            'platform' => [
+                'keys' => [],
+                'checks' => fn () => [],
+                'metrics' => fn () => array_values(array_filter([
+                    $measured('own_file_count', 'Files in this copy of the app', fn () => $mrv->ownFileCount(), 'files'),
+                    $measured('sessions_file_count', 'Files in the sessions folder', fn () => $mrv->sessionsFileCount(), 'files'),
+                    $measured('storage_logs_mb', 'Log files in storage/logs', fn () => $mrv->storageLogsMb(), 'MB'),
+                    $measured('app_db_size_mb', 'Application database size', fn () => $mrv->appDbSizeMb(), 'MB'),
+                    $measured('scheduler_command_failures_24h', 'Scheduled commands that failed in 24 hours', fn () => $mrv->schedulerCommandFailures24h(), 'count', 300),
                 ])),
             ],
             'community' => [

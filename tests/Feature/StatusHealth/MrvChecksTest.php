@@ -891,4 +891,96 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->assertSame((int) 2016, MrvChecks::BACKFILL_START_YEAR);
         $this->assertStringContainsString('const START_YEAR = 2016;', (string) file_get_contents($worker));
     }
+
+    // --- footprint -------------------------------------------------------------------------------------------------------
+
+    /** A throwaway folder tree: path (relative) => contents, folders implied; an empty folder is a path ending in "/". */
+    private function tree(array $files): string
+    {
+        $root = sys_get_temp_dir().'/status-health-tree-'.bin2hex(random_bytes(4));
+        mkdir($root);
+        foreach ($files as $path => $contents) {
+            if (str_ends_with($path, '/')) {
+                mkdir("{$root}/{$path}", 0777, true);
+
+                continue;
+            }
+            @mkdir(dirname("{$root}/{$path}"), 0777, true);
+            file_put_contents("{$root}/{$path}", $contents);
+        }
+
+        return $root;
+    }
+
+    public function test_the_file_counts_count_files_in_nested_folders_and_not_the_folders(): void
+    {
+        $base = $this->tree(['a.php' => 'x', 'vendor/p/b.php' => 'x', 'vendor/p/c.php' => 'x', 'storage/framework/sessions/s1' => 'x', 'storage/framework/sessions/s2' => 'x', 'empty/' => '']);
+        $mrv = new MrvChecks(CarbonImmutable::parse('2026-10-18 20:00:00', 'UTC'), null, $base.'/status', $base, $base.'/storage/framework/sessions');
+        mkdir($base.'/status');
+        file_put_contents($base.'/status/earthquakes.json', '{}');
+
+        $this->assertSame(6, $mrv->ownFileCount(), 'a, b, c, two sessions and the status file; folders are not files');
+        $this->assertSame(2, $mrv->sessionsFileCount());
+        $this->assertSame(1, $mrv->statusFolderFileCount());
+    }
+
+    public function test_the_file_counts_are_null_for_a_missing_folder_and_count_a_link_as_one_file(): void
+    {
+        $missing = sys_get_temp_dir().'/status-health-no-such-folder';
+        $mrv = new MrvChecks(CarbonImmutable::parse('2026-10-18 20:00:00', 'UTC'), null, $missing, $missing, $missing);
+
+        $this->assertNull($mrv->ownFileCount());
+        $this->assertNull($mrv->sessionsFileCount());
+        $this->assertNull($mrv->statusFolderFileCount());
+
+        $base = $this->tree(['real/one' => 'x', 'real/two' => 'x']);
+        symlink($base.'/real', $base.'/link');
+        $this->assertSame(3, (new MrvChecks(CarbonImmutable::parse('2026-10-18 20:00:00', 'UTC'), null, null, $base))->ownFileCount(), 'the folder link is one entry and is not followed');
+    }
+
+    public function test_the_status_folder_count_is_null_when_no_folder_is_configured(): void
+    {
+        config(['services.status_health.status_dir' => '']);
+
+        $this->assertNull((new MrvChecks(CarbonImmutable::parse('2026-10-18 20:00:00', 'UTC')))->statusFolderFileCount());
+    }
+
+    public function test_the_log_size_adds_the_files_in_the_log_folder_in_megabytes(): void
+    {
+        $dir = $this->logDir(str_repeat('a', 1048576));
+        file_put_contents($dir.'/older.log', str_repeat('b', 524288));
+
+        $this->assertSame(1.5, $this->mrv($dir)->storageLogsMb());
+        $this->assertNull($this->mrv(sys_get_temp_dir().'/no-such-log-dir')->storageLogsMb());
+    }
+
+    public function test_the_database_sizes_are_null_where_the_database_is_not_mysql(): void
+    {
+        $this->assertNull($this->mrv()->weatherDbSizeMb());
+        $this->assertNull($this->mrv()->appDbSizeMb());
+    }
+
+    public function test_the_daily_row_count_counts_the_table(): void
+    {
+        $this->assertSame(0, $this->mrv()->weatherDailyRows());
+        $this->dailyRows([101], '2020-01-01', '2020-01-03');
+        $this->assertSame(3, $this->mrv()->weatherDailyRows());
+    }
+
+    public function test_scheduler_failures_count_failed_commands_in_the_last_day_and_no_text_leaves(): void
+    {
+        $dir = $this->logDir(
+            "[2026-10-18 04:00:39] production.ERROR: The command \"'/opt/alt/php84/usr/bin/php' 'artisan' ingest:ics > '/dev/null' 2>&1\" failed.\n"
+            ."[2026-10-17 19:59:59] production.ERROR: The command \"old\" failed.\n"
+            ."[2026-10-18 18:00:00] production.ERROR: The command \"'/opt/alt/php84/usr/bin/php' 'artisan' submissions:notify-pending\" failed.\n"
+            ."[2026-10-18 19:00:00] production.ERROR: Something unrelated about the command line\n"
+            ."[2026-10-18 19:10:00] production.INFO: The command text in an info line\n"
+        );
+
+        $count = $this->mrv($dir)->schedulerCommandFailures24h();
+
+        $this->assertSame(2, $count, 'the old entry is outside 24 hours, the unrelated line and the info line are not scheduler failures');
+        $this->assertSame(0, $this->mrv(sys_get_temp_dir().'/no-such-log-dir')->schedulerCommandFailures24h());
+        $this->assertSame(0, $this->mrv($this->logDir("[2026-10-18 19:00:00] production.INFO: fine\n"))->schedulerCommandFailures24h());
+    }
 }
