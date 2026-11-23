@@ -576,6 +576,101 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->assertSame(1, $this->mrv()->curatorsActive(), 'one person on two channels counts once; an ended assignment not at all');
     }
 
+    // --- backups --------------------------------------------------------------------------------------------------------
+
+    private function writeBackupAge(array $overrides = []): void
+    {
+        file_put_contents("{$this->statusDir}/backup_age.json", json_encode($overrides + [
+            'checked_at' => '2026-10-18T19:57:00Z', 'last_ok_at' => '2026-10-18T19:57:00Z',
+            'newest_at' => '2026-10-18T14:00:00Z', 'all_types_newest_at' => '2026-10-18T14:00:00Z',
+            'by_contains' => ['1' => ['newest' => '2026-10-18T14:00:00Z', 'total' => 30]], 'error' => null,
+        ]));
+    }
+
+    public function test_backup_age_is_inactive_until_the_first_reading_exists(): void
+    {
+        $check = $this->mrv()->backupAge();
+
+        $this->assertSame('inactive', $check['status']);
+        $this->assertSame('backup_age', $check['key']);
+    }
+
+    public function test_backup_age_thresholds_use_the_oldest_of_the_newest_types(): void
+    {
+        // The clock is 2026-10-18 20:00 UTC. Hours old: 6, 26 (not above), 27, 50 (not above), 51.
+        foreach ([['14:00', 'healthy'], ['2026-10-17T18:00', 'healthy'], ['2026-10-17T17:00', 'warning'], ['2026-10-16T18:00', 'warning'], ['2026-10-16T17:00', 'critical']] as [$time, $status]) {
+            $stamp = str_contains($time, '-') ? $time.':00Z' : '2026-10-18T'.$time.':00Z';
+            $this->writeBackupAge(['all_types_newest_at' => $stamp, 'newest_at' => '2026-10-18T19:00:00Z']);
+
+            $this->assertSame($status, $this->mrv()->backupAge()['status'], $stamp);
+        }
+    }
+
+    public function test_one_stopped_backup_type_is_seen_although_another_is_current(): void
+    {
+        $this->writeBackupAge(['newest_at' => '2026-10-18T19:00:00Z', 'all_types_newest_at' => '2026-10-10T00:00:00Z']);
+
+        $check = $this->mrv()->backupAge();
+
+        $this->assertSame('critical', $check['status']);
+        $this->assertSame('hours', $check['unit']);
+        $this->assertEqualsWithDelta(212.0, $check['value'], 0.1);
+        $this->assertStringContainsString('2026-10-10 00:00 UTC', $check['message']);
+    }
+
+    public function test_a_healthy_backup_has_a_value_and_no_message(): void
+    {
+        $this->writeBackupAge();
+        $check = $this->mrv()->backupAge();
+
+        $this->assertSame('healthy', $check['status']);
+        $this->assertEqualsWithDelta(6.0, $check['value'], 0.01);
+        $this->assertNull($check['message']);
+    }
+
+    public function test_a_reading_that_has_not_been_made_for_two_days_warns_even_if_the_backup_looks_fresh(): void
+    {
+        $this->writeBackupAge(['last_ok_at' => '2026-10-16T05:00:00Z', 'error' => 'no readable answer from uapi']);
+
+        $check = $this->mrv()->backupAge();
+
+        $this->assertSame('warning', $check['status']);
+        $this->assertStringContainsString('last read', $check['message']);
+        $this->assertStringContainsString('no readable answer from uapi', $check['message']);
+    }
+
+    public function test_a_failed_reading_this_morning_does_not_hide_a_fresh_backup(): void
+    {
+        // The last run could not read the list (error set), but the previous figures are 15 hours old: healthy, no alarm yet.
+        $this->writeBackupAge(['last_ok_at' => '2026-10-18T05:00:00Z', 'error' => 'no readable answer from uapi', 'all_types_newest_at' => '2026-10-18T05:00:00Z']);
+
+        $this->assertSame('healthy', $this->mrv()->backupAge()['status']);
+    }
+
+    public function test_a_list_that_was_read_but_holds_no_backup_is_critical(): void
+    {
+        $this->writeBackupAge(['all_types_newest_at' => null, 'newest_at' => null, 'by_contains' => []]);
+
+        $this->assertSame('critical', $this->mrv()->backupAge()['status']);
+    }
+
+    public function test_a_list_that_has_never_been_read_warns_with_the_reason(): void
+    {
+        $this->writeBackupAge(['last_ok_at' => null, 'all_types_newest_at' => null, 'newest_at' => null, 'by_contains' => [], 'error' => 'no readable answer from uapi']);
+
+        $check = $this->mrv()->backupAge();
+
+        $this->assertSame('warning', $check['status']);
+        $this->assertStringContainsString('no readable answer from uapi', $check['message']);
+    }
+
+    public function test_a_damaged_backup_reading_file_is_unknown(): void
+    {
+        file_put_contents("{$this->statusDir}/backup_age.json", '{not json');
+
+        $this->assertSame('unknown', $this->mrv()->backupAge()['status']);
+    }
+
     // --- mail and data --------------------------------------------------------------------------------------------------
 
     private function logDir(string $contents): string

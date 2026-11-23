@@ -124,6 +124,7 @@ final class MrvChecks
         'weather_freshness_climate_snapshot' => ['monitoring', 'risk', 'Check climate_snapshot.php\'s last run and the Open-Meteo quota (Michael); it continues the open snapshot every hour.'],
         'weather_backfill_progress' => ['monitoring', 'monitoring', 'Check backfill_worker.php\'s last run and the Open-Meteo quota (Michael); the backfill resumes by itself when the allowance allows.'],
         'weather_backfill_integrity' => ['monitoring', 'risk', 'Rerun the backfill for the chunks named, or load the missing days with daily_update.php (Claude plans it; Michael runs it).'],
+        'backup_age' => ['risk', 'risk', 'Free space at the backup destination or check the JetBackup schedule in the hosting panel (Michael); backups resume on their own.'],
         'weather_completeness' => ['risk', 'visible', 'Read live_update.php\'s output for the cities with no temperature or no report (MRV\'s team).'],
         'ingest_ics_age' => ['risk', 'visible', 'Check the ingest:ics run and the dispatcher on the server (Michael); calendar feeds are fetched every 30 minutes.'],
         'sources_failing' => ['risk', 'risk', 'Read the last error of each failing source in the admin and fix it or switch it off (Michael).'],
@@ -829,6 +830,77 @@ final class MrvChecks
     public function curatorsActive(): int
     {
         return CuratorAssignment::query()->where('status', 'active')->distinct()->count('user_id');
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Backups
+
+    /** Hours after which the newest backup makes the check warn, and critical. JetBackup runs daily; 26 allows a late run. */
+    public const BACKUP_WARN_HOURS = 26;
+
+    public const BACKUP_CRITICAL_HOURS = 50;
+
+    /** Hours after which the daily reading itself is treated as missed (two runs). */
+    public const BACKUP_READING_STALE_HOURS = 49;
+
+    /**
+     * Age of the account's newest JetBackup5 backup, from <status folder>/backup_age.json, which api/cron/backup_age_update.php writes
+     * once a day (it lists backups through the cPanel UAPI; read-only). The age is taken from all_types_newest_at, the oldest of the
+     * per-type newest times, so one backup type that stopped while others continue is seen. Inactive until the first reading exists.
+     */
+    public function backupAge(): array
+    {
+        $base = ['key' => 'backup_age', 'label' => 'Account backups'];
+        $dir = rtrim($this->statusDir ?? (string) config('services.status_health.status_dir'), '/');
+        if ($dir === '' || ! is_file("{$dir}/backup_age.json")) {
+            return $base + ['status' => 'inactive', 'message' => 'No backup reading has been made yet'];
+        }
+        $raw = @file_get_contents("{$dir}/backup_age.json");
+        $data = $raw === false ? null : json_decode($raw, true);
+        if (! is_array($data)) {
+            return $base + ['status' => 'unknown', 'message' => 'The backup reading file cannot be read'];
+        }
+        $error = is_string($data['error'] ?? null) && $data['error'] !== '' ? $data['error'] : null;
+
+        $lastOk = $this->backupTime($data['last_ok_at'] ?? null);
+        if ($lastOk === null) {
+            return $base + ['status' => 'warning', 'message' => 'The backup list has not been read successfully'.($error !== null ? ': '.$error : '')];
+        }
+        $readingHours = $this->hoursSince($lastOk);
+        $newest = $this->backupTime($data['all_types_newest_at'] ?? null);
+        if ($newest === null) {
+            return $base + ['status' => 'critical', 'message' => 'No backup was found in the list'];
+        }
+
+        $hours = $this->hoursSince($newest);
+        $status = $hours > self::BACKUP_CRITICAL_HOURS ? 'critical' : ($hours > self::BACKUP_WARN_HOURS ? 'warning' : 'healthy');
+        $parts = [];
+        if ($status !== 'healthy') {
+            $parts[] = 'The newest backup is '.$this->ago($hours).' old ('.$newest->format('Y-m-d H:i').' UTC)';
+        }
+        if ($readingHours > self::BACKUP_READING_STALE_HOURS) {
+            $status = $status === 'critical' ? 'critical' : 'warning';
+            $parts[] = 'the backup list was last read '.$this->ago($readingHours).' ago';
+        }
+        if ($error !== null && $readingHours > self::BACKUP_WARN_HOURS) {
+            $parts[] = $error;
+        }
+
+        return $base + [
+            'status' => $status,
+            'value' => round($hours, 1),
+            'unit' => 'hours',
+            'message' => $parts === [] ? null : ucfirst(implode('; ', $parts)),
+        ];
+    }
+
+    private function backupTime(mixed $value): ?CarbonImmutable
+    {
+        try {
+            return is_string($value) && $value !== '' ? CarbonImmutable::parse($value, 'UTC')->utc() : null;
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     // ---------------------------------------------------------------------------------------------

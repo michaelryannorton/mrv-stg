@@ -9,6 +9,7 @@ use App\Support\ScheduleMinutes;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -28,7 +29,7 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
     private const WEATHER_KEYS = [
         'weather_freshness_live_conditions', 'weather_live_cities_stale', 'weather_freshness_daily_weather', 'weather_daily_coverage',
         'weather_freshness_air_quality', 'weather_freshness_climate_snapshot', 'weather_completeness',
-        'weather_backfill_progress', 'weather_backfill_integrity',
+        'weather_backfill_progress', 'weather_backfill_integrity', 'backup_age',
         'job_earthquakes', 'job_groundwater', 'job_snow', 'job_drought',
     ];
 
@@ -276,6 +277,24 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
         $this->assertEqualsWithDelta(2800.0, $metrics['open_meteo_observed_ceiling']['value'], 0.001);
         $this->assertSame('requests', $metrics['open_meteo_requests_today']['unit']);
         $this->assertSame('calls', $metrics['open_meteo_observed_ceiling']['unit']);
+    }
+
+    public function test_the_backup_age_check_is_inactive_without_a_reading_and_carries_impact_and_action_when_old(): void
+    {
+        $this->assertSame('inactive', $this->checks()['backup_age']['status']);
+
+        file_put_contents("{$this->statusDir}/backup_age.json", json_encode([
+            'checked_at' => gmdate('Y-m-d\TH:i:s\Z'), 'last_ok_at' => gmdate('Y-m-d\TH:i:s\Z'),
+            'newest_at' => '2026-10-21T14:55:02Z', 'all_types_newest_at' => '2026-10-21T14:55:02Z', 'by_contains' => [], 'error' => null,
+        ]));
+        File::deleteDirectory(storage_path('framework/status-health-cache'));
+
+        $check = $this->checks()['backup_age'];
+
+        $this->assertSame('critical', $check['status']);
+        $this->assertSame('risk', $check['impact']);
+        $this->assertStringContainsString('JetBackup', $check['action']);
+        $this->assertSame('hours', $check['unit']);
     }
 
     // --- footprint metrics ----------------------------------------------------------------------------------------------

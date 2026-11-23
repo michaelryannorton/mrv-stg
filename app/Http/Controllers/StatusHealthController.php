@@ -1023,6 +1023,7 @@ class StatusHealthController
                     'weather_completeness' => 'Live data completeness',
                     'weather_backfill_progress' => 'Backfill progress',
                     'weather_backfill_integrity' => 'Backfill integrity',
+                    'backup_age' => 'Account backups',
                     'job_earthquakes' => 'Earthquake feed',
                     'job_groundwater' => 'Groundwater feed',
                     'job_snow' => 'Snow feed',
@@ -1039,6 +1040,8 @@ class StatusHealthController
                     $weather('weather_backfill_progress', 'Backfill progress', fn () => $mrv->backfillProgress()),
                     // Reads every daily row once; measured 0.23 s on 587,418 rows (2026-11-22), so it is computed once an hour.
                     $this->cached('weather_backfill_integrity', 3600, fn () => $mrv->guard('weather_backfill_integrity', 'Backfill integrity', fn () => $mrv->backfillIntegrity()), 7200),
+                    // Read from the file backup_age_update.php writes once a day; the account's backups, reported once by the copy that has this group on.
+                    $weather('backup_age', 'Account backups', fn () => $mrv->backupAge()),
                     $this->jobCheck('earthquakes', 'Earthquake feed'),
                     $this->jobCheck('groundwater', 'Groundwater feed'),
                     $this->jobCheck('snow', 'Snow feed'),
