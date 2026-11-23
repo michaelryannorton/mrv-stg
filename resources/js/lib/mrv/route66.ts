@@ -95,15 +95,17 @@ export function isPublicDomain(license: string | null | undefined): boolean {
     return text.indexOf('Public domain') !== -1 || text.indexOf('CC0') !== -1;
 }
 
-/** "CC BY 2.0", "CC BY-SA 4.0" and the like: a short label and the matching deed address; null for anything else. */
+/**
+ * "CC BY 2.0", "CC BY-SA 4.0", "CC BY-NC-SA 2.0" and the like: a short label and the matching deed address; null for anything
+ * else (a NoDerivatives license is not recognised). BY-NC and BY-NC-SA were added on 2026-11-23 for the CalEarth photos.
+ */
 export function ccLicenseInfo(license: string | null | undefined): CcInfo | null {
-    const m = (license || '').match(/CC BY(-SA)?\s+(\d\.\d)/);
+    const m = (license || '').match(/CC BY(-NC)?(-SA)?\s+(\d\.\d)/);
     if (!m) return null;
-    const isSA = !!m[1];
-    const slug = isSA ? 'by-sa' : 'by';
+    const suffix = (m[1] ? '-NC' : '') + (m[2] ? '-SA' : '');
     return {
-        label: 'CC ' + (isSA ? 'BY-SA' : 'BY') + ' ' + m[2],
-        url: 'https://creativecommons.org/licenses/' + slug + '/' + m[2] + '/',
+        label: 'CC BY' + suffix + ' ' + m[3],
+        url: 'https://creativecommons.org/licenses/by' + suffix.toLowerCase() + '/' + m[3] + '/',
     };
 }
 

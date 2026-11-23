@@ -11,7 +11,7 @@ import { canon } from './test-helpers/html-canon';
 
 /**
  * Route 66 against the legacy scripts (route66/js/common.js, cards.js, site-detail.js): the golden file holds what they
- * wrote into the page for all 100 real sites, six hand-made ones that reach every license, hero and blank-field branch,
+ * wrote into the page for all 101 real sites (production's 100 and CalEarth), six hand-made ones that reach every license, hero and blank-field branch,
  * and every filter chip. The React components are rendered with production's own addresses (`site.html?id=…`, relative
  * photo paths) and must build the same DOM.
  */
@@ -52,17 +52,19 @@ describe('cards (cards.js)', () => {
         }
     }
 
-    it('shows 40 of the 100 real sites, as production does', () => {
+    // 40 of the 100 sites of production's list, plus CE-001 (CalEarth, added 2026-11-23 with three photos): 41 of 101.
+    it('shows 41 of the 101 real sites (production shows 40 of its 100)', () => {
         const data = dataFor('real');
-        expect(buildCardData(data.sites, data.media)).toHaveLength(40);
+        expect(data.sites).toHaveLength(101);
+        expect(buildCardData(data.sites, data.media)).toHaveLength(41);
     });
 });
 
 describe('site detail pages (site-detail.js)', () => {
     const ids = Object.keys(golden.route66.detail).filter((id) => !id.startsWith('__'));
 
-    it('covers all 100 real sites and the six hand-made ones', () => {
-        expect(ids).toHaveLength(106);
+    it('covers all 101 real sites and the six hand-made ones', () => {
+        expect(ids).toHaveLength(107);
     });
 
     for (const id of ids) {
@@ -83,6 +85,12 @@ describe('helpers', () => {
             label: 'CC BY-SA 3.0',
             url: 'https://creativecommons.org/licenses/by-sa/3.0/',
         });
+        // NonCommercial licenses (CalEarth's Flickr photos, 2026-11-23): shown with their own label and deed.
+        expect(ccLicenseInfo('CC BY-NC-SA 2.0')).toEqual({ label: 'CC BY-NC-SA 2.0', url: 'https://creativecommons.org/licenses/by-nc-sa/2.0/' });
+        expect(ccLicenseInfo('CC BY-NC 4.0')).toEqual({ label: 'CC BY-NC 4.0', url: 'https://creativecommons.org/licenses/by-nc/4.0/' });
+        // A NoDerivatives license is not recognised, so the page shows "License unclear" instead of a wrong label.
+        expect(ccLicenseInfo('CC BY-NC-ND 2.0')).toBeNull();
+        expect(ccLicenseInfo('CC BY-ND 2.0')).toBeNull();
         expect(ccLicenseInfo('Public domain')).toBeNull();
         expect(ccLicenseInfo(null)).toBeNull();
     });

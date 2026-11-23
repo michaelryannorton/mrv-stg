@@ -499,6 +499,11 @@
       "coverage": "moderate",
       "source": "commons",
       "note": "3-4 direct results incl. street sign"
+    },
+    "CE-001": {
+      "coverage": "moderate",
+      "source": "flickr",
+      "note": "Added 2026-11-23 at Michael's request: three Flickr photos, CC BY-NC-SA 2.0 (Earthworm 2010, London Permaculture 2008), 1024 px. NonCommercial and ShareAlike apply; see the decision of 2026-11-23."
     }
   },
   "detailed_candidates_by_site": {
@@ -1686,13 +1691,48 @@
         "local_path": "route66/media/BA-015/02-barstow-station-mcdonalds-sign.jpg",
         "download_status": "downloaded"
       }
+    ],
+    "CE-001": [
+      {
+        "title": "Sandbag House Village",
+        "url": "https://www.flickr.com/photos/earthworm/4695255670/",
+        "license": "CC BY-NC-SA 2.0",
+        "role_suggestion": "hero candidate",
+        "creator": "Earthworm",
+        "date": "2010-06-05",
+        "verified": true,
+        "local_path": "route66/media/CE-001/01-sandbag-house-village.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Cal-Earth - demonstration buildings",
+        "url": "https://www.flickr.com/photos/naturewise/2769198078/",
+        "license": "CC BY-NC-SA 2.0",
+        "role_suggestion": "gallery (construction)",
+        "creator": "London Permaculture",
+        "date": "2008-08-10",
+        "verified": true,
+        "local_path": "route66/media/CE-001/02-cal-earth-demonstration-buildings.jpg",
+        "download_status": "downloaded"
+      },
+      {
+        "title": "Tiny Dome Cluster",
+        "url": "https://www.flickr.com/photos/earthworm/4695255444/",
+        "license": "CC BY-NC-SA 2.0",
+        "role_suggestion": "gallery (courtyard)",
+        "creator": "Earthworm",
+        "date": "2010-06-05",
+        "verified": true,
+        "local_path": "route66/media/CE-001/03-tiny-dome-cluster.jpg",
+        "download_status": "downloaded"
+      }
     ]
   },
   "meta": {
     "generated": "2026-09-22",
     "coverage_tally": {
       "rich": 28,
-      "moderate": 13,
+      "moderate": 14,
       "thin": 5,
       "none": 54
     },
@@ -1700,8 +1740,9 @@
       "Wikimedia Commons (primary)",
       "Calisphere (secondary — targeted on gaps)",
       "NPS.gov (secondary — targeted, federal sites)",
-      "Library of Congress direct — blocked by Cloudflare bot protection, not usable directly"
+      "Library of Congress direct — blocked by Cloudflare bot protection, not usable directly",
+      "Flickr (CE-001 only, added 2026-11-23 by Michael's choice)"
     ],
-    "note": "detailed_candidates_by_site has confirmed titles/URLs only for the 29 sites with rich or moderate coverage where specific filenames were identified. status_by_site covers all 100 with a coverage tier. No files downloaded. Most licenses marked unverified — confirmed only where an individual file page was actually opened and read. Batch 2 (2026-09-22): re-searched the 54 Route 66 Historic tier sites with no photo; resolved 9 with verified downloads, 45 remain genuine gaps after good-faith search across Commons/Calisphere/NPS/BLM/Flickr. Batch 3 (2026-09-22): re-searched the 45 remaining Route 66 Historic tier sites; resolved 2 (LU-001, BA-015) with verified downloads, 43 remain genuine gaps after a good-faith search across Commons (including a newly-found systematic Needles/Topock photo survey), Calisphere, NPS, BLM, and FHWA America's Byways."
+    "note": "detailed_candidates_by_site has confirmed titles/URLs only for the 29 sites with rich or moderate coverage where specific filenames were identified. status_by_site covers all 100 with a coverage tier. No files downloaded. Most licenses marked unverified — confirmed only where an individual file page was actually opened and read. Batch 2 (2026-09-22): re-searched the 54 Route 66 Historic tier sites with no photo; resolved 9 with verified downloads, 45 remain genuine gaps after good-faith search across Commons/Calisphere/NPS/BLM/Flickr. Batch 3 (2026-09-22): re-searched the 45 remaining Route 66 Historic tier sites; resolved 2 (LU-001, BA-015) with verified downloads, 43 remain genuine gaps after a good-faith search across Commons (including a newly-found systematic Needles/Topock photo survey), Calisphere, NPS, BLM, and FHWA America's Byways. Added 2026-11-23: CE-001 (CalEarth), three Flickr photos under CC BY-NC-SA 2.0 chosen by Michael; downloaded 1024 px files, no Commons photo of the site exists."
   }
 }

@@ -170,7 +170,7 @@ export const resultCountText = (cards: Route66Card[], activeTier: string | null)
 };
 
 export const progressNoteText = (cards: Route66Card[], siteCount: number): string =>
-    cards.length + ' of ' + siteCount + ' top-100 sites have a downloaded, license-checked photo so far';
+    cards.length + ' of ' + siteCount + ' sites have a downloaded, license-checked photo so far';
 
 // ---- the detail page ----------------------------------------------------------------------------------------------
 

@@ -8473,6 +8473,83 @@
       ],
       "notes": "Strong tourism-ready regional story; not a direct Route 66 alignment site.",
       "top100_rank": 100
+    },
+    {
+      "id": "CE-001",
+      "name": "CalEarth (California Institute of Earth Art and Architecture)",
+      "alt_names": [
+        "Cal-Earth Institute",
+        "CalEarth",
+        "Geltaftan Foundation"
+      ],
+      "community": "Hesperia",
+      "region_group": "Regional / adjacent High Desert",
+      "address_or_location": "10177 Baldy Lane, Hesperia, CA 92345",
+      "latitude": null,
+      "longitude": null,
+      "geo_status": "geocodable_address",
+      "site_type": "Education / visitor attraction",
+      "subtype": "Earth architecture institute",
+      "relevance_tier": "Regional Interest",
+      "relevance_class_raw": "Regional High Desert attraction (not Route 66 history)",
+      "route66_relationship": "No Route 66 connection is stated by CalEarth. A Hesperia side trip for visitors interested in desert building and sustainable architecture; kept distinct from the Route 66 sites.",
+      "date_or_era": "Open houses held for over thirty years",
+      "physical_status_raw": "Extant; active use",
+      "visitability_raw": "Public open houses by paid reservation; personal tours by appointment; see calearth.org for dates",
+      "current_use": "Earth-architecture research, teaching, tours and workshops",
+      "historic_use": "none recorded here",
+      "designation": "none recorded here",
+      "owner_or_operator": "CalEarth Inc. (Geltaftan Foundation), a nonprofit",
+      "alignment_or_corridor": "High Desert side trip in Hesperia",
+      "themes": [
+        "earth architecture",
+        "Superadobe",
+        "sustainable building",
+        "education",
+        "Mojave desert"
+      ],
+      "people_or_organizations": [
+        "CalEarth",
+        "Geltaftan Foundation"
+      ],
+      "centennial_story": "A nonprofit institute in Hesperia that researches and teaches Superadobe, a building method that stacks earth-filled sandbags into domes and vaults. Its demonstration buildings can be visited at open houses by reservation. A side trip from the corridor, not Route 66 history.",
+      "centennial_story_source": "Written for this entry from calearth.org (read 2026-11-23); the site states no Route 66 story",
+      "research_status": "Added 2026-11-23 from the organization's own site",
+      "confidence_raw": "High",
+      "last_verified": "2026-11-23",
+      "primary_source_ids": [
+        "S542",
+        "S543",
+        "S544"
+      ],
+      "sources": [
+        {
+          "id": "S542",
+          "title": "CalEarth - Visit (open houses, tours, field trips)",
+          "publisher_or_organization": "CalEarth (Cal-Earth Institute)",
+          "source_type": "Official site / current visitor information",
+          "authority_level": "Primary current owner/operator",
+          "url": "https://calearth.org/pages/visit"
+        },
+        {
+          "id": "S543",
+          "title": "CalEarth - Contact (site address)",
+          "publisher_or_organization": "CalEarth (Cal-Earth Institute)",
+          "source_type": "Official site / current visitor information",
+          "authority_level": "Primary current owner/operator",
+          "url": "https://calearth.org/pages/contact"
+        },
+        {
+          "id": "S544",
+          "title": "CalEarth - About",
+          "publisher_or_organization": "CalEarth (Cal-Earth Institute)",
+          "source_type": "Official site / current visitor information",
+          "authority_level": "Primary current owner/operator",
+          "url": "https://calearth.org/pages/about-calearth"
+        }
+      ],
+      "notes": "Regional visitor attraction; keep distinct from direct Route 66 sites. Added after the Top 100 selection, at Michael's request, 2026-11-23.",
+      "top100_rank": null
     }
   ]
 }

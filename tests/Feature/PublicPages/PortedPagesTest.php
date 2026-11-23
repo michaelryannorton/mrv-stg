@@ -148,8 +148,9 @@ class PortedPagesTest extends TestCase
     {
         [$sites, $media] = $this->route66Data();
 
-        $this->assertCount(100, $sites['sites']);
-        $this->assertSame(100, count(array_unique(array_column($sites['sites'], 'id'))));
+        // Production's 100 sites plus CE-001 (CalEarth), added 2026-11-23.
+        $this->assertCount(101, $sites['sites']);
+        $this->assertSame(101, count(array_unique(array_column($sites['sites'], 'id'))));
 
         foreach ($sites['sites'] as $site) {
             $this->assertMatchesRegularExpression('/^[A-Za-z0-9._~-]{1,64}$/', $site['id'], 'a site id the route would refuse');
@@ -176,9 +177,9 @@ class PortedPagesTest extends TestCase
             }
         }
 
-        // 92 photos are listed as downloaded. The media folder also holds ATTRIBUTION.md and one photo no site lists
+        // 95 photos are listed as downloaded: production's 92 and CalEarth's three (2026-11-23). The media folder also holds ATTRIBUTION.md and one photo no site lists
         // (BA-005/02-goldstones-70-meter-antenna-pia26716.jpg); both are on production too and are copied as they are.
-        $this->assertSame(92, $downloaded);
+        $this->assertSame(95, $downloaded);
         $this->assertFileExists(public_path('route66/media/ATTRIBUTION.md'));
     }
 

@@ -4,6 +4,7 @@ Downloaded as 1600px-wide JPEGs from Wikimedia Commons. Two license groups, hand
 
 - **Public domain:** no permission or credit legally required. A credit line is included anyway as good practice.
 - **CC BY / CC BY-SA:** credit is legally required wherever these are displayed — photographer name, license name, and a link to the license. CC BY-SA additionally requires any modified version to carry the same license.
+- **CC BY-NC-SA (added 2026-11-23, CE-001 only):** as CC BY-SA, and the photos may not be used for commercial purposes. The site is run as non-commercial (Michael's decision of 2026-11-23, `decisions/2026-11-23-noncommercial-photos-on-route-66-pages.md`); if that changes, these three photos are removed or replaced. Downloaded from Flickr as the 1024-pixel size, not edited.
 
 ## AC-001 — Afton Canyon Natural Area
 
@@ -172,6 +173,29 @@ Downloaded as 1600px-wide JPEGs from Wikimedia Commons. Two license groups, hand
   Creator: National Park Service — unknown
   License: Public domain — NPS employee, official duties
   Original: https://commons.wikimedia.org/wiki/File:Soda_Springs_Cabin.jpg
+
+## CE-001 — CalEarth (California Institute of Earth Art and Architecture)
+
+- **route66/media/CE-001/01-sandbag-house-village.jpg**  [CC BY-NC-SA — ATTRIBUTION REQUIRED, NONCOMMERCIAL USE ONLY]
+  Source: "Sandbag House Village" (Flickr photo 4695255670)
+  Creator: Earthworm — 2010-06-05
+  License: CC BY-NC-SA 2.0
+  Original: https://www.flickr.com/photos/earthworm/4695255670/
+  Suggested credit line: "Photo: Earthworm, CC BY-NC-SA 2.0" (link to https://creativecommons.org/licenses/by-nc-sa/2.0/)
+
+- **route66/media/CE-001/02-cal-earth-demonstration-buildings.jpg**  [CC BY-NC-SA — ATTRIBUTION REQUIRED, NONCOMMERCIAL USE ONLY]
+  Source: "Cal-Earth - demonstration buildings" (Flickr photo 2769198078)
+  Creator: London Permaculture — 2008-08-10
+  License: CC BY-NC-SA 2.0
+  Original: https://www.flickr.com/photos/naturewise/2769198078/
+  Suggested credit line: "Photo: London Permaculture, CC BY-NC-SA 2.0" (link to https://creativecommons.org/licenses/by-nc-sa/2.0/)
+
+- **route66/media/CE-001/03-tiny-dome-cluster.jpg**  [CC BY-NC-SA — ATTRIBUTION REQUIRED, NONCOMMERCIAL USE ONLY]
+  Source: "Tiny Dome Cluster" (Flickr photo 4695255444)
+  Creator: Earthworm — 2010-06-05
+  License: CC BY-NC-SA 2.0
+  Original: https://www.flickr.com/photos/earthworm/4695255444/
+  Suggested credit line: "Photo: Earthworm, CC BY-NC-SA 2.0" (link to https://creativecommons.org/licenses/by-nc-sa/2.0/)
 
 ## CH-001 — Roadrunner's Retreat
 

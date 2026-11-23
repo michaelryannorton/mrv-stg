@@ -29,7 +29,7 @@ export default function Route66Index({ preview = false }: { preview?: boolean })
                     <h1>High Desert Route 66, Site by Site</h1>
                     <p className="lede">
                         A first look at the card view for the Route 66 project. This mockup shows only the sites we currently have a downloaded,
-                        license-checked photo for &mdash; the rest of the top 100 will appear here as photo research fills in.
+                        license-checked photo for &mdash; the rest of the sites will appear here as photo research fills in.
                     </p>
                     <span className="mockup-note" id="progress-note">
                         {state.status === 'loading'
