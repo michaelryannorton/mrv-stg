@@ -5,6 +5,7 @@ namespace Tests\Feature\StatusHealth;
 use App\Http\Controllers\StatusHealthController;
 use App\Http\Middleware\InviteOnlyGate;
 use App\Models\Source;
+use App\Support\ScheduleMinutes;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Session\Middleware\StartSession;
@@ -334,7 +335,7 @@ class StatusHealthEndpointTest extends StatusHealthTestCase
 
         $ingest = $events->first(fn ($e) => str_contains($e->command ?? '', 'ingest:ics'));
         $this->assertNotNull($ingest);
-        $this->assertSame('*/30 * * * *', $ingest->expression);
+        $this->assertSame(ScheduleMinutes::ingestCron(app()->environment()), $ingest->expression, 'twice an hour, off :00 and :30 (Plan E)');
         $this->assertTrue($ingest->withoutOverlapping);
         $after = (new \ReflectionProperty($ingest, 'afterCallbacks'))->getValue($ingest);
         $this->assertGreaterThanOrEqual(2, count($after), 'the success and failure heartbeats');

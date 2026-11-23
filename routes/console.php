@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\StatusHealthController;
+use App\Support\ScheduleMinutes;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -18,13 +19,16 @@ Artisan::command('inspire', function () {
 // sent while it is empty). The controller's wrapper is used, not pingOnSuccess(): the framework's own ping waits up to 30 seconds
 // and catches only some exceptions. A success ping means the command ran; the command exits 0 even when every feed failed, so
 // ingest_ics_age and sources_failing in the health report are what show the feeds working.
-Schedule::command('ingest:ics')->everyThirtyMinutes()->withoutOverlapping()
+// Minutes (logs/2026 1122 1626 Plan E): the scheduler could not start the child process at :00 and :30 when several jobs started
+// together ("proc_open(): Fork failed: Resource temporarily unavailable"), so each copy runs twice an hour at its own minutes,
+// apart from the hourly jobs in api/cron/schedule.php and from the other copy. Production :12 and :42, every other environment :17 and :47.
+Schedule::command('ingest:ics')->cron(ScheduleMinutes::ingestCron(app()->environment()))->withoutOverlapping()
     ->onSuccess(StatusHealthController::heartbeat('ingest_ics'))
     ->onFailure(StatusHealthController::heartbeat('ingest_ics', failed: true));
 
-// Once a day, at 08:00 Pacific whatever the app's own time zone is, an email to the administrators if
+// Once a day, at 08:07 Pacific (08:00 failed to start its process on 2026-11-22; see above) whatever the app's own time zone is, an email to the administrators if
 // public event submissions are waiting for review; nothing is sent when none are (Michael, 2026-11-20).
-Schedule::command('submissions:notify-pending')->dailyAt('08:00')->timezone('America/Los_Angeles')->withoutOverlapping();
+Schedule::command('submissions:notify-pending')->dailyAt('08:07')->timezone('America/Los_Angeles')->withoutOverlapping();
 
 // The status dashboard's scheduler marker: the health endpoint reports how long ago this last ran.
 Schedule::call(fn () => StatusHealthController::recordSchedulerRun())

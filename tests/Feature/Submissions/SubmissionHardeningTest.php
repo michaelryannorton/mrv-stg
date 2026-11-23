@@ -257,13 +257,13 @@ class SubmissionHardeningTest extends TestCase
         $this->artisan('submissions:notify-pending')->expectsOutputToContain('no administrator to email')->assertFailed();
     }
 
-    public function test_the_command_is_scheduled_daily_at_eight_pacific(): void
+    public function test_the_command_is_scheduled_daily_at_seven_past_eight_pacific(): void
     {
         $events = collect(app(Schedule::class)->events())
             ->filter(fn ($event) => str_contains($event->command, 'submissions:notify-pending'));
 
         $this->assertCount(1, $events);
-        $this->assertSame('0 8 * * *', $events->first()->expression);
+        $this->assertSame('7 8 * * *', $events->first()->expression, '08:00 failed to start its process on 2026-11-22');
         $this->assertSame('America/Los_Angeles', (string) $events->first()->timezone);
         $this->assertTrue($events->first()->withoutOverlapping);
     }
