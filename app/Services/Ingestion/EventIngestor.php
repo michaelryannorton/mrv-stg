@@ -38,24 +38,33 @@ class EventIngestor
             // treatment and the stored raw payload agrees with the event (the editor compares them).
             $item['url'] = ExternalUrl::clean($item['url'] ?? null);
 
-            $record = SourceRecord::create([
-                'source_id' => $source->id,
-                'external_id' => $item['external_id'],
-                'source_url' => $item['url'] ?? $source->feed_url,
-                'record_type' => 'event',
-                'raw_payload' => [
-                    ...$item,
-                    'start_at' => $item['start_at']->toIso8601String(),
-                    'end_at' => $item['end_at']?->toIso8601String(),
-                ],
-                'observed_at' => now(),
-                'processed_at' => now(),
-                'processing_status' => 'processed',
-            ]);
+            $payload = [
+                ...$item,
+                'start_at' => $item['start_at']->toIso8601String(),
+                'end_at' => $item['end_at']?->toIso8601String(),
+            ];
 
-            $link = EventSource::where('source_id', $source->id)
+            $link = EventSource::with('sourceRecord')
+                ->where('source_id', $source->id)
                 ->where('external_id', $item['external_id'])
                 ->first();
+
+            // A record is written when the item is new or has changed, not on every run (decided
+            // 2026-11-25): otherwise the link keeps pointing at the record holding what the source says.
+            $record = $link?->sourceRecord;
+
+            if (! PayloadComparison::same($record?->raw_payload, $payload)) {
+                $record = SourceRecord::create([
+                    'source_id' => $source->id,
+                    'external_id' => $item['external_id'],
+                    'source_url' => $item['url'] ?? $source->feed_url,
+                    'record_type' => 'event',
+                    'raw_payload' => $payload,
+                    'observed_at' => now(),
+                    'processed_at' => now(),
+                    'processing_status' => 'processed',
+                ]);
+            }
 
             if ($link) {
                 $freshValues = [

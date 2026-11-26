@@ -13,8 +13,8 @@ use Illuminate\Console\Command;
  * stored query strings. New values are cleaned on the way in by EventIngestor and the Event
  * model; this repairs the rows already stored. Safe to re-run: it only touches values that
  * change. An event whose canonical_url was hand-edited (locked in overridden_fields) is left
- * alone and counted. source_records are untouched on purpose: they are the immutable record of
- * what each feed said on each run.
+ * alone and counted. source_records are untouched on purpose: they are the record of what each
+ * feed said, written when an item is new or changes.
  */
 class CleanEventUrls extends Command
 {

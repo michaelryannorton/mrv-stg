@@ -129,8 +129,8 @@ class EventEditController extends Controller
 
     /**
      * The freshest value the source has reported for each INGESTED_FIELDS column, read from the
-     * most recent SourceRecord attached to this event's primary link (IngestIcsSources repoints
-     * event_sources.source_record_id at the latest record on every sync, so this is always current
+     * SourceRecord attached to this event's primary link (EventIngestor writes a record when the
+     * source's item changes and points event_sources.source_record_id at it, so this is current
      * as of the last ingestion run, not a live fetch). organizer_id is sourced from the linked
      * Source itself, not the feed payload, since ingestion never reads it from raw_payload either.
      */
