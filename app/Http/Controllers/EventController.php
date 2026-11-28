@@ -70,7 +70,8 @@ class EventController extends Controller
                 ->orderBy('start_at')
                 ->get();
 
-            $events = PublicEventCard::collection($events);
+            // The week and month grids show titles and times only, so no description is sent to them.
+            $events = PublicEventCard::collection($events, $view === 'day');
 
             $calendar = [
                 'anchorDate' => $anchor->toDateString(),

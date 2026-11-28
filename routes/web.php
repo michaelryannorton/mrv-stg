@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ChannelController;
 use App\Http\Controllers\Admin\ClipController;
 use App\Http\Controllers\Admin\EventEditController;
 use App\Http\Controllers\Admin\EventModerationController;
+use App\Http\Controllers\Admin\SourceSettingsController;
 use App\Http\Controllers\Admin\SubmissionModerationController;
 use App\Http\Controllers\Admin\UserAssignmentController;
 use App\Http\Controllers\Admin\UserController;
@@ -116,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('clip', [ClipController::class, 'store'])->name('clip.store');
         Route::get('drafts', [ClipController::class, 'drafts'])->name('drafts.index');
         Route::post('drafts/{event}/publish', [ClipController::class, 'publishDraft'])->name('drafts.publish');
+
+        Route::get('sources', [SourceSettingsController::class, 'index'])->name('sources.index');
+        Route::put('sources/{source}', [SourceSettingsController::class, 'update'])->name('sources.update');
 
         Route::get('channels', [ChannelController::class, 'index'])->name('channels.index');
         Route::get('channels/create', [ChannelController::class, 'create'])->name('channels.create');

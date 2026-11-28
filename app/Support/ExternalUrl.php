@@ -6,13 +6,30 @@ namespace App\Support;
  * Cleans a web address received from outside the app (a feed, a scraped page, a form) before it
  * is stored. Some feeds HTML-escape the address inside a field that is not HTML, so a stored
  * "?a=1&amp;b=2" would be linked as a different query string than the one the organizer
- * published. This does not judge whether the address is safe to link; Event::details_url does
- * that at the point of use.
+ * published. clean() does not judge whether the address is safe to link; web() does that, and
+ * is applied at the point of use.
  */
 class ExternalUrl
 {
     /** More passes than any real feed needs; stops a pathological value from looping. */
     private const MAX_DECODE_PASSES = 3;
+
+    /**
+     * The address when it is safe to put in a link: absolute, http or https, with a host.
+     * Addresses come from third parties, so a javascript:, data: or scheme-less value must never
+     * reach an href.
+     */
+    public static function web(?string $url): ?string
+    {
+        $url = trim((string) $url);
+        $parts = parse_url($url);
+
+        if ($parts === false || ! isset($parts['host']) || $parts['host'] === '') {
+            return null;
+        }
+
+        return in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true) ? $url : null;
+    }
 
     public static function clean(?string $url): ?string
     {

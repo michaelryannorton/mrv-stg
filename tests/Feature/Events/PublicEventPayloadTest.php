@@ -23,8 +23,8 @@ class PublicEventPayloadTest extends TestCase
     use RefreshDatabase;
 
     private const CARD_KEYS = [
-        'all_day', 'audiences', 'categories', 'details_url', 'end_at', 'id', 'is_free', 'organizer',
-        'short_description', 'slug', 'start_at', 'tags', 'timezone', 'title', 'uuid', 'venue',
+        'all_day', 'audiences', 'categories', 'check_eligibility', 'description', 'end_at', 'excerpt', 'id', 'is_free', 'link',
+        'organizer', 'place', 'slug', 'start_at', 'tags', 'timezone', 'title', 'uuid', 'venue',
     ];
 
     /** An event with every internal column filled in, so a leak shows up as a key or a value. */
@@ -43,7 +43,7 @@ class PublicEventPayloadTest extends TestCase
             'title' => 'Payload check',
             'slug' => 'payload-check-'.Str::random(4),
             'short_description' => 'Short and public',
-            'description' => 'LEAK-FULL-DESCRIPTION',
+            'description' => '<p>The public <b>description</b></p><script>LEAK-SCRIPT</script><!-- LEAK-COMMENT -->',
             'start_at' => now('America/Los_Angeles')->addDay()->setTime(12, 0),
             'timezone' => 'America/Los_Angeles',
             'venue_id' => $venue->id,
@@ -107,12 +107,41 @@ class PublicEventPayloadTest extends TestCase
 
         $this->get(route('events.index'))->assertInertia(fn (Assert $page) => $page
             ->where('events.data.0.title', 'Payload check')
-            ->where('events.data.0.short_description', 'Short and public')
-            ->where('events.data.0.details_url', 'https://example.org/payload')
+            ->where('events.data.0.excerpt', 'Short and public')
+            ->where('events.data.0.description', 'The public description')
+            ->where('events.data.0.place', 'Civic Hall, Victorville')
+            ->where('events.data.0.check_eligibility', false)
+            ->where('events.data.0.link', ['url' => 'https://example.org/payload', 'kind' => 'event'])
             ->where('events.data.0.venue.name', 'Civic Hall')
             ->where('events.data.0.venue.city', 'Victorville')
             ->where('events.data.0.organizer.name', 'Town Group')
             ->where('events.data.0.categories.0.slug', 'arts'));
+    }
+
+    public function test_the_week_and_month_grids_are_not_sent_descriptions(): void
+    {
+        $this->loadedEvent();
+        $date = now('America/Los_Angeles')->addDay()->toDateString();
+
+        foreach (['week', 'month'] as $view) {
+            $this->get(route('events.index', ['view' => $view, 'date' => $date]))->assertInertia(fn (Assert $page) => $page
+                ->where('events.0.description', null)
+                ->where('events.0.excerpt', null));
+        }
+
+        $this->get(route('events.index', ['view' => 'day', 'date' => $date]))->assertInertia(fn (Assert $page) => $page
+            ->where('events.0.description', 'The public description'));
+    }
+
+    public function test_the_feed_location_stands_in_for_a_missing_venue_and_eligibility_is_flagged(): void
+    {
+        $event = $this->loadedEvent();
+        $event->update(['venue_id' => null, 'location_name_override' => 'Cafe,<br>1 Main St', 'access_scope' => 'public_with_eligibility']);
+
+        $this->get(route('events.index'))->assertInertia(fn (Assert $page) => $page
+            ->where('events.data.0.place', 'Cafe, 1 Main St')
+            ->where('events.data.0.check_eligibility', true)
+            ->missing('events.data.0.access_scope'));
     }
 
     public function test_the_list_keeps_its_pagination_links_and_filters(): void

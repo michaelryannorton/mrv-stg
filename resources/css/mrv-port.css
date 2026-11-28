@@ -55,6 +55,26 @@
   .event-badge.free { background: var(--color-sage); color: var(--color-white); }
   .event-badge.pick { background: var(--color-terracotta-light); color: var(--color-terracotta-dark); }
   .event-card .event-body { margin: 12px 0 10px; font-size: 0.92rem; }
+  .event-card .event-description { overflow-wrap: anywhere; }
+  .event-card .event-description p { margin: 0 0 10px; white-space: pre-line; }
+  .event-card .event-description a { text-decoration: underline; text-underline-offset: 3px; }
+  .event-card .event-description[hidden] { display: none; }
+  .event-card .event-more {
+    display: block;
+    margin: 0 0 10px;
+    padding: 4px 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-terracotta-dark);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .event-card .event-eligibility { margin: 0 0 10px; }
+  .event-card .event-card-head + .event-meta { margin-top: 12px; }
   .event-card .event-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .event-card .event-details-link { margin-left: auto; font-size: 0.85rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   .event-list { display: grid; gap: 16px; }

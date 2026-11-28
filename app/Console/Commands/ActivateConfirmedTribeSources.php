@@ -71,6 +71,13 @@ class ActivateConfirmedTribeSources extends Command
                 continue;
             }
 
+            // Each active feed needs a web page: events without their own address link to it.
+            if ($source->webPage() === null) {
+                $this->warn("{$legacyId}: no web page (base_url); skipping.");
+
+                continue;
+            }
+
             $source->update([
                 'feed_url' => $endpoint,
                 'source_type' => 'api',

@@ -45,6 +45,13 @@ class ActivateConfirmedSquarespaceSources extends Command
                 continue;
             }
 
+            // Each active feed needs a web page: events without their own address link to it.
+            if ($source->webPage() === null) {
+                $this->warn("{$legacyId}: no web page (base_url); skipping.");
+
+                continue;
+            }
+
             $categoryIds = Category::whereIn('name', $config['categories'])->pluck('id');
 
             if ($categoryIds->count() !== count($config['categories'])) {

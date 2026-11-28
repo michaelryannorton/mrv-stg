@@ -90,23 +90,10 @@ class Event extends Model
         return Attribute::set(fn (?string $value) => ExternalUrl::clean($value));
     }
 
-    /**
-     * The event's own page, for a public "Details" link: canonical_url when it is an absolute
-     * http or https address, otherwise null. Ingested URLs come from third-party feeds, so a
-     * javascript:, data: or scheme-less value must never reach an href.
-     */
+    /** The event's own page: canonical_url when it is safe to link (ExternalUrl::web), otherwise null. */
     protected function detailsUrl(): Attribute
     {
-        return Attribute::get(function (): ?string {
-            $url = trim((string) $this->canonical_url);
-            $parts = parse_url($url);
-
-            if ($parts === false || ! isset($parts['host']) || $parts['host'] === '') {
-                return null;
-            }
-
-            return in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true) ? $url : null;
-        });
+        return Attribute::get(fn (): ?string => ExternalUrl::web($this->canonical_url));
     }
 
     public function isFieldOverridden(string $field): bool

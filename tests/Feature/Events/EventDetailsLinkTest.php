@@ -10,8 +10,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * The public "Details" link (slice 1d-i). Ingested URLs come from third-party feeds, so the server
- * decides what is safe to link: only absolute http and https addresses reach the page as details_url.
+ * The event's own address (slice 1d-i). Ingested URLs come from third-party feeds, so the server
+ * decides what is safe to link: only absolute http and https addresses count as details_url and
+ * reach the public card. The card's choice of link is covered in EventCardLinkTest.
  */
 class EventDetailsLinkTest extends TestCase
 {
@@ -81,7 +82,7 @@ class EventDetailsLinkTest extends TestCase
         $this->assertNull($this->event(null)->details_url);
     }
 
-    public function test_the_public_list_sends_details_url_and_withholds_unsafe_ones(): void
+    public function test_the_public_list_links_safe_addresses_and_withholds_unsafe_ones(): void
     {
         $this->event('https://example.org/good', 'Good link');
         $this->event('javascript:alert(1)', 'Bad link');
@@ -89,8 +90,8 @@ class EventDetailsLinkTest extends TestCase
         $this->get(route('events.index'))->assertInertia(fn (Assert $page) => $page
             ->component('events/index')
             ->has('events.data', 2)
-            ->where('events.data.0.details_url', 'https://example.org/good')
-            ->where('events.data.1.details_url', null));
+            ->where('events.data.0.link', ['url' => 'https://example.org/good', 'kind' => 'event'])
+            ->where('events.data.1.link', null));
     }
 
     public function test_every_calendar_view_still_renders_with_the_shared_card(): void

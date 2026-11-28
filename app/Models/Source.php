@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasUuid;
+use App\Support\ExternalUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,21 @@ class Source extends Model
             'last_success_at' => 'datetime',
             'reliability_score' => 'decimal:2',
         ];
+    }
+
+    /** A source the app collects from; 'manual' sources (the imported directory, public submissions) are not feeds. */
+    public function isFeed(): bool
+    {
+        return $this->collector_type !== 'manual';
+    }
+
+    /**
+     * The feed's web page (base_url) when it is safe to link: where an event with no address of its
+     * own sends a visitor. The feed address itself is never shown to the public.
+     */
+    public function webPage(): ?string
+    {
+        return ExternalUrl::web($this->base_url);
     }
 
     public function organization(): BelongsTo

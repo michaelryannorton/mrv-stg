@@ -20,14 +20,21 @@ export interface EventItem {
     uuid: string;
     title: string;
     slug: string;
-    short_description: string | null;
     start_at: string;
     end_at: string | null;
     timezone: string;
     all_day: boolean;
     is_free: boolean | null;
-    /** Absolute http(s) address of the event's own page, or null. Set by the server; safe to use as an href. */
-    details_url: string | null;
+    /** The venue and its city, otherwise the feed's own location text. */
+    place: string | null;
+    /** The start of the description, on one line. */
+    excerpt: string | null;
+    /** The whole description as plain text with paragraphs; show it as text, never as HTML. Null in week and month views. */
+    description: string | null;
+    /** True when a visitor should check with the organizer that they may attend. */
+    check_eligibility: boolean;
+    /** The event's own page, or the web page of the calendar it came from. Checked by the server; safe to use as an href. */
+    link: { url: string; kind: 'event' | 'source' } | null;
     venue: Venue | null;
     organizer: Organization | null;
     categories: Taxonomy[];

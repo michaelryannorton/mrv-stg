@@ -197,15 +197,15 @@ class PublicChannelPageTest extends CurationTestCase
     {
         $cat = $this->category('Business');
         $channel = $this->channel('Business', [$cat]);
-        $this->event('Detailed', [$cat], ['description' => 'Internal long text', 'created_by_user_id' => $this->admin()->id, 'canonical_url' => 'https://example.org/e']);
+        $this->event('Detailed', [$cat], ['description' => 'A public description', 'created_by_user_id' => $this->admin()->id, 'canonical_url' => 'https://example.org/e']);
 
         $json = $this->page($channel)->viewData('page')['props']['events']['data'][0];
 
         $this->assertEqualsCanonicalizing(
-            ['id', 'uuid', 'title', 'slug', 'short_description', 'start_at', 'end_at', 'timezone', 'all_day', 'is_free', 'details_url', 'venue', 'organizer', 'categories', 'tags', 'audiences', 'is_pick'],
+            ['id', 'uuid', 'title', 'slug', 'start_at', 'end_at', 'timezone', 'all_day', 'is_free', 'place', 'excerpt', 'description', 'check_eligibility', 'link', 'venue', 'organizer', 'categories', 'tags', 'audiences', 'is_pick'],
             array_keys($json),
         );
-        $this->assertSame('https://example.org/e', $json['details_url']);
+        $this->assertSame(['url' => 'https://example.org/e', 'kind' => 'event'], $json['link']);
     }
 
     // Curator cards

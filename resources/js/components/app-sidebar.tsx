@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, CircleUser, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Sparkles, Users } from 'lucide-react';
+import { BookOpen, CalendarCheck, CircleUser, Files, Folder, Inbox, Layers, LayoutGrid, Link2, Rss, Sparkles, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const dashboardNavItem: NavItem = {
@@ -33,6 +33,11 @@ const adminNavItems: NavItem[] = [
         title: 'Review queue',
         url: '/admin/events',
         icon: CalendarCheck,
+    },
+    {
+        title: 'Feeds',
+        url: '/admin/sources',
+        icon: Rss,
     },
     {
         title: 'Channels',
