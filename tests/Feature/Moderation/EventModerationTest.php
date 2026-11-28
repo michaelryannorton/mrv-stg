@@ -118,20 +118,22 @@ class EventModerationTest extends TestCase
 
         $this->get(route('admin.events.index'))->assertInertia(fn (Assert $page) => $page
             ->where('status', 'pending')
-            ->has('events', 2)
-            ->where('counts', ['pending' => 2, 'published' => 1, 'rejected' => 1]));
-        $this->get(route('admin.events.index', ['status' => 'published']))->assertInertia(fn (Assert $page) => $page->has('events', 1)->where('events.0.title', 'Published one'));
-        $this->get(route('admin.events.index', ['status' => 'rejected']))->assertInertia(fn (Assert $page) => $page->has('events', 1)->where('events.0.title', 'Rejected one'));
+            ->has('rows', 2)
+            ->where('counts', ['pending' => 2, 'past' => 0, 'published' => 1, 'rejected' => 1]));
+        $this->get(route('admin.events.index', ['status' => 'published']))->assertInertia(fn (Assert $page) => $page->has('rows', 1)->where('rows.0.title', 'Published one'));
+        $this->get(route('admin.events.index', ['status' => 'rejected']))->assertInertia(fn (Assert $page) => $page->has('rows', 1)->where('rows.0.title', 'Rejected one'));
+        $this->get(route('admin.events.index', ['status' => 'nonsense']))->assertInertia(fn (Assert $page) => $page->where('status', 'pending')->has('rows', 2));
     }
 
     public function test_the_queue_exposes_the_access_scope_the_confirmation_dialog_depends_on(): void
     {
         $this->event('Gated', ['access_scope' => 'public_with_eligibility']);
-        $this->event('Open', ['access_scope' => 'public']);
+        $this->event('Open', ['access_scope' => 'public', 'start_at' => now()->addDays(4)]);
         $this->actingAs($this->admin());
 
         $this->get(route('admin.events.index'))->assertInertia(fn (Assert $page) => $page
-            ->where('events', fn ($events) => collect($events)->pluck('access_scope', 'title')->all() === ['Gated' => 'public_with_eligibility', 'Open' => 'public']));
+            ->where('rows.0.dates.0.access_scope', 'public_with_eligibility')
+            ->where('rows.1.dates.0.access_scope', 'public'));
     }
 
     public function test_approval_moves_an_event_from_a_channel_curators_view_of_pending_to_published(): void

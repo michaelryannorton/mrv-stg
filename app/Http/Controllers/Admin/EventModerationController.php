@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Support\ReviewQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -12,33 +14,51 @@ use Inertia\Response;
 
 class EventModerationController extends Controller
 {
+    private const PENDING = ['unreviewed', 'pending_review'];
+
+    private const TABS = ['pending', 'past', 'published', 'rejected'];
+
     /**
-     * No pagination here on purpose: the table view supports client-side search/sort/filter and
-     * select-all-and-bulk-act, which all need the full filtered set in hand rather than one page
-     * of it. The limit is a defensive cap, not an expected ceiling at Phase 1 volumes.
+     * The queue as rows, one per series (App\Support\ReviewQueue). Pending holds what has not ended,
+     * soonest first; pending events that are over move to "Past", where nothing happens to them. No
+     * pagination and no cut: search, filters and select-all work on the whole tab in the browser.
      */
     public function index(Request $request): Response
     {
-        $status = $request->query('status', 'pending');
+        $status = in_array($request->query('status'), self::TABS, true) ? $request->query('status') : 'pending';
 
-        $events = Event::query()
-            ->with(['venue', 'organizer', 'categories', 'tags', 'eventSources.source'])
-            ->when($status === 'pending', fn ($q) => $q->whereIn('editorial_status', ['unreviewed', 'pending_review']))
-            ->when($status === 'published', fn ($q) => $q->where('editorial_status', 'published'))
-            ->when($status === 'rejected', fn ($q) => $q->where('editorial_status', 'rejected'))
-            ->orderBy('start_at')
-            ->limit(1000)
+        $events = $this->tab($status)
+            ->with(ReviewQueue::RELATIONS)
+            ->orderBy('events.start_at', $status === 'past' ? 'desc' : 'asc')
+            ->orderBy('events.id')
             ->get();
 
         return Inertia::render('admin/events/index', [
-            'events' => $events,
+            'rows' => (new ReviewQueue)->rows($events, in_array($status, ['pending', 'past'], true) ? $this->approvedSeries() : []),
             'status' => $status,
-            'counts' => [
-                'pending' => Event::whereIn('editorial_status', ['unreviewed', 'pending_review'])->count(),
-                'published' => Event::where('editorial_status', 'published')->count(),
-                'rejected' => Event::where('editorial_status', 'rejected')->count(),
-            ],
+            'counts' => collect(self::TABS)->mapWithKeys(fn (string $tab) => [$tab => $this->tab($tab)->count()]),
         ]);
+    }
+
+    private function tab(string $status): Builder
+    {
+        return match ($status) {
+            'pending' => Event::query()->whereIn('editorial_status', self::PENDING)->upcoming(),
+            'past' => Event::query()->whereIn('editorial_status', self::PENDING)->ended(),
+            default => Event::query()->where('editorial_status', $status),
+        };
+    }
+
+    /** @return array<string, true> the series that already have a published date */
+    private function approvedSeries(): array
+    {
+        return Event::query()
+            ->where('editorial_status', 'published')
+            ->join('event_sources', 'event_sources.event_id', '=', 'events.id')
+            ->toBase()
+            ->get(['event_sources.source_id', 'events.title'])
+            ->mapWithKeys(fn (object $row) => [ReviewQueue::seriesKey($row->source_id, $row->title) => true])
+            ->all();
     }
 
     /**

@@ -239,6 +239,13 @@ class Event extends Model
         return $query->where(fn (Builder $q) => $q->where('events.start_at', '>=', now())->orWhere('events.end_at', '>=', now()));
     }
 
+    /** Over: the complement of scopeUpcoming(). */
+    public function scopeEnded(Builder $query): Builder
+    {
+        return $query->where('events.start_at', '<', now())
+            ->where(fn (Builder $q) => $q->whereNull('events.end_at')->orWhere('events.end_at', '<', now()));
+    }
+
     /**
      * Events that are in the channel: at least one category linked to the channel, or an explicit
      * curated or featured row, and no excluded row. Membership is computed here rather than stored
