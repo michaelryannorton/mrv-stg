@@ -102,14 +102,14 @@ class PruneSourceRecords extends Command
             ->where('source_id', $sourceId)
             ->where('external_id', $externalId)
             ->where('record_type', 'event')
-            ->select('id', 'raw_payload')
+            ->select('id', 'raw_payload', 'content_hash')
             ->lazyById(500);
 
         $kept = null;
         $repeats = [];
 
         foreach ($rows as $row) {
-            if ($kept !== null && PayloadComparison::same($kept->raw_payload, $row->raw_payload)) {
+            if ($kept !== null && $kept->content_hash === $row->content_hash && PayloadComparison::same($kept->raw_payload, $row->raw_payload)) {
                 $repeats[$kept->id][] = $row->id;
 
                 continue;

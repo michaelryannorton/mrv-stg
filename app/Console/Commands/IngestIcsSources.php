@@ -2,19 +2,20 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\RunsFeeds;
 use App\Models\Source;
-use App\Services\Ingestion\EventIngestor;
-use App\Services\Ingestion\IcsCollector;
+use App\Services\Ingestion\FeedRunner;
 use Illuminate\Console\Command;
-use Throwable;
 
 class IngestIcsSources extends Command
 {
+    use RunsFeeds;
+
     protected $signature = 'ingest:ics {source? : Only run this source ID; otherwise every active ICS source}';
 
     protected $description = 'Fetch active ICS calendar sources and create/update candidate events';
 
-    public function handle(IcsCollector $collector, EventIngestor $ingestor): int
+    public function handle(FeedRunner $runner): int
     {
         $sources = Source::query()
             ->where('collector_type', 'ics')
@@ -28,34 +29,6 @@ class IngestIcsSources extends Command
             return self::SUCCESS;
         }
 
-        foreach ($sources as $source) {
-            $this->processSource($source, $collector, $ingestor);
-        }
-
-        return self::SUCCESS;
-    }
-
-    private function processSource(Source $source, IcsCollector $collector, EventIngestor $ingestor): void
-    {
-        $this->info("Fetching {$source->name}...");
-        $source->last_checked_at = now();
-
-        try {
-            $items = $collector->fetch($source->feed_url);
-        } catch (Throwable $e) {
-            $source->last_error = $e->getMessage();
-            $source->save();
-            $this->error("  Failed: {$e->getMessage()}");
-
-            return;
-        }
-
-        $source->last_success_at = now();
-        $source->last_error = null;
-        $source->save();
-
-        $result = $ingestor->ingest($source, $items);
-
-        $this->info("  {$source->name}: {$result['created']} created, {$result['updated']} updated.");
+        return $this->runFeeds($sources, $runner);
     }
 }

@@ -20,6 +20,9 @@ class SourceRecord extends Model
         'error_message',
     ];
 
+    /** The feed's own record can hold contact addresses; it is not sent to any page. */
+    protected $hidden = ['raw_text'];
+
     protected function casts(): array
     {
         return [

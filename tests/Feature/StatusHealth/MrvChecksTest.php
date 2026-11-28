@@ -464,19 +464,23 @@ class MrvChecksTest extends StatusHealthTestCase
         $this->assertSame('critical', $this->mrv()->ingestIcsAge()['status'], 'active but never fetched');
     }
 
-    public function test_failing_sources_are_counted_among_the_active_ics_sources(): void
+    public function test_failing_sources_are_counted_among_the_collected_sources(): void
     {
         $this->source(['last_error' => null]);
         $this->assertSame('healthy', $this->mrv()->sourcesFailing()['status']);
 
         $this->source(['last_error' => 'HTTP 500']);
         $this->source(['last_error' => 'timeout', 'active' => false]);
+        // Active but not marked for a schedule: nothing collects it, so it is not counted.
         $this->source(['last_error' => 'x', 'collector_type' => 'tribe_events']);
         $check = $this->mrv()->sourcesFailing();
 
         $this->assertSame('warning', $check['status']);
         $this->assertSame(1, $check['value']);
-        $this->assertSame('1 active ICS source failed on its last fetch', $check['message']);
+        $this->assertSame('1 collected source failed on its last fetch', $check['message']);
+
+        $this->source(['last_error' => 'x', 'collector_type' => 'growthzone', 'collector_config' => ['scheduled' => true]]);
+        $this->assertSame(2, $this->mrv()->sourcesFailing()['value']);
     }
 
     public function test_collector_metrics(): void

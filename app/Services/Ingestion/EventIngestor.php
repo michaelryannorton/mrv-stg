@@ -23,7 +23,7 @@ class EventIngestor
     /**
      * @param  list<array{external_id: string, title: string, description: ?string,
      *     start_at: Carbon, end_at: ?Carbon, all_day: bool, location: ?string,
-     *     url: ?string, timezone: string}>  $items
+     *     url: ?string, timezone: string, raw?: string, raw_stable?: string}>  $items
      * @return array{created: int, updated: int}
      */
     public function ingest(Source $source, array $items): array
@@ -37,6 +37,12 @@ class EventIngestor
             // Cleaned once here, before the record is stored, so every collector gets the same
             // treatment and the stored raw payload agrees with the event (the editor compares them).
             $item['url'] = ExternalUrl::clean($item['url'] ?? null);
+
+            // The item as the feed sent it, kept whole beside the normalized fields. raw_stable is
+            // the same without anything that changes on every download.
+            $raw = isset($item['raw']) ? mb_scrub($item['raw']) : null;
+            $hash = $raw !== null ? hash('sha256', $item['raw_stable'] ?? $item['raw']) : null;
+            unset($item['raw'], $item['raw_stable']);
 
             $payload = [
                 ...$item,
@@ -53,17 +59,24 @@ class EventIngestor
             // 2026-11-25): otherwise the link keeps pointing at the record holding what the source says.
             $record = $link?->sourceRecord;
 
-            if (! PayloadComparison::same($record?->raw_payload, $payload)) {
+            $rawChanged = $hash !== null && $record?->content_hash !== null && $record->content_hash !== $hash;
+
+            if ($rawChanged || ! PayloadComparison::same($record?->raw_payload, $payload)) {
                 $record = SourceRecord::create([
                     'source_id' => $source->id,
                     'external_id' => $item['external_id'],
                     'source_url' => $item['url'] ?? $source->feed_url,
                     'record_type' => 'event',
                     'raw_payload' => $payload,
+                    'raw_text' => $raw,
+                    'content_hash' => $hash,
                     'observed_at' => now(),
                     'processed_at' => now(),
                     'processing_status' => 'processed',
                 ]);
+            } elseif ($raw !== null && $record->content_hash === null) {
+                // A record written before full records were kept: filled in place, not repeated.
+                $record->update(['raw_text' => $raw, 'content_hash' => $hash]);
             }
 
             if ($link) {

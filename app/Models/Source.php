@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasUuid;
 use App\Support\ExternalUrl;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,26 @@ class Source extends Model
             'last_success_at' => 'datetime',
             'reliability_score' => 'decimal:2',
         ];
+    }
+
+    /** Active feeds a schedule collects: every ICS feed, and the others marked "scheduled". */
+    public function scopeScheduled(Builder $query): void
+    {
+        $query->where('active', true)->where(fn (Builder $q) => $q->where('collector_type', 'ics')->orWhere('collector_config->scheduled', true));
+    }
+
+    /** How often a schedule collects this feed, in words, or null when nothing does. */
+    public function schedule(): ?string
+    {
+        if (! $this->active || ! $this->isFeed()) {
+            return null;
+        }
+
+        return match (true) {
+            $this->collector_type === 'ics' => 'every 30 minutes',
+            (bool) ($this->collector_config['scheduled'] ?? false) => 'every 6 hours',
+            default => null,
+        };
     }
 
     /** A source the app collects from; 'manual' sources (the imported directory, public submissions) are not feeds. */

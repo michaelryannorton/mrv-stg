@@ -37,8 +37,8 @@ final class MrvChecks
     /** Equivalent Open-Meteo calls one climate city-and-model pair costs (CLIMATE_EQUIV_CALLS_PER_PAIR in api/cron/climate_lib.php). */
     private const CLIMATE_CALLS_PER_PAIR = 480;
 
-    /** Collectors that ingest.* commands run; only ICS is scheduled, the other two are run by hand. */
-    private const INGESTED_COLLECTORS = ['ics', 'tribe_events', 'squarespace_events'];
+    /** Collectors that ingest.* commands run; ICS feeds and the feeds marked "scheduled" are collected by the scheduler. */
+    private const INGESTED_COLLECTORS = ['ics', 'tribe_events', 'squarespace_events', 'growthzone'];
 
     public function __construct(
         private readonly CarbonImmutable $now,
@@ -730,17 +730,17 @@ final class MrvChecks
         ];
     }
 
-    /** Active ICS sources whose last fetch failed. */
+    /** Scheduled sources (see Source::scheduled()) whose last fetch failed. */
     public function sourcesFailing(): array
     {
         $base = ['key' => 'sources_failing', 'label' => 'Calendar sources failing'];
-        $failing = Source::query()->where('collector_type', 'ics')->where('active', true)->whereNotNull('last_error')->count();
+        $failing = Source::scheduled()->whereNotNull('last_error')->count();
 
         return $base + [
             'status' => $failing > 0 ? 'warning' : 'healthy',
             'value' => $failing,
             'unit' => 'count',
-            'message' => $failing > 0 ? $failing.' active ICS '.($failing === 1 ? 'source failed' : 'sources failed').' on its last fetch' : null,
+            'message' => $failing > 0 ? $failing.' collected '.($failing === 1 ? 'source failed' : 'sources failed').' on its last fetch' : null,
         ];
     }
 

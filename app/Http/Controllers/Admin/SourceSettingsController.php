@@ -25,10 +25,14 @@ class SourceSettingsController extends Controller
             ->withCount(['eventSources as upcoming_count' => fn ($q) => $q->whereHas('event', fn ($q) => $q->upcoming())])
             ->orderBy('name')
             ->get()
+            // The feeds a schedule collects come first.
+            ->sortBy(fn (Source $source) => $source->schedule() === null ? 1 : 0)
+            ->values()
             ->map(fn (Source $source) => [
                 'id' => $source->id,
                 'name' => $source->name,
                 'collector_type' => $source->collector_type,
+                'schedule' => $source->schedule(),
                 // The host only: a feed address can carry a private token.
                 'feed_host' => parse_url((string) $source->feed_url, PHP_URL_HOST) ?: null,
                 'web_page' => $source->base_url,

@@ -24,9 +24,9 @@ class SquarespaceEventsCollector
     /**
      * @return list<array{external_id: string, title: string, description: ?string,
      *     start_at: Carbon, end_at: ?Carbon, all_day: bool, location: ?string, url: ?string,
-     *     timezone: string}>
+     *     timezone: string, raw: string}>
      */
-    public function fetch(string $feedUrl, int $windowDays = 180): array
+    public function fetch(string $feedUrl, int $windowDays = 180, ?FeedArchive $archive = null): array
     {
         $parts = parse_url($feedUrl);
         $origin = ($parts['scheme'] ?? 'https').'://'.($parts['host'] ?? '');
@@ -45,6 +45,7 @@ class SquarespaceEventsCollector
                 throw new RuntimeException("Squarespace events fetch failed with HTTP {$response->status()}");
             }
 
+            $archive?->add('page-'.$page, $response->body());
             $payload = $response->json();
 
             if (! is_array($payload) || ! array_key_exists('upcoming', $payload)) {
@@ -68,6 +69,7 @@ class SquarespaceEventsCollector
                 $newOnPage++;
 
                 if ($normalized['start_at']->lte($horizon)) {
+                    $normalized['raw'] = RawRecord::json($item);
                     $occurrences[] = $normalized;
                 }
             }

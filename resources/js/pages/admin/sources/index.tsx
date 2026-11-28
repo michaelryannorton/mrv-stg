@@ -10,6 +10,7 @@ interface Feed {
     id: number;
     name: string;
     collector_type: string;
+    schedule: string | null;
     feed_host: string | null;
     web_page: string | null;
     web_page_works_as_link: boolean;
@@ -18,7 +19,12 @@ interface Feed {
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Feeds', href: '/admin/sources' }];
 
-const KINDS: Record<string, string> = { ics: 'Calendar feed', tribe_events: 'WordPress events', squarespace_events: 'Squarespace events' };
+const KINDS: Record<string, string> = {
+    ics: 'Calendar feed',
+    tribe_events: 'WordPress events',
+    squarespace_events: 'Squarespace events',
+    growthzone: 'Chamber calendar',
+};
 
 function FeedRow({ feed }: { feed: Feed }) {
     const { data, setData, setDefaults, put, processing, errors, isDirty, recentlySuccessful } = useForm({ web_page: feed.web_page ?? '' });
@@ -35,7 +41,8 @@ function FeedRow({ feed }: { feed: Feed }) {
                 <p className="font-medium">{feed.name}</p>
                 <p className="text-muted-foreground text-sm">
                     {KINDS[feed.collector_type] ?? feed.collector_type}
-                    {feed.feed_host && ` from ${feed.feed_host}`} · {feed.upcoming_count} upcoming
+                    {feed.feed_host && ` from ${feed.feed_host}`} · {feed.upcoming_count} upcoming ·{' '}
+                    {feed.schedule ? `collected ${feed.schedule}` : 'not collected automatically'}
                 </p>
                 {!feed.web_page_works_as_link && (
                     <p className="text-sm text-amber-700 dark:text-amber-400">

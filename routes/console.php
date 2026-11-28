@@ -26,6 +26,11 @@ Schedule::command('ingest:ics')->cron(ScheduleMinutes::ingestCron(app()->environ
     ->onSuccess(StatusHealthController::heartbeat('ingest_ics'))
     ->onFailure(StatusHealthController::heartbeat('ingest_ics', failed: true));
 
+// The chambers, library and museum feeds (Michael, 2026-11-27), four times a day. A run that is still
+// going stops a second one; the lock is dropped after two hours if a run was killed. A feed that fails
+// records its error on the source, which sources_failing reports.
+Schedule::command('ingest:feeds')->cron(ScheduleMinutes::feedsCron(app()->environment()))->withoutOverlapping(120);
+
 // Once a day, at 08:07 Pacific (08:00 failed to start its process on 2026-11-22; see above) whatever the app's own time zone is, an email to the administrators if
 // public event submissions are waiting for review; nothing is sent when none are (Michael, 2026-11-20).
 Schedule::command('submissions:notify-pending')->dailyAt('08:07')->timezone('America/Los_Angeles')->withoutOverlapping();

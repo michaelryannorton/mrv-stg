@@ -14,12 +14,15 @@ use RuntimeException;
  */
 class TribeEventsCollector
 {
+    /** Safety cap; the largest feed seen needs about a dozen pages. */
+    private const MAX_PAGES = 100;
+
     /**
      * @return list<array{external_id: string, title: string, description: ?string,
      *     start_at: Carbon, end_at: ?Carbon, all_day: bool, location: ?string, url: ?string,
-     *     timezone: string}>
+     *     timezone: string, raw: string}>
      */
-    public function fetch(string $feedUrl, int $windowDays = 180): array
+    public function fetch(string $feedUrl, int $windowDays = 180, ?FeedArchive $archive = null): array
     {
         $startDate = now()->toDateString();
         $endDate = now()->addDays($windowDays)->toDateString();
@@ -27,6 +30,7 @@ class TribeEventsCollector
         $occurrences = [];
         $page = 1;
         $totalPages = 1;
+        $seen = [];
 
         do {
             $response = Http::timeout(20)->get($feedUrl, [
@@ -41,19 +45,26 @@ class TribeEventsCollector
                 throw new RuntimeException("Tribe Events fetch failed with HTTP {$response->status()}");
             }
 
+            $archive?->add('page-'.$page, $response->body());
             $payload = $response->json() ?? [];
+            $newOnPage = 0;
 
             foreach ($payload['events'] ?? [] as $event) {
                 $normalized = $this->normalize($event);
 
-                if ($normalized !== null) {
+                if ($normalized !== null && ! isset($seen[$normalized['external_id']])) {
+                    $seen[$normalized['external_id']] = true;
+                    $normalized['raw'] = RawRecord::json($event);
                     $occurrences[] = $normalized;
+                    $newOnPage++;
                 }
             }
 
             $totalPages = (int) ($payload['total_pages'] ?? 1);
             $page++;
-        } while ($page <= $totalPages);
+            // Some sites ignore the page number and answer every page with the same events
+            // (Hesperia parks, 2026-11-27: 147 pages of the same ten).
+        } while ($page <= min($totalPages, self::MAX_PAGES) && $newOnPage > 0);
 
         return $occurrences;
     }

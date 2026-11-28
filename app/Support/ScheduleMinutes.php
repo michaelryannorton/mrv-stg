@@ -14,4 +14,13 @@ final class ScheduleMinutes
     {
         return $environment === 'production' ? '12,42 * * * *' : '17,47 * * * *';
     }
+
+    /**
+     * The other scheduled feeds, four times a day, at minutes nothing else here uses: production at
+     * :27, every other environment at :52.
+     */
+    public static function feedsCron(string $environment): string
+    {
+        return ($environment === 'production' ? '27' : '52').' 1,7,13,19 * * *';
+    }
 }
