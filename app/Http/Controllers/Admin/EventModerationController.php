@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Audience;
 use App\Models\Event;
 use App\Support\ReviewQueue;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,6 +38,7 @@ class EventModerationController extends Controller
             'rows' => (new ReviewQueue)->rows($events, in_array($status, ['pending', 'past'], true) ? $this->approvedSeries() : []),
             'status' => $status,
             'counts' => collect(self::TABS)->mapWithKeys(fn (string $tab) => [$tab => $this->tab($tab)->count()]),
+            'audiences' => Audience::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -92,6 +94,39 @@ class EventModerationController extends Controller
         $count = $events->count();
 
         return back()->with('success', "{$count} ".Str::plural('event', $count)." {$verb}.");
+    }
+
+    /**
+     * Sets cost and audience on many dates at once (a whole series is one row). A field left out is
+     * not touched.
+     */
+    public function details(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:events,id',
+            'free' => 'nullable|in:yes,no,unknown',
+            'audience_ids' => 'nullable|array',
+            'audience_ids.*' => 'integer|exists:audiences,id',
+        ]);
+
+        $events = Event::whereIn('id', $data['ids'])->get();
+
+        foreach ($events as $event) {
+            if (($data['free'] ?? null) !== null) {
+                $free = ['yes' => true, 'no' => false, 'unknown' => null][$data['free']];
+                // A price that came with "not free" says nothing about the new choice.
+                $event->update(['is_free' => $free, ...($free === false ? [] : ['price_min' => null, 'price_max' => null])]);
+            }
+
+            if (! empty($data['audience_ids'])) {
+                $event->audiences()->sync($data['audience_ids']);
+            }
+        }
+
+        $count = $events->count();
+
+        return back()->with('success', "{$count} ".Str::plural('event', $count).' updated.');
     }
 
     private function approveEvent(Event $event): void

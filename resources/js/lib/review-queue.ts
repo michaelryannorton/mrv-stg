@@ -5,6 +5,11 @@ export interface QueueDate {
     timezone: string;
     all_day: boolean;
     place: string | null;
+    city: string | null;
+    online: boolean;
+    /** There are coordinates to put on a map. */
+    mapped: boolean;
+    is_free: boolean | null;
     /** Position in the row's descriptions. */
     description: number;
     access_scope: string;
@@ -19,6 +24,7 @@ export interface QueueRow {
     source: string | null;
     organizer: string | null;
     categories: { name: string; slug: string }[];
+    audiences: string[];
     tags: { name: string; slug: string }[];
     descriptions: (string | null)[];
     places_differ: boolean;
@@ -69,6 +75,39 @@ export function compareRows(a: QueueRow, b: QueueRow, key: SortKey): number {
         case 'source':
             return text(a.source).localeCompare(text(b.source));
     }
+}
+
+/** City filter values that are not city names. */
+export const ONLINE = 'online';
+export const NOT_MAPPED = 'not-mapped';
+
+export const rowCities = (row: QueueRow): string[] => Array.from(new Set(row.dates.flatMap((d) => (d.city ? [d.city] : []))));
+
+export function rowInCity(row: QueueRow, choice: string): boolean {
+    if (choice === ONLINE) return row.dates.some((d) => d.online);
+    if (choice === NOT_MAPPED) return row.dates.some((d) => !d.online && !d.mapped);
+
+    return row.dates.some((d) => d.city === choice);
+}
+
+/** What the row says about the map: nothing when every date can be shown on it. */
+export function mapNote(row: QueueRow): string | null {
+    if (row.dates.every((d) => d.online)) return 'Online';
+
+    const missing = row.dates.filter((d) => !d.online && !d.mapped).length;
+
+    if (missing === 0) return null;
+
+    return missing === row.dates.length ? 'No map point' : `${missing} without a map point`;
+}
+
+/** "Free" when every date is; "Free on some dates" otherwise. */
+export function freeNote(row: QueueRow): string | null {
+    const free = row.dates.filter((d) => d.is_free === true).length;
+
+    if (free === 0) return null;
+
+    return free === row.dates.length ? 'Free' : 'Free on some dates';
 }
 
 /** The rows that hold any of these dates, with how many, for the confirmation dialog. */

@@ -6,6 +6,8 @@ use App\Models\Event;
 use App\Models\EventSource;
 use App\Models\Source;
 use App\Models\SourceRecord;
+use App\Services\Places\FeedFacts;
+use App\Services\Places\PlaceAssigner;
 use App\Support\ExternalUrl;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -20,6 +22,8 @@ use Illuminate\Support\Str;
  */
 class EventIngestor
 {
+    public function __construct(private PlaceAssigner $places) {}
+
     /**
      * @param  list<array{external_id: string, title: string, description: ?string,
      *     start_at: Carbon, end_at: ?Carbon, all_day: bool, location: ?string,
@@ -61,7 +65,11 @@ class EventIngestor
 
             $rawChanged = $hash !== null && $record?->content_hash !== null && $record->content_hash !== $hash;
 
-            if ($rawChanged || ! PayloadComparison::same($record?->raw_payload, $payload)) {
+            // What the feed said before this run, for telling its own values from a person's.
+            $before = $record;
+            $isNewOrChanged = $rawChanged || ! PayloadComparison::same($record?->raw_payload, $payload);
+
+            if ($isNewOrChanged) {
                 $record = SourceRecord::create([
                     'source_id' => $source->id,
                     'external_id' => $item['external_id'],
@@ -108,6 +116,17 @@ class EventIngestor
 
                 $event->update($writableValues);
                 $link->update(['last_seen_at' => now(), 'source_record_id' => $record->id]);
+
+                // Only when the item changed: an unchanged one is left as it is, so nothing a person
+                // cleared comes back on the next run.
+                if ($isNewOrChanged && $raw !== null) {
+                    $this->places->apply(
+                        $event,
+                        FeedFacts::from($source->collector_type, $raw, $item['location']),
+                        $before?->raw_text === null ? null : FeedFacts::from($source->collector_type, $before->raw_text, $before->raw_payload['location'] ?? null),
+                    );
+                }
+
                 $updated++;
 
                 continue;
@@ -135,6 +154,10 @@ class EventIngestor
 
             $event->categories()->sync($defaultCategoryIds);
             $event->tags()->sync($defaultTagIds);
+
+            if ($raw !== null) {
+                $this->places->apply($event, FeedFacts::from($source->collector_type, $raw, $item['location']));
+            }
 
             EventSource::create([
                 'event_id' => $event->id,

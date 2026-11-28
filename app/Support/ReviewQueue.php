@@ -15,7 +15,8 @@ use Illuminate\Support\Collection;
 class ReviewQueue
 {
     public const RELATIONS = [
-        'venue:id,name,city',
+        'venue:id,name,city,latitude,longitude,venue_type',
+        'audiences:id,name',
         'organizer:id,name',
         'categories:id,name,slug',
         'tags:id,name,slug',
@@ -84,6 +85,10 @@ class ReviewQueue
                 'timezone' => $event->timezone,
                 'all_day' => $event->all_day,
                 'place' => PublicEventCard::place($event),
+                'city' => $event->venue?->city,
+                'online' => $event->venue?->venue_type === 'online',
+                'mapped' => ($event->latitude ?? $event->venue?->latitude) !== null,
+                'is_free' => $event->is_free,
                 'description' => $index,
                 'access_scope' => $event->access_scope,
                 'link' => PublicEventCard::link($event),
@@ -105,6 +110,7 @@ class ReviewQueue
             'source' => self::source($first)?->name,
             'organizer' => $first->organizer?->name,
             'categories' => $taxonomy('categories'),
+            'audiences' => $events->flatMap(fn (Event $event) => $event->audiences)->pluck('name')->unique()->sort()->values(),
             'tags' => $taxonomy('tags'),
             'descriptions' => $descriptions,
             'places_differ' => collect($dates)->pluck('place')->unique()->count() > 1,

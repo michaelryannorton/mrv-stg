@@ -8,7 +8,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { formatWhen } from '@/lib/event-formatting';
 import { matchesQuery } from '@/lib/queue-search';
-import { CONFIRM_ACCESS_SCOPES, compareRows, flaggedByTitle, rowIds, rowScope, rowText, type QueueRow, type SortKey } from '@/lib/review-queue';
+import {
+    compareRows,
+    CONFIRM_ACCESS_SCOPES,
+    flaggedByTitle,
+    freeNote,
+    mapNote,
+    NOT_MAPPED,
+    ONLINE,
+    rowCities,
+    rowIds,
+    rowInCity,
+    rowScope,
+    rowText,
+    type QueueRow,
+    type SortKey,
+} from '@/lib/review-queue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, ChevronRight } from 'lucide-react';
@@ -22,6 +37,7 @@ interface AdminEventsIndexProps {
     rows: QueueRow[];
     status: StatusTab;
     counts: Record<StatusTab, number>;
+    audiences: { id: number; name: string }[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Review queue', href: '/admin/events' }];
@@ -42,7 +58,7 @@ const EMPTY: Record<StatusTab, string> = {
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
-export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIndexProps) {
+export default function AdminEventsIndex({ rows, status, counts, audiences }: AdminEventsIndexProps) {
     const { flash } = usePage<SharedData>().props;
     // "Past" holds events still marked pending, so it offers the same actions as "Pending".
     const awaiting = status === 'pending' || status === 'past';
@@ -51,6 +67,8 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [sourceFilter, setSourceFilter] = useState('all');
     const [accessScopeFilter, setAccessScopeFilter] = useState('all');
+    const [cityFilter, setCityFilter] = useState('all');
+    const [settingDetails, setSettingDetails] = useState(false);
     const [sortKey, setSortKey] = useState<SortKey>('start_at');
     const [sortDir, setSortDir] = useState<SortDir>('asc');
     const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -72,16 +90,19 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
 
     const sourceOptions = useMemo(() => Array.from(new Set(rows.flatMap((r) => (r.source ? [r.source] : [])))).sort(), [rows]);
 
+    const cityOptions = useMemo(() => Array.from(new Set(rows.flatMap(rowCities))).sort(), [rows]);
+
     const shown = useMemo(() => {
         const filtered = rows.filter((r) => {
             if (categoryFilter !== 'all' && !r.categories.some((c) => c.slug === categoryFilter)) return false;
             if (sourceFilter !== 'all' && r.source !== sourceFilter) return false;
             if (accessScopeFilter !== 'all' && !r.dates.some((d) => d.access_scope === accessScopeFilter)) return false;
+            if (cityFilter !== 'all' && !rowInCity(r, cityFilter)) return false;
             return matchesQuery(rowText(r), search);
         });
 
         return filtered.sort((a, b) => (sortDir === 'asc' ? 1 : -1) * compareRows(a, b, sortKey));
-    }, [rows, search, categoryFilter, sourceFilter, accessScopeFilter, sortKey, sortDir]);
+    }, [rows, search, categoryFilter, sourceFilter, accessScopeFilter, cityFilter, sortKey, sortDir]);
 
     const visibleIds = useMemo(() => shown.flatMap(rowIds), [shown]);
     const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selected.has(id));
@@ -239,6 +260,22 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
                         </SelectContent>
                     </Select>
 
+                    <Select value={cityFilter} onValueChange={setCityFilter}>
+                        <SelectTrigger className="w-[180px]" aria-label="City">
+                            <SelectValue placeholder="All cities" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All cities</SelectItem>
+                            <SelectItem value={ONLINE}>Online</SelectItem>
+                            <SelectItem value={NOT_MAPPED}>No map point</SelectItem>
+                            {cityOptions.map((city) => (
+                                <SelectItem key={city} value={city}>
+                                    {city}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
                     <Select value={sourceFilter} onValueChange={setSourceFilter}>
                         <SelectTrigger className="w-[200px]">
                             <SelectValue placeholder="All sources" />
@@ -260,6 +297,9 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
                             {plural(selected.size, 'date')} in {plural(selectedRows, 'row')} selected
                         </span>
                         {actions(Array.from(selected), false)}
+                        <Button size="sm" variant="outline" onClick={() => setSettingDetails(true)}>
+                            Set free or audience
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                             Clear
                         </Button>
@@ -345,6 +385,12 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
                                                         {row.places_differ && <Badge variant="outline">Places differ</Badge>}
                                                         {row.descriptions_differ && <Badge variant="outline">Descriptions differ</Badge>}
                                                         <AccessScopeBadge accessScope={rowScope(row)} />
+                                                        {freeNote(row) && <Badge variant="outline">{freeNote(row)}</Badge>}
+                                                        {row.audiences.map((name) => (
+                                                            <Badge key={name} variant="outline">
+                                                                {name}
+                                                            </Badge>
+                                                        ))}
                                                         {row.dates.some((d) => d.stale) && (
                                                             <AlertTriangle
                                                                 className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400"
@@ -359,6 +405,7 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
                                                 </td>
                                                 <td className="text-muted-foreground px-3 py-2 align-top">
                                                     {row.places_differ ? 'Several places' : (first.place ?? '—')}
+                                                    {mapNote(row) && <div className="text-xs">{mapNote(row)}</div>}
                                                 </td>
                                                 <td className="text-muted-foreground px-3 py-2 align-top">{row.source ?? row.organizer ?? '—'}</td>
                                                 <td className="hidden px-3 py-2 align-top 2xl:table-cell">
@@ -403,6 +450,22 @@ export default function AdminEventsIndex({ rows, status, counts }: AdminEventsIn
                     </p>
                 )}
             </div>
+
+            <Dialog open={settingDetails} onOpenChange={setSettingDetails}>
+                <DialogContent>
+                    {settingDetails && (
+                        <DetailsBody
+                            ids={Array.from(selected)}
+                            audiences={audiences}
+                            onDone={() => {
+                                setSettingDetails(false);
+                                setSelected(new Set());
+                            }}
+                            onCancel={() => setSettingDetails(false)}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
 
             <Dialog open={pendingApproval !== null} onOpenChange={(isOpen) => !isOpen && setPendingApproval(null)}>
                 <DialogContent>
@@ -461,6 +524,68 @@ function RowDetail({ row, actions }: { row: QueueRow; actions: (id: number) => R
                 ))}
             </ul>
         </div>
+    );
+}
+
+/** Cost and audience for the selected dates. A choice left alone changes nothing. */
+function DetailsBody({
+    ids,
+    audiences,
+    onDone,
+    onCancel,
+}: {
+    ids: number[];
+    audiences: { id: number; name: string }[];
+    onDone: () => void;
+    onCancel: () => void;
+}) {
+    const [free, setFree] = useState('leave');
+    const [chosen, setChosen] = useState<number[]>([]);
+
+    function save() {
+        router.post(
+            route('admin.events.details'),
+            { ids, free: free === 'leave' ? null : free, audience_ids: chosen },
+            { preserveScroll: true, preserveState: true, onSuccess: onDone },
+        );
+    }
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>Set free or audience for {plural(ids.length, 'date')}</DialogTitle>
+                <DialogDescription>What you leave alone does not change. Ticked audiences replace the ones there now.</DialogDescription>
+            </DialogHeader>
+            <label className="flex items-center gap-2 text-sm">
+                Cost
+                <select value={free} onChange={(e) => setFree(e.target.value)} className="border-input bg-background rounded-md border px-2 py-1">
+                    <option value="leave">Leave as is</option>
+                    <option value="yes">Free</option>
+                    <option value="no">Not free</option>
+                    <option value="unknown">Not known</option>
+                </select>
+            </label>
+            <fieldset className="flex flex-wrap gap-3 text-sm">
+                <legend className="mb-1 font-medium">Audience</legend>
+                {audiences.map((audience) => (
+                    <label key={audience.id} className="flex items-center gap-1.5">
+                        <Checkbox
+                            checked={chosen.includes(audience.id)}
+                            onCheckedChange={(on) => setChosen((prev) => (on ? [...prev, audience.id] : prev.filter((id) => id !== audience.id)))}
+                        />
+                        {audience.name}
+                    </label>
+                ))}
+            </fieldset>
+            <DialogFooter>
+                <Button variant="outline" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button onClick={save} disabled={free === 'leave' && chosen.length === 0}>
+                    Save
+                </Button>
+            </DialogFooter>
+        </>
     );
 }
 

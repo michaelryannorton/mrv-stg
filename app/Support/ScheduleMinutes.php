@@ -23,4 +23,10 @@ final class ScheduleMinutes
     {
         return ($environment === 'production' ? '27' : '52').' 1,7,13,19 * * *';
     }
+
+    /** Looking up coordinates for new places: production at :18 and :48, elsewhere :23 and :53. */
+    public static function placesCron(string $environment): string
+    {
+        return $environment === 'production' ? '18,48 * * * *' : '23,53 * * * *';
+    }
 }

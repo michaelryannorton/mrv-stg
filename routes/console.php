@@ -31,6 +31,10 @@ Schedule::command('ingest:ics')->cron(ScheduleMinutes::ingestCron(app()->environ
 // records its error on the source, which sources_failing reports.
 Schedule::command('ingest:feeds')->cron(ScheduleMinutes::feedsCron(app()->environment()))->withoutOverlapping(120);
 
+// Coordinates for the places of newly collected events, a few minutes after the collectors. It asks the
+// geocoder only about addresses not asked before, so most runs make no request.
+Schedule::command('places:locate')->cron(ScheduleMinutes::placesCron(app()->environment()))->withoutOverlapping(30);
+
 // Once a day, at 08:07 Pacific (08:00 failed to start its process on 2026-11-22; see above) whatever the app's own time zone is, an email to the administrators if
 // public event submissions are waiting for review; nothing is sent when none are (Michael, 2026-11-20).
 Schedule::command('submissions:notify-pending')->dailyAt('08:07')->timezone('America/Los_Angeles')->withoutOverlapping();
