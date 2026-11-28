@@ -38,7 +38,9 @@ class EventController extends Controller
         $calendar = null;
 
         if ($view === 'list') {
+            // The list is what is coming: events that are over stay in the day, week and month views only.
             $events = $query
+                ->upcoming()
                 ->when($filters['when'] ?? null, function ($q, $when) {
                     // "Today"/"tonight"/"this weekend" mean the calendar day in the region's own
                     // timezone, not the server's. `start_at` is stored as a true UTC instant, so the
